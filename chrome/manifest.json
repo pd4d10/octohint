@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "name": "Github Intellisense",
+  "version": "0.0.1",
+  "description": "Github Intellisense",
+  "homepage_url": "https://github.com/pd4d10/github-intellisense",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://github.com/*"
+      ],
+      "js": [
+        "/contentscript.js"
+      ],
+      "run-at": "document_idle"
+    }
+  ]
+}
