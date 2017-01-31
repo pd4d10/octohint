@@ -1,3 +1,5 @@
+import typescript from 'typescript'
+
 function getPosition(e, $dom) {
   const rect = $dom.getBoundingClientRect()
   return {

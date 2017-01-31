@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "description": "Intellisense",
   "scripts": {
+    "start": "webpack -dw",
+    "build": "webpack --config webpack.config.production.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,5 +20,8 @@
   "homepage": "https://github.com/pd4d10/github-intellisense#readme",
   "dependencies": {
     "typescript": "^2.1.5"
+  },
+  "devDependencies": {
+    "webpack": "^2.2.1"
   }
 }

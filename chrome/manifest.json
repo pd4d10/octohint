@@ -10,7 +10,7 @@
         "https://github.com/*"
       ],
       "js": [
-        "/contentscript.js"
+        "bundle.js"
       ],
       "run-at": "document_idle"
     }
