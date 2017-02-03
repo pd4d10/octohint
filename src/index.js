@@ -1,9 +1,11 @@
 import ts from 'typescript'
+import './style.css'
 
 const w = 7.223
 const fileheadheight = 43
 const gutterwidth = 60
 const lineheight = 20
+const CLASS_NAME = 'github-intellisense'
 
 function getPosition(e, $dom) {
   const rect = $dom.getBoundingClientRect()
@@ -14,8 +16,8 @@ function getPosition(e, $dom) {
   }
 }
 
-function visit(source, pos) {
-}
+// function visit(source, pos) {
+// }
 
 function check(node, pos, cb) {
   if (node.pos <= pos && pos < node.end) {
@@ -34,11 +36,31 @@ function checkPromise(node, pos) {
   })
 }
 
-function draw(range, width) {
+// Clear all
+function clear() {
+  document.querySelectorAll(`.${CLASS_NAME}`).forEach($node => $node.remove())
+}
+
+function draw(range, width, className) {
   const $mask = document.createElement('div')
-  $mask.style = `position:absolute;width:${width * w}px;height:20px;top:${range.line * 20 + fileheadheight}px;left:${range.character * w + gutterwidth}px;background:rgba(0,0,255,0.3)`
-  const $container = document.querySelector('.blob-wrapper')
+
+  // Set style
+  $mask.className = `${CLASS_NAME} ${className}`
+  $mask.style.width = `${width * w}px`
+  $mask.style.top = `${range.line * 20 + fileheadheight}px`
+  $mask.style.left = `${range.character * w + gutterwidth}px`
+
+  // Append
+  const $container = document.querySelector('.file')
   $container.appendChild($mask)
+}
+
+function drawDefinition(range, width) {
+  return draw(range, width, 'github-intellisense-definition')
+}
+
+function drawUsage(range, width) {
+  return draw(range, width, 'github-intellisense-usage')
 }
 
 function main() {
@@ -59,7 +81,7 @@ function main() {
     const range = source.getLineAndCharacterOfPosition(identifier.pos)
     console.log(range)
     const width = identifier.end - identifier.pos
-    draw(range, width)
+    drawUsage(range, width)
   })
 }
 
