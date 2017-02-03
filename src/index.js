@@ -75,6 +75,13 @@ function main() {
   const lastIdentifier = null
 
   $dom.addEventListener('click', async function (e) {
+    // Exclude click event triggered by selecting text
+    // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
+    if (window.getSelection().toString()) {
+      clear()
+      return
+    }
+
     const position = getPosition(e, $dom)
     const pos = source.getPositionOfLineAndCharacter(position.y, position.x)
     const identifier = await checkPromise(source, pos)
