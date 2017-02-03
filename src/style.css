@@ -1,12 +1,16 @@
+.blob-wrapper {
+  background: transparent;
+}
+
 .github-intellisense {
   position: absolute;
   height: 20px;
 }
 
 .github-intellisense-definition {
-  background: rgba(0, 0, 255, 0.3);
+  background: rgba(14,99,156,.25);
 }
 
 .github-intellisense-usage {
-  background: rgba(255, 0, 0, 0.3);
+  background: rgba(173,214,255,.3);
 }

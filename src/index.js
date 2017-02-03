@@ -51,7 +51,7 @@ function draw(range, width, className) {
   $mask.style.left = `${range.character * w + gutterwidth}px`
 
   // Append
-  const $container = document.querySelector('.file')
+  const $container = document.querySelector('.file-header')
   $container.appendChild($mask)
 }
 
@@ -72,14 +72,21 @@ function main() {
   const code = $dom.innerText
   const source = ts.createSourceFile('index.js', code)
 
+  const lastIdentifier = null
+
   $dom.addEventListener('click', async function (e) {
     const position = getPosition(e, $dom)
     const pos = source.getPositionOfLineAndCharacter(position.y, position.x)
-    // console.log(source)
     const identifier = await checkPromise(source, pos)
-    // console.log(pos)
+
+    // If identifier is the same as last one, do nothing
+    if (identifier === lastIdentifier) {
+      return
+    }
+
+    clear()
+
     const range = source.getLineAndCharacterOfPosition(identifier.pos)
-    console.log(range)
     const width = identifier.end - identifier.pos
     drawUsage(range, width)
   })
