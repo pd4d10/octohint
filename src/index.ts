@@ -7,7 +7,7 @@ const gutterwidth = 60
 const lineheight = 20
 const CLASS_NAME = 'github-intellisense'
 
-function getPosition(e, $dom) {
+function getPosition(e: MouseEvent, $dom: HTMLElement) {
   const rect = $dom.getBoundingClientRect()
   // console.log(e.clientX, e.clientY, rect)
   return {
@@ -19,7 +19,7 @@ function getPosition(e, $dom) {
 // function visit(source, pos) {
 // }
 
-function check(node, pos, cb) {
+function check(node: any, pos: number, cb: any) {
   if (node.pos <= pos && pos < node.end) {
     console.log(node)
     if (node.kind === ts.SyntaxKind.Identifier) {
@@ -30,7 +30,7 @@ function check(node, pos, cb) {
   }
 }
 
-function checkPromise(node, pos) {
+function checkPromise(node: any, pos: number) {
   return new Promise(resolve => {
     check(node, pos, resolve)
   })
@@ -38,10 +38,10 @@ function checkPromise(node, pos) {
 
 // Clear all
 function clear() {
-  document.querySelectorAll(`.${CLASS_NAME}`).forEach($node => $node.remove())
+  document.querySelectorAll(`.${CLASS_NAME}`).forEach(($node: HTMLElement) => $node.remove())
 }
 
-function draw(range, width, className) {
+function draw(range: any, width: number, className: string) {
   const $mask = document.createElement('div')
 
   // Set style
@@ -55,12 +55,20 @@ function draw(range, width, className) {
   $container.appendChild($mask)
 }
 
-function drawDefinition(range, width) {
+function drawDefinition(range: any, width: number) {
   return draw(range, width, 'github-intellisense-definition')
 }
 
-function drawUsage(range, width) {
+function drawUsage(range: any, width: number) {
   return draw(range, width, 'github-intellisense-usage')
+}
+
+function getCode(): string {
+  const $dom = document.querySelector('table')
+  if (!$dom) {
+    return
+  }
+  return $dom.innerText
 }
 
 function main() {
@@ -70,9 +78,9 @@ function main() {
   }
 
   const code = $dom.innerText
-  const source = ts.createSourceFile('index.js', code)
+  const source = ts.createSourceFile('index.js', code, ts.ScriptTarget.ES5)
 
-  const lastIdentifier = null
+  const lastIdentifier: any = null
 
   $dom.addEventListener('click', async function (e) {
     // If meta key is pressed, go to definition
@@ -98,9 +106,9 @@ function main() {
 
     clear()
 
-    const range = source.getLineAndCharacterOfPosition(identifier.pos)
-    const width = identifier.end - identifier.pos
-    drawUsage(range, width)
+    // const range = source.getLineAndCharacterOfPosition(identifier.pos)
+    // const width = identifier.end - identifier.pos
+    // drawUsage(range, width)
   })
 }
 
