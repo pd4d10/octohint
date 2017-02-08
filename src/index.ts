@@ -1,4 +1,4 @@
-import ts from 'typescript'
+import * as ts from 'typescript'
 import './style.css'
 
 const w = 7.223
@@ -22,7 +22,7 @@ function getPosition(e, $dom) {
 function check(node, pos, cb) {
   if (node.pos <= pos && pos < node.end) {
     console.log(node)
-    if (node.kind === 70) {
+    if (node.kind === ts.SyntaxKind.Identifier) {
       return cb(node)
     }
 
@@ -75,6 +75,11 @@ function main() {
   const lastIdentifier = null
 
   $dom.addEventListener('click', async function (e) {
+    // If meta key is pressed, go to definition
+    if (e.metaKey) {
+      return
+    }
+
     // Exclude click event triggered by selecting text
     // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
     if (window.getSelection().toString()) {
