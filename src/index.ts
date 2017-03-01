@@ -6,6 +6,7 @@ const fileheadheight = 43
 const gutterwidth = 60
 const lineheight = 20
 const CLASS_NAME = 'github-intellisense'
+const FILE_NAME = 'test.js'
 
 function getPosition(e: MouseEvent, $dom: HTMLElement) {
   const rect = $dom.getBoundingClientRect()
@@ -78,7 +79,22 @@ function main() {
   }
 
   const code = $dom.innerText
-  const source = ts.createSourceFile('index.js', code, ts.ScriptTarget.ES5)
+  const snapshot = ts.ScriptSnapshot.fromString(code)
+  // const source = ts.createSourceFile('index.js', code, ts.ScriptTarget.ES5)
+
+  // https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
+  // Create the language service host to allow the LS to communicate with the host
+  const servicesHost: ts.LanguageServiceHost = {
+    getScriptFileNames: () => [FILE_NAME],
+    getScriptVersion: () => '0',
+    getScriptSnapshot: () => snapshot,
+    getCurrentDirectory: () => './',
+    getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS }),
+    getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
+  };
+
+  // Create the language service files
+  const services = ts.createLanguageService(servicesHost, ts.createDocumentRegistry())
 
   const lastIdentifier: any = null
 
@@ -96,15 +112,17 @@ function main() {
     }
 
     const position = getPosition(e, $dom)
-    const pos = source.getPositionOfLineAndCharacter(position.y, position.x)
-    const identifier = await checkPromise(source, pos)
+    console.log(services.getQuickInfoAtPosition(FILE_NAME, 10))
+    // console.log(servicesHost.getScriptFileNames())
+    // const pos = source.getPositionOfLineAndCharacter(position.y, position.x)
+    // const identifier = await checkPromise(source, pos)
 
-    // If identifier is the same as last one, do nothing
-    if (identifier === lastIdentifier) {
-      return
-    }
+    // // If identifier is the same as last one, do nothing
+    // if (identifier === lastIdentifier) {
+    //   return
+    // }
 
-    clear()
+    // clear()
 
     // const range = source.getLineAndCharacterOfPosition(identifier.pos)
     // const width = identifier.end - identifier.pos
