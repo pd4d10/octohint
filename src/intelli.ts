@@ -63,7 +63,7 @@ export function main() {
     getCurrentDirectory: () => '/',
     getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS }),
     getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
-  };
+  }
 
   // Create the language service files
   const services: ts.LanguageService = ts.createLanguageService(servicesHost, ts.createDocumentRegistry())
