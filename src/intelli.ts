@@ -17,32 +17,13 @@ function getPosition(e: MouseEvent, $dom: HTMLElement) {
   }
 }
 
-// function visit(source, pos) {
-// }
-
-function check(node: any, pos: number, cb: any) {
-  if (node.pos <= pos && pos < node.end) {
-    console.log(node)
-    if (node.kind === ts.SyntaxKind.Identifier) {
-      return cb(node)
-    }
-
-    ts.forEachChild(node, n => check(n, pos, cb))
-  }
-}
-
-function checkPromise(node: any, pos: number) {
-  return new Promise(resolve => {
-    check(node, pos, resolve)
-  })
-}
-
 // Clear all
 function clear() {
   document.querySelectorAll(`.${CLASS_NAME}`).forEach(($node: HTMLElement) => $node.remove())
 }
 
-function draw(range: any, width: number, className: string) {
+// TODO Fix overflow when length is large
+function draw(range: ts.LineAndCharacter, width: number, className: string) {
   const $mask = document.createElement('div')
 
   // Set style
@@ -56,11 +37,11 @@ function draw(range: any, width: number, className: string) {
   $container.appendChild($mask)
 }
 
-function drawDefinition(range: any, width: number) {
+function drawDefinition(range: ts.LineAndCharacter, width: number) {
   return draw(range, width, 'intelli-github-definition')
 }
 
-function drawUsage(range: any, width: number) {
+function drawUsage(range: ts.LineAndCharacter, width: number) {
   return draw(range, width, 'intelli-github-usage')
 }
 
@@ -70,12 +51,14 @@ export function main() {
     return
   }
 
-  const code = $dom.innerText.replace(/\t/g, '        ')
+  // HACK
+  // Replace tab with 8 space, GitHub's tab size
+  const code: string = $dom.innerText.replace(/\t/g, '        ')
 
   // https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
   const servicesHost: ts.LanguageServiceHost = {
     getScriptFileNames: () => [FILE_NAME],
-    getScriptVersion: () => '0',
+    getScriptVersion: () => '0', // Version matters not here since no file change
     getScriptSnapshot: () => ts.ScriptSnapshot.fromString(code),
     getCurrentDirectory: () => '/',
     getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS }),
@@ -87,33 +70,38 @@ export function main() {
   const program: ts.Program = services.getProgram()
   const source: ts.SourceFile = program.getSourceFile(FILE_NAME)
 
-  // const lastIdentifier: any = null
+  $dom.addEventListener('click', function (e) {
+    clear()
 
-  $dom.addEventListener('click', async function (e) {
-    // If meta key is pressed, go to definition
-    if (e.metaKey) {
-      return
+    const position = getPosition(e, $dom)
+    const pos: number = source.getPositionOfLineAndCharacter(position.y, position.x)
+
+    const infos: ts.DefinitionInfo[] = services.getDefinitionAtPosition(FILE_NAME, pos)
+    if (infos) {
+      const info = infos[0]
+      console.log(info)
+      const range: ts.LineAndCharacter = source.getLineAndCharacterOfPosition(info.textSpan.start)
+
+      // If meta key is pressed, go to definition
+      if (e.metaKey) {
+        window.location.hash = `#L${range.line + 1}`
+      }
+
+      drawDefinition(range, info.textSpan.length)
     }
 
     // Exclude click event triggered by selecting text
     // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
-    if (window.getSelection().toString()) {
-      clear()
-      return
-    }
+    // if (window.getSelection().toString()) {
+    //   return
+    // }
 
-    const position = getPosition(e, $dom)
-    // console.log(services.getOccurrencesAtPosition(FILE_NAME, position))
-    // console.log(servicesHost.getScriptFileNames())
-    const pos: number = source.getPositionOfLineAndCharacter(position.y, position.x)
     const occurrences: ts.ReferenceEntry[] = services.getOccurrencesAtPosition(FILE_NAME, pos)
-
-    clear()
-
-    occurrences && occurrences.forEach(occurrence => {
-      console.log(occurrence.textSpan)
-      const range: ts.LineAndCharacter = source.getLineAndCharacterOfPosition(occurrence.textSpan.start)
-      drawUsage(range, occurrence.textSpan.length)
-    })
+    if (occurrences) {
+      occurrences.forEach(occurrence => {
+        const range: ts.LineAndCharacter = source.getLineAndCharacterOfPosition(occurrence.textSpan.start)
+        drawUsage(range, occurrence.textSpan.length)
+      })
+    }
   })
 }
