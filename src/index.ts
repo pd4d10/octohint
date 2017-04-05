@@ -5,7 +5,7 @@ const w = 7.223
 const fileheadheight = 43
 const gutterwidth = 60
 const lineheight = 20
-const CLASS_NAME = 'github-intellisense'
+const CLASS_NAME = 'intelli-github'
 const FILE_NAME = 'test.js'
 
 function getPosition(e: MouseEvent, $dom: HTMLElement) {
@@ -57,11 +57,11 @@ function draw(range: any, width: number, className: string) {
 }
 
 function drawDefinition(range: any, width: number) {
-  return draw(range, width, 'github-intellisense-definition')
+  return draw(range, width, 'intelli-github-definition')
 }
 
 function drawUsage(range: any, width: number) {
-  return draw(range, width, 'github-intellisense-usage')
+  return draw(range, width, 'intelli-github-usage')
 }
 
 function getCode(): string {

@@ -1,7 +1,8 @@
 {
-  "name": "github-intellisense",
+  "name": "intelli-github",
+  "private": true,
   "version": "0.0.1",
-  "description": "Intellisense",
+  "description": "GitHub",
   "scripts": {
     "start": "webpack -dw",
     "build": "webpack --config webpack.config.production.js",
@@ -9,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pd4d10/github-intellisense.git"
+    "url": "git+https://github.com/pd4d10/intelli-github.git"
   },
   "keywords": [],
   "author": "pd4d10 <pd4d10@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pd4d10/github-intellisense/issues"
+    "url": "https://github.com/pd4d10/intelli-github/issues"
   },
-  "homepage": "https://github.com/pd4d10/github-intellisense#readme",
+  "homepage": "https://github.com/pd4d10/intelli-github",
   "dependencies": {
     "typescript": "^2.1.5"
   },

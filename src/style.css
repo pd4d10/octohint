@@ -2,15 +2,15 @@
   background: transparent;
 }
 
-.github-intellisense {
+.intelli-github {
   position: absolute;
   height: 20px;
 }
 
-.github-intellisense-definition {
+.intelli-github-definition {
   background: rgba(14,99,156,.25);
 }
 
-.github-intellisense-usage {
+.intelli-github-usage {
   background: rgba(173,214,255,.3);
 }

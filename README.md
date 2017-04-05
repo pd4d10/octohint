@@ -1,1 +1,1 @@
-# github-intellisense
+# Intelli GitHub
