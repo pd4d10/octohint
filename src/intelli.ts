@@ -47,6 +47,7 @@ interface DrawData {
 }
 
 // TODO: Fix overflow when length is large
+// TODO: Fix position when horizontal scroll
 function draw(datas: DrawData[], className: string) {
   const $c = <HTMLElement>document.querySelector(`.${CLASS_NAME}`)
 
