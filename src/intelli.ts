@@ -1,11 +1,18 @@
 import * as ts from 'typescript'
 import './style.css'
 
-// TODO: Calculate width for different fonts
-const FONT_WIDTH = 7.223
-const FILE_HEAD_HEIGHT = 43
-const GUTTER_WIDTH = 60
-const LINE_HEIGHT = 20
+const $dom = document.querySelector('table')
+const testDOM = $dom.querySelector('span')
+
+// https://github.com/Microsoft/TypeScript/issues/3263#issuecomment-105292587
+const fileHeader = <HTMLElement>document.querySelector('.file-header')
+const firstLineGutter = <HTMLElement>document.querySelector('#L1')
+const firstLine = <HTMLElement>document.querySelector('#LC1')
+
+const FONT_WIDTH = testDOM.offsetWidth / testDOM.innerText.length
+const FILE_HEAD_HEIGHT = fileHeader.offsetHeight
+const GUTTER_WIDTH = firstLineGutter.offsetWidth + parseInt(getComputedStyle(firstLine).paddingLeft, 10)
+const LINE_HEIGHT = firstLine.offsetHeight
 const CLASS_NAME = 'intelli-github'
 const CLASS_NAME_DEFINITION = `${CLASS_NAME}-definition`
 const CLASS_NAME_USAGE = `${CLASS_NAME}-usage`
@@ -39,8 +46,7 @@ function draw(range: ts.LineAndCharacter, width: number, className: string) {
   $mask.style.left = `${range.character * FONT_WIDTH + GUTTER_WIDTH}px`
 
   // Append
-  const $container = document.querySelector('.file-header')
-  $container.appendChild($mask)
+  fileHeader.appendChild($mask)
 }
 
 function drawDefinition(range: ts.LineAndCharacter, width: number) {
@@ -52,7 +58,6 @@ function drawUsage(range: ts.LineAndCharacter, width: number) {
 }
 
 export function main() {
-  const $dom = document.querySelector('table')
   if (!$dom) {
     return
   }
