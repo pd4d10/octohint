@@ -87,9 +87,9 @@ export function main() {
     const pos: number = source.getPositionOfLineAndCharacter(position.y, position.x)
 
     const infos: ts.DefinitionInfo[] = services.getDefinitionAtPosition(FILE_NAME, pos)
-    if (infos) {
+    console.log(infos)
+    if (infos && infos.length) {
       const info = infos[0]
-      console.log(info)
       const range: ts.LineAndCharacter = source.getLineAndCharacterOfPosition(info.textSpan.start)
 
       // If meta key is pressed, go to definition
