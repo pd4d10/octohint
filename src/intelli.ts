@@ -39,26 +39,37 @@ function clear() {
   })
 }
 
+interface DrawData {
+   range: ts.LineAndCharacter,
+   width: number
+}
+
 // TODO: Fix overflow when length is large
-function draw(range: ts.LineAndCharacter, width: number, className: string) {
-  const $mask = document.createElement('div')
+function draw(datas: DrawData[], className: string) {
+  const $container = document.createElement('div')
 
-  // Set style
-  $mask.className = `${CLASS_NAME} ${className}`
-  $mask.style.width = `${width * FONT_WIDTH}px`
-  $mask.style.top = `${range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`
-  $mask.style.left = `${range.character * FONT_WIDTH + GUTTER_WIDTH}px`
+  datas.forEach(data => {
+    const $mask = document.createElement('div')
 
-  // Append
-  $header.appendChild($mask)
+    // Set style
+    $mask.className = `${CLASS_NAME} ${className}`
+    $mask.style.width = `${data.width * FONT_WIDTH}px`
+    $mask.style.top = `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`
+    $mask.style.left = `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`
+
+    $container.appendChild($mask)
+  })
+
+  // Append to webpage
+  $header.appendChild($container)
 }
 
-function drawDefinition(range: ts.LineAndCharacter, width: number) {
-  return draw(range, width, CLASS_NAME_DEFINITION)
+function drawDefinition(data: DrawData[]) {
+  return draw(data, CLASS_NAME_DEFINITION)
 }
 
-function drawUsage(range: ts.LineAndCharacter, width: number) {
-  return draw(range, width, CLASS_NAME_USAGE)
+function drawUsage(data: DrawData[]) {
+  return draw(data, CLASS_NAME_USAGE)
 }
 
 export function main() {
@@ -110,10 +121,11 @@ export function main() {
 
     const occurrences: ts.ReferenceEntry[] = services.getOccurrencesAtPosition(FILE_NAME, pos)
     if (occurrences) {
-      occurrences.forEach(occurrence => {
-        const range: ts.LineAndCharacter = source.getLineAndCharacterOfPosition(occurrence.textSpan.start)
-        drawUsage(range, occurrence.textSpan.length)
-      })
+      const data = occurrences.map(occurrence => ({
+        range: source.getLineAndCharacterOfPosition(occurrence.textSpan.start),
+        width: occurrence.textSpan.length
+      }))
+      drawUsage(data)
     }
   })
 }
