@@ -1,36 +1,42 @@
 import * as ts from 'typescript'
 import './style.css'
 
-const w = 7.223
-const fileheadheight = 43
-const gutterwidth = 60
-const lineheight = 20
+// TODO: Calculate width for different fonts
+const FONT_WIDTH = 7.223
+const FILE_HEAD_HEIGHT = 43
+const GUTTER_WIDTH = 60
+const LINE_HEIGHT = 20
 const CLASS_NAME = 'intelli-github'
+const CLASS_NAME_DEFINITION = `${CLASS_NAME}-definition`
+const CLASS_NAME_USAGE = `${CLASS_NAME}-usage`
 const FILE_NAME = 'test.ts'
 
 function getPosition(e: MouseEvent, $dom: HTMLElement) {
   const rect = $dom.getBoundingClientRect()
   // console.log(e.clientX, e.clientY, rect)
   return {
-    x: Math.floor((e.clientX - rect.left - gutterwidth) / w),
-    y: Math.floor((e.clientY - rect.top) / lineheight)
+    x: Math.floor((e.clientX - rect.left - GUTTER_WIDTH) / FONT_WIDTH),
+    y: Math.floor((e.clientY - rect.top) / LINE_HEIGHT)
   }
 }
 
 // Clear all
 function clear() {
-  document.querySelectorAll(`.${CLASS_NAME}`).forEach(($node: HTMLElement) => $node.remove())
+  const doms = document.querySelectorAll(`.${CLASS_NAME}`)
+  ; [].forEach.call(doms, ($node: HTMLElement) => {
+    $node.remove()
+  })
 }
 
-// TODO Fix overflow when length is large
+// TODO: Fix overflow when length is large
 function draw(range: ts.LineAndCharacter, width: number, className: string) {
   const $mask = document.createElement('div')
 
   // Set style
   $mask.className = `${CLASS_NAME} ${className}`
-  $mask.style.width = `${width * w}px`
-  $mask.style.top = `${range.line * 20 + fileheadheight}px`
-  $mask.style.left = `${range.character * w + gutterwidth}px`
+  $mask.style.width = `${width * FONT_WIDTH}px`
+  $mask.style.top = `${range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`
+  $mask.style.left = `${range.character * FONT_WIDTH + GUTTER_WIDTH}px`
 
   // Append
   const $container = document.querySelector('.file-header')
@@ -38,11 +44,11 @@ function draw(range: ts.LineAndCharacter, width: number, className: string) {
 }
 
 function drawDefinition(range: ts.LineAndCharacter, width: number) {
-  return draw(range, width, 'intelli-github-definition')
+  return draw(range, width, CLASS_NAME_DEFINITION)
 }
 
 function drawUsage(range: ts.LineAndCharacter, width: number) {
-  return draw(range, width, 'intelli-github-usage')
+  return draw(range, width, CLASS_NAME_USAGE)
 }
 
 export function main() {
@@ -51,8 +57,7 @@ export function main() {
     return
   }
 
-  // HACK
-  // Replace tab with 8 space, GitHub's tab size
+  // FIXME: Replace tab with 8 space, GitHub's tab size
   const code: string = $dom.innerText.replace(/\t/g, '        ')
 
   // https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
@@ -90,7 +95,7 @@ export function main() {
       drawDefinition(range, info.textSpan.length)
     }
 
-    // Exclude click event triggered by selecting text
+    // TODO: Exclude click event triggered by selecting text
     // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
     // if (window.getSelection().toString()) {
     //   return
