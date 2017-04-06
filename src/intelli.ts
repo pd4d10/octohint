@@ -1,18 +1,22 @@
 import * as ts from 'typescript'
 import './style.css'
 
-const $dom = document.querySelector('table')
-const testDOM = $dom.querySelector('span')
-
+// Add <HTMLElement> to get properties like `offsetWidth`
 // https://github.com/Microsoft/TypeScript/issues/3263#issuecomment-105292587
-const fileHeader = <HTMLElement>document.querySelector('.file-header')
-const firstLineGutter = <HTMLElement>document.querySelector('#L1')
-const firstLine = <HTMLElement>document.querySelector('#LC1')
+const $content = <HTMLElement>document.querySelector('.file')
 
-const FONT_WIDTH = testDOM.offsetWidth / testDOM.innerText.length
-const FILE_HEAD_HEIGHT = fileHeader.offsetHeight
-const GUTTER_WIDTH = firstLineGutter.offsetWidth + parseInt(getComputedStyle(firstLine).paddingLeft, 10)
-const LINE_HEIGHT = firstLine.offsetHeight
+const $header = <HTMLElement>$content.querySelector('.file-header')
+const $table = $content.querySelector('table')
+
+const $test = $table.querySelector('span')
+
+const $firstLineGutter = <HTMLElement>$table.querySelector('#L1')
+const $firstLine = <HTMLElement>$table.querySelector('#LC1')
+
+const FONT_WIDTH = $test.offsetWidth / $test.innerText.length
+const FILE_HEAD_HEIGHT = $header.offsetHeight
+const GUTTER_WIDTH = $firstLineGutter.offsetWidth + parseInt(getComputedStyle($firstLine).paddingLeft, 10)
+const LINE_HEIGHT = $firstLine.offsetHeight
 const CLASS_NAME = 'intelli-github'
 const CLASS_NAME_DEFINITION = `${CLASS_NAME}-definition`
 const CLASS_NAME_USAGE = `${CLASS_NAME}-usage`
@@ -46,7 +50,7 @@ function draw(range: ts.LineAndCharacter, width: number, className: string) {
   $mask.style.left = `${range.character * FONT_WIDTH + GUTTER_WIDTH}px`
 
   // Append
-  fileHeader.appendChild($mask)
+  $header.appendChild($mask)
 }
 
 function drawDefinition(range: ts.LineAndCharacter, width: number) {
@@ -58,12 +62,12 @@ function drawUsage(range: ts.LineAndCharacter, width: number) {
 }
 
 export function main() {
-  if (!$dom) {
+  if (!$table) {
     return
   }
 
   // FIXME: Replace tab with 8 space, GitHub's tab size
-  const code: string = $dom.innerText.replace(/\t/g, '        ')
+  const code: string = $table.innerText.replace(/\t/g, '        ')
 
   // https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
   const servicesHost: ts.LanguageServiceHost = {
@@ -80,10 +84,10 @@ export function main() {
   const program: ts.Program = services.getProgram()
   const source: ts.SourceFile = program.getSourceFile(FILE_NAME)
 
-  $dom.addEventListener('click', function (e) {
+  $table.addEventListener('click', function (e) {
     clear()
 
-    const position = getPosition(e, $dom)
+    const position = getPosition(e, $table)
     const pos: number = source.getPositionOfLineAndCharacter(position.y, position.x)
 
     const infos: ts.DefinitionInfo[] = services.getDefinitionAtPosition(FILE_NAME, pos)
@@ -96,8 +100,6 @@ export function main() {
       if (e.metaKey) {
         window.location.hash = `#L${range.line + 1}`
       }
-
-      drawDefinition(range, info.textSpan.length)
     }
 
     // TODO: Exclude click event triggered by selecting text
