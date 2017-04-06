@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/pd4d10/intelli-github",
   "dependencies": {
+    "github-injection": "^0.3.0",
     "typescript": "^2.1.5"
   },
   "devDependencies": {

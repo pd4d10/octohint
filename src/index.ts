@@ -1,6 +1,13 @@
+// FIXME: Add types
+// import gitHubInjection from 'github-injection'
+declare var require: any
+const gitHubInjection = require('github-injection')
 import { main } from './intelli'
 
-main()
+gitHubInjection(window, (err: Error) => {
+  if (err) throw err
+  main()
+})
 
 // TODO: Add a button to turn off
 // TODO: Multi language support

@@ -1087,6 +1087,10 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
+github-injection@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/github-injection/-/github-injection-0.3.0.tgz#04382fb4b820f0e38effb6644b47461693504a9f"
+
 glob-base@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/glob-base/-/glob-base-0.3.0.tgz#dbb164f6221b1c0b1ccf82aea328b497df0ea3c4"
