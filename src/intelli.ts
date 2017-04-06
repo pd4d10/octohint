@@ -97,7 +97,9 @@ export function main() {
   const servicesHost: ts.LanguageServiceHost = {
     getScriptFileNames: () => [FILE_NAME],
     getScriptVersion: () => '0', // Version matters not here since no file change
-    getScriptSnapshot: () => ts.ScriptSnapshot.fromString(code),
+    getScriptSnapshot: (fileName) => {
+      return fileName === FILE_NAME ? ts.ScriptSnapshot.fromString(code) : undefined
+    },
     getCurrentDirectory: () => '/',
     getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS }),
     getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
