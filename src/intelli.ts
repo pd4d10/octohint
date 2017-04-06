@@ -17,7 +17,9 @@ const FONT_WIDTH = $test.offsetWidth / $test.innerText.length
 const FILE_HEAD_HEIGHT = $header.offsetHeight
 const GUTTER_WIDTH = $firstLineGutter.offsetWidth + parseInt(getComputedStyle($firstLine).paddingLeft, 10)
 const LINE_HEIGHT = $firstLine.offsetHeight
+
 const CLASS_NAME = 'intelli-github'
+const CLASS_NAME_ITEM = `${CLASS_NAME}-item`
 const CLASS_NAME_DEFINITION = `${CLASS_NAME}-definition`
 const CLASS_NAME_USAGE = `${CLASS_NAME}-usage`
 const FILE_NAME = 'test.ts'
@@ -31,12 +33,12 @@ function getPosition(e: MouseEvent, $dom: HTMLElement) {
   }
 }
 
-// Clear all
+// Clear all item
 function clear() {
-  const doms = document.querySelectorAll(`.${CLASS_NAME}`)
-  ; [].forEach.call(doms, ($node: HTMLElement) => {
-    $node.remove()
-  })
+  const $container = <HTMLElement>document.querySelector(`.${CLASS_NAME}`)
+  if ($container) {
+    $container.innerHTML = ''
+  }
 }
 
 interface DrawData {
@@ -46,13 +48,21 @@ interface DrawData {
 
 // TODO: Fix overflow when length is large
 function draw(datas: DrawData[], className: string) {
-  const $container = document.createElement('div')
+  const $c = <HTMLElement>document.querySelector(`.${CLASS_NAME}`)
+
+  let $container: HTMLElement
+  if ($c) {
+    $container = $c
+  } else {
+    $container = document.createElement('div')
+    $container.className = CLASS_NAME
+  }
 
   datas.forEach(data => {
     const $mask = document.createElement('div')
 
     // Set style
-    $mask.className = `${CLASS_NAME} ${className}`
+    $mask.className = `${CLASS_NAME_ITEM} ${className}`
     $mask.style.width = `${data.width * FONT_WIDTH}px`
     $mask.style.top = `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`
     $mask.style.left = `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`
@@ -61,7 +71,9 @@ function draw(datas: DrawData[], className: string) {
   })
 
   // Append to webpage
-  $header.appendChild($container)
+  if (!$c) {
+    $header.appendChild($container)
+  }
 }
 
 function drawDefinition(data: DrawData[]) {
