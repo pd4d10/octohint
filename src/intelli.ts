@@ -1,11 +1,9 @@
 import * as ts from 'typescript'
 import './style.css'
 
-const CLASS_NAME = 'intelli-github'
-const CLASS_NAME_ITEM = `${CLASS_NAME}-item`
-const CLASS_NAME_DEFINITION = `${CLASS_NAME}-definition`
-const CLASS_NAME_USAGE = `${CLASS_NAME}-usage`
+const CONTAINER_ID = 'intelli-github'
 const FILE_NAME = 'test.ts'
+const __DEV__ = process.env.NODE_ENV !== 'production'
 
 export function main() {
   const $content = document.querySelector('.file')
@@ -30,7 +28,6 @@ export function main() {
 
   function getPosition(e: MouseEvent, $dom: HTMLElement) {
     const rect = $dom.getBoundingClientRect()
-    // console.log(e.clientX, e.clientY, rect)
     return {
       x: Math.floor((e.clientX - rect.left - GUTTER_WIDTH) / FONT_WIDTH),
       y: Math.floor((e.clientY - rect.top) / LINE_HEIGHT)
@@ -39,7 +36,7 @@ export function main() {
 
   // Clear all item
   function clear() {
-    const $container = <HTMLElement>document.querySelector(`.${CLASS_NAME}`)
+    const $container = <HTMLElement>document.querySelector(`#${CONTAINER_ID}`)
     if ($container) {
       $container.innerHTML = ''
     }
@@ -52,25 +49,28 @@ export function main() {
 
   // TODO: Fix overflow when length is large
   // TODO: Fix position when horizontal scroll
-  function draw(datas: DrawData[], className: string) {
-    const $c = <HTMLElement>document.querySelector(`.${CLASS_NAME}`)
+  function draw(datas: DrawData[], styles: object) {
+    const $c = <HTMLElement>document.querySelector(`#${CONTAINER_ID}`)
 
     let $container: HTMLElement
     if ($c) {
       $container = $c
     } else {
       $container = document.createElement('div')
-      $container.className = CLASS_NAME
+      $container.id = CONTAINER_ID
     }
 
     datas.forEach(data => {
       const $mask = document.createElement('div')
 
       // Set style
-      $mask.className = `${CLASS_NAME_ITEM} ${className}`
+      $mask.style.position = 'absolute'
+      $mask.style.height = `${LINE_HEIGHT}px`
       $mask.style.width = `${data.width * FONT_WIDTH}px`
       $mask.style.top = `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`
       $mask.style.left = `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`
+
+      Object.assign($mask.style, styles)
 
       $container.appendChild($mask)
     })
@@ -82,11 +82,15 @@ export function main() {
   }
 
   function drawDefinition(data: DrawData[]) {
-    return draw(data, CLASS_NAME_DEFINITION)
+    return draw(data, {
+      background: 'rgb(14, 99, 156)'
+    })
   }
 
   function drawUsage(data: DrawData[]) {
-    return draw(data, CLASS_NAME_USAGE)
+    return draw(data, {
+      background: 'rgb(173, 214, 255)'
+    })
   }
 
   // FIXME: Replace tab with 8 space, GitHub's tab size
@@ -116,7 +120,11 @@ export function main() {
     const pos: number = source.getPositionOfLineAndCharacter(position.y, position.x)
 
     const infos: ts.DefinitionInfo[] = services.getDefinitionAtPosition(FILE_NAME, pos)
-    // console.log(infos)
+
+    if (__DEV__) {
+      console.log(infos)
+    }
+
     if (infos && infos.length) {
       const info = infos[0]
       const range: ts.LineAndCharacter = source.getLineAndCharacterOfPosition(info.textSpan.start)
@@ -135,6 +143,10 @@ export function main() {
 
     const occurrences: ts.ReferenceEntry[] = services.getOccurrencesAtPosition(FILE_NAME, pos)
     if (occurrences) {
+      if (__DEV__) {
+        console.log(occurrences)
+      }
+
       const data = occurrences.map(occurrence => ({
         range: source.getLineAndCharacterOfPosition(occurrence.textSpan.start),
         width: occurrence.textSpan.length

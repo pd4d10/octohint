@@ -1,16 +1,3 @@
 .blob-wrapper {
   background: transparent;
 }
-
-.intelli-github-item {
-  position: absolute;
-  height: 20px;
-}
-
-.intelli-github-definition {
-  background: rgb(14, 99, 156);
-}
-
-.intelli-github-usage {
-  background: rgb(173, 214, 255);
-}
