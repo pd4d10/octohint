@@ -1,9 +1,9 @@
 import * as ts from 'typescript'
+import { debounce } from 'lodash'
 import './style.css'
 
-const CONTAINER_ID = 'intelli-github'
 const FILE_NAME = 'test.ts'
-const __DEV__ = process.env.NODE_ENV !== 'production'
+const DEBOUNCE_TIMEOUT = 300
 
 export function main() {
   const $content = document.querySelector('.file')
@@ -18,6 +18,20 @@ export function main() {
 
   const $firstLineGutter = $table.querySelector('#L1')
   const $firstLine = $table.querySelector('#LC1')
+
+  const $container = document.createElement('div')
+  $header.appendChild($container)
+
+  const $quickInfo = document.createElement('div')
+  $quickInfo.style.position = 'absolute'
+  $quickInfo.style.background = '#eee'
+  $quickInfo.style.border = '1px solid #aaa'
+  $quickInfo.style.fontSize = '12px'
+  $quickInfo.style.padding = '4px'
+  $quickInfo.style.lineHeight = '1'
+  $quickInfo.style.transition = 'opacity .3s'
+  $quickInfo.style.fontFamily = getComputedStyle($firstLine).fontFamily
+  $content.appendChild($quickInfo)
 
   // Use `getBoundingClientRect` instead of `offsetWidth/Height` to get accurate width and height
   // https://developer.mozilla.org/en-US/docs/Web/API/CSS_Object_Model/Determining_the_dimensions_of_elements
@@ -34,14 +48,6 @@ export function main() {
     }
   }
 
-  // Clear all item
-  function clear() {
-    const $container = <HTMLElement>document.querySelector(`#${CONTAINER_ID}`)
-    if ($container) {
-      $container.innerHTML = ''
-    }
-  }
-
   interface DrawData {
     range: ts.LineAndCharacter,
     width: number
@@ -50,16 +56,6 @@ export function main() {
   // TODO: Fix overflow when length is large
   // TODO: Fix position when horizontal scroll
   function draw(datas: DrawData[], styles: object) {
-    const $c = <HTMLElement>document.querySelector(`#${CONTAINER_ID}`)
-
-    let $container: HTMLElement
-    if ($c) {
-      $container = $c
-    } else {
-      $container = document.createElement('div')
-      $container.id = CONTAINER_ID
-    }
-
     datas.forEach(data => {
       const $mask = document.createElement('div')
 
@@ -74,11 +70,6 @@ export function main() {
 
       $container.appendChild($mask)
     })
-
-    // Append to webpage
-    if (!$c) {
-      $header.appendChild($container)
-    }
   }
 
   function drawDefinition(data: DrawData[]) {
@@ -109,21 +100,20 @@ export function main() {
   }
 
   // Create the language service files
-  const services: ts.LanguageService = ts.createLanguageService(servicesHost, ts.createDocumentRegistry())
-  const program: ts.Program = services.getProgram()
+  const service: ts.LanguageService = ts.createLanguageService(servicesHost, ts.createDocumentRegistry())
+  const program: ts.Program = service.getProgram()
   const source: ts.SourceFile = program.getSourceFile(FILE_NAME)
 
+  // Click event
   $table.addEventListener('click', function (e) {
-    clear()
+    // Clear
+    $container.innerHTML = ''
 
     const position = getPosition(e, $table)
     const pos: number = source.getPositionOfLineAndCharacter(position.y, position.x)
 
-    const infos: ts.DefinitionInfo[] = services.getDefinitionAtPosition(FILE_NAME, pos)
-
-    if (__DEV__) {
-      console.log(infos)
-    }
+    const infos: ts.DefinitionInfo[] = service.getDefinitionAtPosition(FILE_NAME, pos)
+    console.log('infos', infos)
 
     if (infos && infos.length) {
       const info = infos[0]
@@ -141,17 +131,45 @@ export function main() {
     //   return
     // }
 
-    const occurrences: ts.ReferenceEntry[] = services.getOccurrencesAtPosition(FILE_NAME, pos)
-    if (occurrences) {
-      if (__DEV__) {
-        console.log(occurrences)
-      }
+    const occurrences: ts.ReferenceEntry[] = service.getOccurrencesAtPosition(FILE_NAME, pos)
+    console.log('occurrences', occurrences)
 
+    if (occurrences) {
       const data = occurrences.map(occurrence => ({
         range: source.getLineAndCharacterOfPosition(occurrence.textSpan.start),
         width: occurrence.textSpan.length
       }))
       drawUsage(data)
+    }
+  })
+
+  // Show quick info on hover
+  function handleMouseMove(e: MouseEvent) {
+    const position = getPosition(e, $table)
+    const pos: number = source.getPositionOfLineAndCharacter(position.y, position.x)
+
+    const quickInfo = service.getQuickInfoAtPosition(FILE_NAME, pos)
+    console.log('quickInfo', quickInfo)
+
+    if (quickInfo) {
+      const info: string = ts.displayPartsToString(quickInfo.displayParts)
+      const range: ts.LineAndCharacter = source.getLineAndCharacterOfPosition(quickInfo.textSpan.start)
+
+      $quickInfo.innerHTML = info
+      $quickInfo.style.opacity = '1'
+      $quickInfo.style.top = `${range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT - 24}px`
+      $quickInfo.style.left = `${range.character * FONT_WIDTH + GUTTER_WIDTH}px`
+    } else {
+      $quickInfo.style.opacity = '0'
+    }
+  }
+
+  $table.addEventListener('mousemove', debounce(handleMouseMove, DEBOUNCE_TIMEOUT))
+
+  // Meta key down event
+  $table.addEventListener('keydown', (e) => {
+    if (e.key !== 'Meta') {
+      return
     }
   })
 }

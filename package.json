@@ -21,9 +21,11 @@
   "homepage": "https://github.com/pd4d10/intelli-github",
   "dependencies": {
     "github-injection": "^0.3.0",
+    "lodash": "^4.17.4",
     "typescript": "^2.1.5"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.61",
     "css-loader": "^0.26.1",
     "style-loader": "^0.13.1",
     "stylelint": "^7.8.0",
