@@ -19,9 +19,11 @@ export function main() {
   const $firstLineGutter = $table.querySelector('#L1')
   const $firstLine = $table.querySelector('#LC1')
 
+  // For occurrences
   const $container = document.createElement('div')
   $header.appendChild($container)
 
+  // For quick info
   const $quickInfo = document.createElement('div')
   $quickInfo.style.position = 'absolute'
   $quickInfo.style.background = '#eee'
@@ -31,6 +33,8 @@ export function main() {
   $quickInfo.style.lineHeight = '1'
   $quickInfo.style.transition = 'opacity .3s'
   $quickInfo.style.fontFamily = getComputedStyle($firstLine).fontFamily
+  $quickInfo.style.opacity = '0'
+  $quickInfo.style.visibility = 'hidden'
   $content.appendChild($quickInfo)
 
   // Use `getBoundingClientRect` instead of `offsetWidth/Height` to get accurate width and height
@@ -39,6 +43,14 @@ export function main() {
   const FILE_HEAD_HEIGHT = $header.getBoundingClientRect().height
   const GUTTER_WIDTH = $firstLineGutter.getBoundingClientRect().width + parseInt(getComputedStyle($firstLine).paddingLeft, 10)
   const LINE_HEIGHT = $firstLine.getBoundingClientRect().height
+
+  // For quick info mask
+  const $quickInfoMask = document.createElement('div')
+  $quickInfoMask.style.position = 'absolute'
+  $quickInfoMask.style.height = `${LINE_HEIGHT}px`
+  $quickInfoMask.style.background = 'rgb(173,214,255)'
+  $quickInfoMask.style.display = 'none'
+  $header.appendChild($quickInfoMask)
 
   function getPosition(e: MouseEvent, $dom: HTMLElement) {
     const rect = $dom.getBoundingClientRect()
@@ -55,7 +67,7 @@ export function main() {
 
   // TODO: Fix overflow when length is large
   // TODO: Fix position when horizontal scroll
-  function draw(datas: DrawData[], styles: object) {
+  function draw(datas: DrawData[], styles: {}) {
     datas.forEach(data => {
       const $mask = document.createElement('div')
 
@@ -144,6 +156,7 @@ export function main() {
   })
 
   // Show quick info on hover
+  // FIXME: When info string is long enough, overflow to second line
   function handleMouseMove(e: MouseEvent) {
     const position = getPosition(e, $table)
     const pos: number = source.getPositionOfLineAndCharacter(position.y, position.x)
@@ -156,15 +169,37 @@ export function main() {
       const range: ts.LineAndCharacter = source.getLineAndCharacterOfPosition(quickInfo.textSpan.start)
 
       $quickInfo.innerHTML = info
-      $quickInfo.style.opacity = '1'
-      $quickInfo.style.top = `${range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT - 24}px`
+      $quickInfo.style.top = `${range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT - 22}px`
       $quickInfo.style.left = `${range.character * FONT_WIDTH + GUTTER_WIDTH}px`
+      $quickInfo.style.opacity = '1'
+      $quickInfo.style.visibility = 'visible'
+
+      const data: DrawData = {
+        range,
+        width: quickInfo.textSpan.length
+      }
+      $quickInfoMask.style.width = `${data.width * FONT_WIDTH}px`
+      $quickInfoMask.style.top = `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`
+      $quickInfoMask.style.left = `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`
+      $quickInfoMask.style.display = 'block'
     } else {
       $quickInfo.style.opacity = '0'
+      $quickInfo.style.visibility = 'hidden'
+
+      $quickInfoMask.style.display = 'none'
     }
   }
 
   $table.addEventListener('mousemove', debounce(handleMouseMove, DEBOUNCE_TIMEOUT))
+
+  $table.addEventListener('mouseout', e => {
+    const target = <HTMLElement>e.target
+    if (target.tagName === 'TD') {
+      return
+    }
+
+    $quickInfo.style.opacity = '0'
+  })
 
   // Meta key down event
   $table.addEventListener('keydown', (e) => {
