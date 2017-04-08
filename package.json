@@ -1,5 +1,5 @@
 {
-  "name": "intelli-github",
+  "name": "intelli-octo",
   "private": true,
   "version": "0.0.1",
   "description": "GitHub",
@@ -10,18 +10,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pd4d10/intelli-github.git"
+    "url": "git+https://github.com/pd4d10/intelli-octo.git"
   },
   "keywords": [],
   "author": "pd4d10 <pd4d10@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pd4d10/intelli-github/issues"
+    "url": "https://github.com/pd4d10/intelli-octo/issues"
   },
-  "homepage": "https://github.com/pd4d10/intelli-github",
+  "homepage": "https://github.com/pd4d10/intelli-octo",
   "dependencies": {
     "github-injection": "^0.3.0",
     "lodash": "^4.17.4",
+    "raven-js": "^3.14.0",
     "typescript": "^2.1.5"
   },
   "devDependencies": {

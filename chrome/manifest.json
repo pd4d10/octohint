@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
-  "name": "Github Intellisense",
+  "name": "Intelli Octo",
   "version": "0.0.1",
-  "description": "Github Intellisense",
-  "homepage_url": "https://github.com/pd4d10/intelli-github",
+  "description": "Intelli Octo",
+  "homepage_url": "https://github.com/pd4d10/intelli-octo",
   "content_scripts": [
     {
       "matches": [

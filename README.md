@@ -1,1 +1,3 @@
-# Intelli GitHub
+# Intelli Octo
+
+IntelliSense for GitHub.
