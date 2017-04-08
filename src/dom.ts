@@ -58,6 +58,7 @@ export function main() {
   const GUTTER_WIDTH = $firstLineGutter.getBoundingClientRect().width + parseInt(getComputedStyle($firstLine).paddingLeft, 10)
   const LINE_HEIGHT = $firstLine.getBoundingClientRect().height
   const LINE_WIDTH = $firstLine.getBoundingClientRect().width
+  const OFFSET_TOP = $content.offsetTop + FILE_HEAD_HEIGHT
 
   // For quick info mask
   const $quickInfoMask = document.createElement('div')
@@ -121,15 +122,6 @@ export function main() {
     const position = getPosition(e, $table)
     const info = service.getDefinition(position.y, position.x)
 
-    // If Meta key is pressed, go to definition
-    if (info && e.metaKey) {
-      $definition.style.height = `${LINE_HEIGHT}px`
-      $definition.style.width = `${LINE_WIDTH - GUTTER_WIDTH}px`
-      $definition.style.top = `${info.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`
-      $definition.style.left = `${GUTTER_WIDTH}px`
-      $definition.style.visibility = 'visible'
-    }
-
     // TODO: Exclude click event triggered by selecting text
     // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
     // if (window.getSelection().toString()) {
@@ -138,6 +130,17 @@ export function main() {
 
     const data = service.getOccurrences(position.y, position.x)
     drawUsage(data)
+
+    // If Meta key is pressed, go to definition
+    if (info && e.metaKey) {
+      $definition.style.height = `${LINE_HEIGHT}px`
+      $definition.style.width = `${LINE_WIDTH - 10}px`
+      $definition.style.top = `${info.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`
+      $definition.style.left = `${GUTTER_WIDTH}px`
+      $definition.style.visibility = 'visible'
+
+      window.scrollTo(0, OFFSET_TOP + info.line * LINE_HEIGHT - 50)
+    }
   }
   $table.addEventListener('click', handleClick)
 
