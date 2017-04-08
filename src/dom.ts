@@ -6,6 +6,10 @@ import './style.css'
 const FILE_NAME = 'test.ts'
 const DEBOUNCE_TIMEOUT = 300
 
+const USAGE_COLOR = 'rgba(173,214,255,.3)'
+const DEFINITION_COLOR = 'rgba(14,99,156,.25)'
+const QUICKINFO_COLOR = 'rgba(173,214,255,.15)'
+
 export function main() {
   const $content = document.querySelector('.file')
 
@@ -33,7 +37,7 @@ export function main() {
   $quickInfo.style.fontSize = '12px'
   $quickInfo.style.padding = '4px'
   $quickInfo.style.lineHeight = '1'
-  $quickInfo.style.transition = 'opacity .3s'
+  // $quickInfo.style.transition = 'opacity .3s'
   $quickInfo.style.fontFamily = getComputedStyle($firstLine).fontFamily
   $quickInfo.style.opacity = '0'
   $quickInfo.style.visibility = 'hidden'
@@ -50,7 +54,7 @@ export function main() {
   const $quickInfoMask = document.createElement('div')
   $quickInfoMask.style.position = 'absolute'
   $quickInfoMask.style.height = `${LINE_HEIGHT}px`
-  $quickInfoMask.style.background = 'rgb(173,214,255)'
+  $quickInfoMask.style.background = QUICKINFO_COLOR
   $quickInfoMask.style.display = 'none'
   $header.appendChild($quickInfoMask)
 
@@ -64,7 +68,8 @@ export function main() {
 
   interface DrawData {
     range: ts.LineAndCharacter,
-    width: number
+    width: number,
+    isWriteAccess: boolean
   }
 
   // TODO: Fix overflow when length is large
@@ -82,19 +87,17 @@ export function main() {
 
       Object.assign($mask.style, styles)
 
-      $container.appendChild($mask)
-    })
-  }
+      if (data.isWriteAccess) {
+        $mask.style.backgroundColor = DEFINITION_COLOR
+      }
 
-  function drawDefinition(data: DrawData[]) {
-    return draw(data, {
-      background: 'rgb(14, 99, 156)'
+      $container.appendChild($mask)
     })
   }
 
   function drawUsage(data: DrawData[]) {
     return draw(data, {
-      background: 'rgb(173, 214, 255)'
+      background: USAGE_COLOR
     })
   }
 
@@ -157,6 +160,7 @@ export function main() {
     }
 
     $quickInfo.style.opacity = '0'
+    $quickInfoMask.style.display = 'none'
   })
 
   // Meta key down event

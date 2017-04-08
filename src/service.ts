@@ -49,6 +49,7 @@ export default class Service {
     }
 
     const data = occurrences.map(occurrence => ({
+      isWriteAccess: occurrence.isWriteAccess,
       range: this.source.getLineAndCharacterOfPosition(occurrence.textSpan.start),
       width: occurrence.textSpan.length
     }))
