@@ -11,6 +11,8 @@ const WRITE_ACCESS_COLOR = 'rgba(14,99,156,.25)'
 const QUICK_INFO_COLOR = 'rgba(173,214,255,.15)'
 const DEFINITION_COLOR = 'rgb(248, 238, 199)'
 
+let option = true
+
 export function main() {
   const $content = <HTMLElement>document.querySelector('.file')
 
@@ -19,11 +21,25 @@ export function main() {
   }
 
   const $header = $content.querySelector('.file-header')
+  const $actions = $header.querySelector('.file-actions')
   const $table = $content.querySelector('table')
   const $test = $table.querySelector('span')
 
   const $firstLineGutter = $table.querySelector('#L1')
   const $firstLine = $table.querySelector('#LC1')
+
+  // Switch
+  const $switch = document.createElement('div')
+  $switch.className = 'btn btn-sm'
+  $switch.style.marginRight = '6px'
+  $switch.innerHTML = 'Intelli Octo'
+  $switch.style.color = option ? '' : '#aaa'
+  $switch.addEventListener('click', () => {
+    clear()
+    option = !option
+    $switch.style.color = option ? '' : '#aaa'
+  })
+  $actions.insertBefore($switch, $actions.querySelector('.BtnGroup'))
 
   // For definition
   const $definition = document.createElement('div')
@@ -82,6 +98,11 @@ export function main() {
     isWriteAccess: boolean
   }
 
+  function clear() {
+    $container.innerHTML = ''
+    $definition.style.visibility = 'hidden'
+  }
+
   // TODO: Fix overflow when length is large
   // TODO: Fix position when horizontal scroll
   function draw(datas: DrawData[], styles: {}) {
@@ -115,9 +136,8 @@ export function main() {
 
   // Show all occurrences on click
   function handleClick(e: MouseEvent) {
-    // Clear
-    $container.innerHTML = ''
-    $definition.style.visibility = 'hidden'
+    if (!option) return
+    clear()
 
     const position = getPosition(e, $table)
     const info = service.getDefinition(position.y, position.x)
@@ -147,6 +167,8 @@ export function main() {
   // Show quick info on hover
   // FIXME: When info string is long enough, overflow to second line
   function handleMouseMove(e: MouseEvent) {
+    if (!option) return
+
     const position = getPosition(e, $table)
     const data = service.getQuickInfo(position.y, position.x)
 
@@ -172,6 +194,8 @@ export function main() {
 
   // Hide quick info
   function handleMouseOut() {
+    if (!option) return
+
     $quickInfo.style.opacity = '0'
     $quickInfoMask.style.display = 'none'
   }
@@ -179,11 +203,16 @@ export function main() {
 
   // Meta key
   document.addEventListener('keydown', (e) => {
+    if (!option) return
+
     if (e.key === 'Meta') {
       $content.style.cursor = 'pointer'
     }
   })
+
   document.addEventListener('keyup', (e) => {
+    if (!option) return
+
     if (e.key === 'Meta') {
       $content.style.cursor = 'default'
     }
