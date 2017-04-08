@@ -11,7 +11,7 @@ const DEFINITION_COLOR = 'rgba(14,99,156,.25)'
 const QUICKINFO_COLOR = 'rgba(173,214,255,.15)'
 
 export function main() {
-  const $content = document.querySelector('.file')
+  const $content = <HTMLElement>document.querySelector('.file')
 
   if (!$content) {
     return
@@ -103,15 +103,15 @@ export function main() {
 
   const service = new Service($table.innerText)
 
-  // Click event
-  $table.addEventListener('click', function (e) {
+  // Show all occurrences on click
+  function handleClick(e: MouseEvent) {
     // Clear
     $container.innerHTML = ''
 
     const position = getPosition(e, $table)
     const info = service.getDefinition(position.y, position.x)
 
-    // If meta key is pressed, go to definition
+    // If Meta key is pressed, go to definition
     if (info && e.metaKey) {
       window.location.hash = `#L${info.line + 1}`
     }
@@ -124,7 +124,8 @@ export function main() {
 
     const data = service.getOccurrences(position.y, position.x)
     drawUsage(data)
-  })
+  }
+  $table.addEventListener('click', handleClick)
 
   // Show quick info on hover
   // FIXME: When info string is long enough, overflow to second line
@@ -150,10 +151,10 @@ export function main() {
       $quickInfoMask.style.display = 'none'
     }
   }
-
   $table.addEventListener('mousemove', debounce(handleMouseMove, DEBOUNCE_TIMEOUT))
 
-  $table.addEventListener('mouseout', e => {
+  // Hide quick info
+  function handleMouseOut(e: MouseEvent) {
     const target = <HTMLElement>e.target
     if (target.tagName === 'TD') {
       return
@@ -161,12 +162,18 @@ export function main() {
 
     $quickInfo.style.opacity = '0'
     $quickInfoMask.style.display = 'none'
-  })
+  }
+  $table.addEventListener('mouseout', debounce(handleMouseOut, 50))
 
-  // Meta key down event
-  $table.addEventListener('keydown', (e) => {
-    if (e.key !== 'Meta') {
-      return
+  // Meta key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Meta') {
+      $content.style.cursor = 'pointer'
+    }
+  })
+  document.addEventListener('keyup', (e) => {
+    if (e.key === 'Meta') {
+      $content.style.cursor = 'default'
     }
   })
 }
