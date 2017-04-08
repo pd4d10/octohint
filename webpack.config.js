@@ -1,8 +1,11 @@
 module.exports = {
-  entry: './src',
+  entry: {
+    github: './src/github',
+    gitlab: './src/gitlab'
+  },
   output: {
     path: './chrome',
-    filename: 'bundle.js'
+    filename: '[name].bundle.js'
   },
   module: {
     rules: [

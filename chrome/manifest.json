@@ -10,7 +10,16 @@
         "https://github.com/*"
       ],
       "js": [
-        "bundle.js"
+        "github.bundle.js"
+      ],
+      "run-at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://gitlab.com/*"
+      ],
+      "js": [
+        "gitlab.bundle.js"
       ],
       "run-at": "document_idle"
     }

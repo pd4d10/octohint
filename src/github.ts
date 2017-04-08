@@ -2,7 +2,7 @@
 // import gitHubInjection from 'github-injection'
 declare var require: any
 const gitHubInjection = require('github-injection')
-import { main } from './intelli'
+import { main } from './dom'
 
 gitHubInjection(window, (err: Error) => {
   if (err) throw err
