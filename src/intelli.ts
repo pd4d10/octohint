@@ -1,4 +1,5 @@
 import * as ts from 'typescript'
+import Service from './service'
 import { debounce } from 'lodash'
 import './style.css'
 
@@ -24,6 +25,7 @@ export function main() {
   $header.appendChild($container)
 
   // For quick info
+  // TODO: Extract CSS
   const $quickInfo = document.createElement('div')
   $quickInfo.style.position = 'absolute'
   $quickInfo.style.background = '#eee'
@@ -96,25 +98,7 @@ export function main() {
     })
   }
 
-  // FIXME: Replace tab with 8 space, GitHub's tab size
-  const code: string = $table.innerText.replace(/\t/g, '        ')
-
-  // https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
-  const servicesHost: ts.LanguageServiceHost = {
-    getScriptFileNames: () => [FILE_NAME],
-    getScriptVersion: () => '0', // Version matters not here since no file change
-    getScriptSnapshot: (fileName) => {
-      return fileName === FILE_NAME ? ts.ScriptSnapshot.fromString(code) : undefined
-    },
-    getCurrentDirectory: () => '/',
-    getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS }),
-    getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
-  }
-
-  // Create the language service files
-  const service: ts.LanguageService = ts.createLanguageService(servicesHost, ts.createDocumentRegistry())
-  const program: ts.Program = service.getProgram()
-  const source: ts.SourceFile = program.getSourceFile(FILE_NAME)
+  const service = new Service($table.innerText)
 
   // Click event
   $table.addEventListener('click', function (e) {
@@ -122,19 +106,11 @@ export function main() {
     $container.innerHTML = ''
 
     const position = getPosition(e, $table)
-    const pos: number = source.getPositionOfLineAndCharacter(position.y, position.x)
+    const info = service.getDefinition(position.y, position.x)
 
-    const infos: ts.DefinitionInfo[] = service.getDefinitionAtPosition(FILE_NAME, pos)
-    console.log('infos', infos)
-
-    if (infos && infos.length) {
-      const info = infos[0]
-      const range: ts.LineAndCharacter = source.getLineAndCharacterOfPosition(info.textSpan.start)
-
-      // If meta key is pressed, go to definition
-      if (e.metaKey) {
-        window.location.hash = `#L${range.line + 1}`
-      }
+    // If meta key is pressed, go to definition
+    if (info && e.metaKey) {
+      window.location.hash = `#L${info.line + 1}`
     }
 
     // TODO: Exclude click event triggered by selecting text
@@ -143,41 +119,23 @@ export function main() {
     //   return
     // }
 
-    const occurrences: ts.ReferenceEntry[] = service.getOccurrencesAtPosition(FILE_NAME, pos)
-    console.log('occurrences', occurrences)
-
-    if (occurrences) {
-      const data = occurrences.map(occurrence => ({
-        range: source.getLineAndCharacterOfPosition(occurrence.textSpan.start),
-        width: occurrence.textSpan.length
-      }))
-      drawUsage(data)
-    }
+    const data = service.getOccurrences(position.y, position.x)
+    drawUsage(data)
   })
 
   // Show quick info on hover
   // FIXME: When info string is long enough, overflow to second line
   function handleMouseMove(e: MouseEvent) {
     const position = getPosition(e, $table)
-    const pos: number = source.getPositionOfLineAndCharacter(position.y, position.x)
+    const data = service.getQuickInfo(position.y, position.x)
 
-    const quickInfo = service.getQuickInfoAtPosition(FILE_NAME, pos)
-    console.log('quickInfo', quickInfo)
-
-    if (quickInfo) {
-      const info: string = ts.displayPartsToString(quickInfo.displayParts)
-      const range: ts.LineAndCharacter = source.getLineAndCharacterOfPosition(quickInfo.textSpan.start)
-
-      $quickInfo.innerHTML = info
-      $quickInfo.style.top = `${range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT - 22}px`
-      $quickInfo.style.left = `${range.character * FONT_WIDTH + GUTTER_WIDTH}px`
+    if (data) {
+      $quickInfo.innerHTML = data.info
+      $quickInfo.style.top = `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT - 22}px`
+      $quickInfo.style.left = `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`
       $quickInfo.style.opacity = '1'
       $quickInfo.style.visibility = 'visible'
 
-      const data: DrawData = {
-        range,
-        width: quickInfo.textSpan.length
-      }
       $quickInfoMask.style.width = `${data.width * FONT_WIDTH}px`
       $quickInfoMask.style.top = `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`
       $quickInfoMask.style.left = `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`
