@@ -7,8 +7,9 @@ const FILE_NAME = 'test.ts'
 const DEBOUNCE_TIMEOUT = 300
 
 const USAGE_COLOR = 'rgba(173,214,255,.3)'
-const DEFINITION_COLOR = 'rgba(14,99,156,.25)'
-const QUICKINFO_COLOR = 'rgba(173,214,255,.15)'
+const WRITE_ACCESS_COLOR = 'rgba(14,99,156,.25)'
+const QUICK_INFO_COLOR = 'rgba(173,214,255,.15)'
+const DEFINITION_COLOR = 'rgb(248, 238, 199)'
 
 export function main() {
   const $content = <HTMLElement>document.querySelector('.file')
@@ -23,6 +24,13 @@ export function main() {
 
   const $firstLineGutter = $table.querySelector('#L1')
   const $firstLine = $table.querySelector('#LC1')
+
+  // For definition
+  const $definition = document.createElement('div')
+  $definition.style.position = 'absolute'
+  $definition.style.background = DEFINITION_COLOR
+  $definition.style.visibility = 'hidden'
+  $header.appendChild($definition)
 
   // For occurrences
   const $container = document.createElement('div')
@@ -49,12 +57,13 @@ export function main() {
   const FILE_HEAD_HEIGHT = $header.getBoundingClientRect().height
   const GUTTER_WIDTH = $firstLineGutter.getBoundingClientRect().width + parseInt(getComputedStyle($firstLine).paddingLeft, 10)
   const LINE_HEIGHT = $firstLine.getBoundingClientRect().height
+  const LINE_WIDTH = $firstLine.getBoundingClientRect().width
 
   // For quick info mask
   const $quickInfoMask = document.createElement('div')
   $quickInfoMask.style.position = 'absolute'
   $quickInfoMask.style.height = `${LINE_HEIGHT}px`
-  $quickInfoMask.style.background = QUICKINFO_COLOR
+  $quickInfoMask.style.background = QUICK_INFO_COLOR
   $quickInfoMask.style.display = 'none'
   $header.appendChild($quickInfoMask)
 
@@ -88,7 +97,7 @@ export function main() {
       Object.assign($mask.style, styles)
 
       if (data.isWriteAccess) {
-        $mask.style.backgroundColor = DEFINITION_COLOR
+        $mask.style.backgroundColor = WRITE_ACCESS_COLOR
       }
 
       $container.appendChild($mask)
@@ -107,13 +116,18 @@ export function main() {
   function handleClick(e: MouseEvent) {
     // Clear
     $container.innerHTML = ''
+    $definition.style.visibility = 'hidden'
 
     const position = getPosition(e, $table)
     const info = service.getDefinition(position.y, position.x)
 
     // If Meta key is pressed, go to definition
     if (info && e.metaKey) {
-      window.location.hash = `#L${info.line + 1}`
+      $definition.style.height = `${LINE_HEIGHT}px`
+      $definition.style.width = `${LINE_WIDTH - GUTTER_WIDTH}px`
+      $definition.style.top = `${info.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`
+      $definition.style.left = `${GUTTER_WIDTH}px`
+      $definition.style.visibility = 'visible'
     }
 
     // TODO: Exclude click event triggered by selecting text
@@ -154,16 +168,11 @@ export function main() {
   $table.addEventListener('mousemove', debounce(handleMouseMove, DEBOUNCE_TIMEOUT))
 
   // Hide quick info
-  function handleMouseOut(e: MouseEvent) {
-    const target = <HTMLElement>e.target
-    if (target.tagName === 'TD') {
-      return
-    }
-
+  function handleMouseOut() {
     $quickInfo.style.opacity = '0'
     $quickInfoMask.style.display = 'none'
   }
-  $table.addEventListener('mouseout', debounce(handleMouseOut, 50))
+  $table.addEventListener('mouseout', handleMouseOut)
 
   // Meta key
   document.addEventListener('keydown', (e) => {

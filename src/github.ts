@@ -14,3 +14,4 @@ gitHubInjection(window, (err: Error) => {
 // TODO: Async load
 // TODO: Do not excute 13M+ JS every time, save as a worker
 // TODO: Dark theme
+// TODO: Refactor with React since view is data driven
