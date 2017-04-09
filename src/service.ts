@@ -1,10 +1,9 @@
 import * as ts from 'typescript'
 
-const FILE_NAME = 'test.ts'
+const FILE_NAME = 'intelli-octo.ts'
 
 export default class Service {
   service: ts.LanguageService
-  program: ts.Program
   source: ts.SourceFile
 
   constructor(code: string) {
@@ -31,8 +30,8 @@ export default class Service {
 
     // Create the language service files
     this.service = ts.createLanguageService(servicesHost, ts.createDocumentRegistry())
-    this.program = this.service.getProgram()
-    this.source = this.program.getSourceFile(FILE_NAME)
+    const program = this.service.getProgram()
+    this.source = program.getSourceFile(FILE_NAME)
   }
 
   private getPosition(line: number, character: number) {
