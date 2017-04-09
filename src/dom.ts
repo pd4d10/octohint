@@ -33,7 +33,11 @@ export function main() {
   $switch.className = 'btn btn-sm'
   $switch.style.marginRight = '6px'
   $switch.addEventListener('click', () => {
-    clear()
+    header.setState({
+      occurrences: [],
+      isDefinitionVisible: false,
+      isQuickInfoVisible: false,
+    })
     option = !option
   })
   $actions.insertBefore($switch, $actions.querySelector('.BtnGroup'))
@@ -71,28 +75,6 @@ export function main() {
   //   isWriteAccess: boolean
   // }
 
-  function clear() {
-    header.setState({
-      occurrences: [],
-      isDefinitionVisible: false
-    })
-  }
-
-  // TODO: Fix overflow when length is large
-  // TODO: Fix position when horizontal scroll
-  function drawUsage(datas: any[]) {
-    const occurrences = datas.map(data => ({
-      height: `${LINE_HEIGHT}px`,
-      width: `${data.width * FONT_WIDTH}px`,
-      top: `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`,
-      left: `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`,
-      backgroundColor: data.isWriteAccess ? WRITE_ACCESS_COLOR : USAGE_COLOR,
-    }))
-    header.setState({
-      occurrences,
-    })
-  }
-
   chrome.runtime.sendMessage({
     type: 'service',
     data: $table.innerText,
@@ -102,7 +84,10 @@ export function main() {
     // Show all occurrences on click
     function handleClick(e: MouseEvent) {
       if (!option) return
-      clear()
+      const nextState = {
+        occurrences: [],
+        isDefinitionVisible: false
+      }
 
       const position = getPosition(e, $table)
 
@@ -112,7 +97,7 @@ export function main() {
         meta: e.metaKey,
       }, response => {
         if (response.info) {
-          header.setState({
+          Object.assign(nextState, {
             isDefinitionVisible: true,
             definitionStyle: {
               height: `${LINE_HEIGHT}px`,
@@ -124,7 +109,19 @@ export function main() {
           window.scrollTo(0, OFFSET_TOP + response.info.line * LINE_HEIGHT - 50)
         }
 
-        drawUsage(response.occurrences)
+        // TODO: Fix overflow when length is large
+        // TODO: Fix position when horizontal scroll
+        const occurrences = response.occurrences.map(data => ({
+          height: `${LINE_HEIGHT}px`,
+          width: `${data.width * FONT_WIDTH}px`,
+          top: `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`,
+          left: `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`,
+          backgroundColor: data.isWriteAccess ? WRITE_ACCESS_COLOR : USAGE_COLOR,
+        }))
+
+        Object.assign(nextState, { occurrences })
+
+        header.setState(nextState)
       })
 
       // TODO: Exclude click event triggered by selecting text
