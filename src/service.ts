@@ -41,7 +41,6 @@ export default class Service {
   getOccurrences(line: number, character: number) {
     const position = this.getPosition(line, character)
     const occurrences = this.service.getOccurrencesAtPosition(FILE_NAME, position)
-    console.log('occurrences', occurrences)
 
     if (!occurrences) {
       return []
@@ -58,7 +57,6 @@ export default class Service {
   getDefinition(line: number, character: number) {
     const position = this.getPosition(line, character)
     const infos = this.service.getDefinitionAtPosition(FILE_NAME, position)
-    console.log('infos', infos)
 
     if (infos && infos[0]) {
       return this.source.getLineAndCharacterOfPosition(infos[0].textSpan.start)
@@ -70,7 +68,6 @@ export default class Service {
   getQuickInfo(line: number, character: number) {
     const position = this.getPosition(line, character)
     const quickInfo = this.service.getQuickInfoAtPosition(FILE_NAME, position)
-    console.log('quickInfo', quickInfo)
 
     if (!quickInfo) {
       return undefined

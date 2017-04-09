@@ -1,8 +1,6 @@
-import * as ts from 'typescript'
 import renderSwitch from './containers/switch.tsx'
 import renderHeader from './containers/header.tsx'
 import renderFooter from './containers/footer.tsx'
-import Service from './service'
 import { debounce } from 'lodash'
 import './style.css'
 
@@ -67,11 +65,11 @@ export function main() {
     }
   }
 
-  interface DrawData {
-    range: ts.LineAndCharacter,
-    width: number,
-    isWriteAccess: boolean
-  }
+  // interface DrawData {
+  //   range: ts.LineAndCharacter,
+  //   width: number,
+  //   isWriteAccess: boolean
+  // }
 
   function clear() {
     header.setState({
@@ -82,7 +80,7 @@ export function main() {
 
   // TODO: Fix overflow when length is large
   // TODO: Fix position when horizontal scroll
-  function drawUsage(datas: DrawData[]) {
+  function drawUsage(datas: any[]) {
     const occurrences = datas.map(data => ({
       height: `${LINE_HEIGHT}px`,
       width: `${data.width * FONT_WIDTH}px`,
@@ -95,107 +93,118 @@ export function main() {
     })
   }
 
-  const service = new Service($table.innerText)
+  chrome.runtime.sendMessage({
+    type: 'service',
+    data: $table.innerText,
+  }, response => {
+    console.log(response)
 
-  // Show all occurrences on click
-  function handleClick(e: MouseEvent) {
-    if (!option) return
-    clear()
+    // Show all occurrences on click
+    function handleClick(e: MouseEvent) {
+      if (!option) return
+      clear()
 
-    const position = getPosition(e, $table)
-    const info = service.getDefinition(position.y, position.x)
+      const position = getPosition(e, $table)
 
-    // TODO: Exclude click event triggered by selecting text
-    // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
-    // if (window.getSelection().toString()) {
-    //   return
-    // }
+      chrome.runtime.sendMessage({
+        type: 'occurrence',
+        position,
+        meta: e.metaKey,
+      }, response => {
+        if (response.info) {
+          header.setState({
+            isDefinitionVisible: true,
+            definitionStyle: {
+              height: `${LINE_HEIGHT}px`,
+              width: `${LINE_WIDTH - 10}px`,
+              top: `${response.info.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`,
+              left: `${GUTTER_WIDTH}px`
+            }
+          })
+          window.scrollTo(0, OFFSET_TOP + response.info.line * LINE_HEIGHT - 50)
+        }
 
-    const data = service.getOccurrences(position.y, position.x)
-    drawUsage(data)
+        drawUsage(response.occurrences)
+      })
 
-    // If Meta key is pressed, go to definition
-    if (info && e.metaKey) {
-      header.setState({
-        isDefinitionVisible: true,
-        definitionStyle: {
-          height: `${LINE_HEIGHT}px`,
-          width: `${LINE_WIDTH - 10}px`,
-          top: `${info.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`,
-          left: `${GUTTER_WIDTH}px`
+      // TODO: Exclude click event triggered by selecting text
+      // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
+      // if (window.getSelection().toString()) {
+      //   return
+      // }
+    }
+    $table.addEventListener('click', handleClick)
+
+    // Show quick info on hover
+    // FIXME: When info string is long enough, overflow to second line
+    function handleMouseMove(e: MouseEvent) {
+      if (!option) return
+
+      const position = getPosition(e, $table)
+      chrome.runtime.sendMessage({
+        type: 'quickInfo',
+        position,
+      }, response => {
+        const { data } = response
+        if (data) {
+          footer.setState({
+            isVisible: true,
+            info: data.info,
+            style: {
+              top: `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT - 22}px`,
+              left: `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`,
+            }
+          })
+
+          header.setState({
+            style: {
+              width: `${data.width * FONT_WIDTH}px`,
+              top: `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`,
+              left: `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`,
+            },
+            isVisible: true
+          })
+        } else {
+          footer.setState({
+            isVisible: false
+          })
+
+          header.setState({
+            isVisible: false
+          })
         }
       })
-
-      window.scrollTo(0, OFFSET_TOP + info.line * LINE_HEIGHT - 50)
     }
-  }
-  $table.addEventListener('click', handleClick)
+    $table.addEventListener('mousemove', debounce(handleMouseMove, DEBOUNCE_TIMEOUT))
 
-  // Show quick info on hover
-  // FIXME: When info string is long enough, overflow to second line
-  function handleMouseMove(e: MouseEvent) {
-    if (!option) return
+    // Hide quick info
+    function handleMouseOut() {
+      if (!option) return
 
-    const position = getPosition(e, $table)
-    const data = service.getQuickInfo(position.y, position.x)
-
-    if (data) {
       footer.setState({
-        isVisible: true,
-        info: data.info,
-        style: {
-          top: `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT - 22}px`,
-          left: `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`,
-        }
+        isVisible: false,
       })
-
       header.setState({
-        style: {
-          width: `${data.width * FONT_WIDTH}px`,
-          top: `${data.range.line * LINE_HEIGHT + FILE_HEAD_HEIGHT}px`,
-          left: `${data.range.character * FONT_WIDTH + GUTTER_WIDTH}px`,
-        },
-        isVisible: true
-      })
-    } else {
-      footer.setState({
-        isVisible: false
-      })
-
-      header.setState({
-        isVisible: false
+        isQuickInfoVisible: false,
       })
     }
-  }
-  $table.addEventListener('mousemove', debounce(handleMouseMove, DEBOUNCE_TIMEOUT))
+    $table.addEventListener('mouseout', handleMouseOut)
 
-  // Hide quick info
-  function handleMouseOut() {
-    if (!option) return
+    // Meta key
+    document.addEventListener('keydown', (e) => {
+      if (!option) return
 
-    footer.setState({
-      isVisible: false,
+      if (e.key === 'Meta') {
+        $content.style.cursor = 'pointer'
+      }
     })
-    header.setState({
-      isQuickInfoVisible: false,
+
+    document.addEventListener('keyup', (e) => {
+      if (!option) return
+
+      if (e.key === 'Meta') {
+        $content.style.cursor = 'default'
+      }
     })
-  }
-  $table.addEventListener('mouseout', handleMouseOut)
-
-  // Meta key
-  document.addEventListener('keydown', (e) => {
-    if (!option) return
-
-    if (e.key === 'Meta') {
-      $content.style.cursor = 'pointer'
-    }
-  })
-
-  document.addEventListener('keyup', (e) => {
-    if (!option) return
-
-    if (e.key === 'Meta') {
-      $content.style.cursor = 'default'
-    }
   })
 }
