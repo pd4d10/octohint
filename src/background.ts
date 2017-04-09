@@ -1,14 +1,24 @@
 import * as ts from 'typescript'
 import Service from './service'
 
-let service: Service
+const services = {}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  const fileName = message.file + '.ts'
+  const service = services[fileName]
+
   console.log(message)
+  console.log(services)
   switch (message.type) {
     case 'service': {
-      service = new Service(message.data)
-      sendResponse('service created')
+      if (!service) {
+        const { file, data } = message
+        services[fileName] = new Service(fileName, data)
+
+        // TODO: Add a timeout to delete service, to prevent memory leak
+
+        sendResponse(fileName, 'service created')
+      }
     }
     case 'occurrence': {
       const { x, y } = message.position

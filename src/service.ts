@@ -1,12 +1,12 @@
 import * as ts from 'typescript'
 
-const FILE_NAME = 'intelli-octo.ts'
-
 export default class Service {
+  fileName: string
   service: ts.LanguageService
   source: ts.SourceFile
 
-  constructor(code: string) {
+  constructor(fileName: string, code: string) {
+    this.fileName = fileName
     this.createService(this.formatCode(code))
   }
 
@@ -18,10 +18,10 @@ export default class Service {
   createService(code: string) {
     // https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
     const servicesHost: ts.LanguageServiceHost = {
-      getScriptFileNames: () => [FILE_NAME],
+      getScriptFileNames: () => [this.fileName],
       getScriptVersion: () => '0', // Version matters not here since no file change
       getScriptSnapshot: (fileName) => {
-        return fileName === FILE_NAME ? ts.ScriptSnapshot.fromString(code) : undefined
+        return fileName === this.fileName ? ts.ScriptSnapshot.fromString(code) : undefined
       },
       getCurrentDirectory: () => '/',
       getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS }),
@@ -31,7 +31,7 @@ export default class Service {
     // Create the language service files
     this.service = ts.createLanguageService(servicesHost, ts.createDocumentRegistry())
     const program = this.service.getProgram()
-    this.source = program.getSourceFile(FILE_NAME)
+    this.source = program.getSourceFile(this.fileName)
   }
 
   private getPosition(line: number, character: number) {
@@ -40,7 +40,7 @@ export default class Service {
 
   getOccurrences(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const occurrences = this.service.getOccurrencesAtPosition(FILE_NAME, position)
+    const occurrences = this.service.getOccurrencesAtPosition(this.fileName, position)
 
     if (!occurrences) {
       return []
@@ -56,7 +56,7 @@ export default class Service {
 
   getDefinition(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const infos = this.service.getDefinitionAtPosition(FILE_NAME, position)
+    const infos = this.service.getDefinitionAtPosition(this.fileName, position)
 
     if (infos && infos[0]) {
       return this.source.getLineAndCharacterOfPosition(infos[0].textSpan.start)
@@ -67,7 +67,7 @@ export default class Service {
 
   getQuickInfo(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const quickInfo = this.service.getQuickInfoAtPosition(FILE_NAME, position)
+    const quickInfo = this.service.getQuickInfoAtPosition(this.fileName, position)
 
     if (!quickInfo) {
       return undefined
