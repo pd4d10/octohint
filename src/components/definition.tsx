@@ -14,9 +14,9 @@ const Definition = (props: DefinitionProps) => (
       position: 'absolute',
       background: 'rgb(248, 238, 199)',
       left: 0,
-      width: `${props.width}px`,
-      height: `${props.height}px`,
-      top: `${props.top}px`
+      width: props.width,
+      height: props.height,
+      top: props.top
     }}
   />
 )

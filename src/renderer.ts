@@ -1,5 +1,5 @@
-import render from './components/container'
 import { debounce } from 'lodash'
+import { render, setState } from './containers'
 
 export interface Padding {
   left: number,
@@ -20,7 +20,6 @@ abstract class Renderer {
   code = this.getCode()
 
   reactInstance: any
-  // footer: any
 
   // abstract renderSwitch(): any
   abstract getCodeDOM(): HTMLElement
@@ -59,7 +58,7 @@ abstract class Renderer {
 
   getQuickInfoStyle(range: object) {
     return {
-      top: range.line * this.LINE.height - 22,
+      top: range.line * this.LINE.height,
       left: range.character * this.FONT_WIDTH
     }
   }
@@ -103,7 +102,7 @@ abstract class Renderer {
       // TODO: Fix position when horizontal scroll
       const occurrences = response.occurrences.map(data => this.getOccurrenceStyle(data))
       Object.assign(nextState, { occurrences })
-      this.reactInstance.setState(nextState)
+      setState(nextState)
     })
 
     // TODO: Exclude click event triggered by selecting text
@@ -132,7 +131,7 @@ abstract class Renderer {
   handleMouseOut() {
     if (!this.isOpen) return
 
-    this.reactInstance.setState({
+    setState({
       quickInfo: {
         isVisible: false,
       }
@@ -150,7 +149,7 @@ abstract class Renderer {
     }, response => {
       const { data } = response
       if (data) {
-        this.reactInstance.setState({
+        setState({
           quickInfo: {
             isVisible: true,
             info: data.info,
@@ -158,7 +157,7 @@ abstract class Renderer {
           }
         })
       } else {
-        this.reactInstance.setState({
+        setState({
           quickInfo: {
             isVisible: false
           }
@@ -180,16 +179,22 @@ abstract class Renderer {
   render() {
     const $parent = this.$code.parentElement
     $parent.style.position = 'relative'
+    this.$code.style.position = 'relative'
 
-    const $header = document.createElement('div')
+    const $background = document.createElement('div')
+    $background.style.position = 'absolute'
+    $background.style.top = `${this.PADDING.top}px`
+    $background.style.left = `${this.PADDING.left}px`
 
-    // Set style
-    $header.style.position = 'absolute'
-    $header.style.top = `${this.PADDING.top}px`
-    $header.style.left = `${this.PADDING.left}px`
+    const $quickInfo = document.createElement('div')
+    $quickInfo.style.position = 'absolute'
+    $quickInfo.style.top = `${this.PADDING.top}px`
+    $quickInfo.style.left = `${this.PADDING.left}px`
 
-    $parent.appendChild($header)
-    this.reactInstance = render($header)
+    $parent.insertBefore($quickInfo, this.$code)
+    $parent.insertBefore($background, $quickInfo)
+
+    this.reactInstance = render($background, $quickInfo)
   }
 
   constructor() {
@@ -202,8 +207,8 @@ abstract class Renderer {
     }, response => {
       console.log(response)
       this.$code.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
-      this.$code.addEventListener('mousemove', debounce(e => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT))
-      this.$code.addEventListener('mouseout', e => this.handleMouseOut(e))
+      this.$code.addEventListener('mousemove', debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT))
+      this.$code.addEventListener('mouseout', () => this.handleMouseOut())
       document.addEventListener('keydown', e => this.handleKeyDown(e))
       document.addEventListener('keyup', e => this.handleKeyUp(e))
     })

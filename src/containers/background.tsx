@@ -1,18 +1,16 @@
 import * as React from 'react'
-import * as ReactDOM from 'react-dom'
-import Occurrence, { OccurrenceProps } from './occurrence'
-import Definition, { DefinitionProps } from './definition'
-import QuickInfo, { QuickInfoProps } from './quick-info'
-
-interface PropsTypes {}
+// import * as ReactDOM from 'react-dom'
+import Occurrence, { OccurrenceProps } from '../components/occurrence'
+import Definition, { DefinitionProps } from '../components/definition'
+import QuickInfoBackground, { QuickInfoBackgroundProps } from '../components/quick-info-background'
 
 interface StateType {
   occurrences: OccurrenceProps[],
   definition: DefinitionProps,
-  quickInfo: QuickInfoProps
+  QuickInfoBackground: QuickInfoBackgroundProps
 }
 
-class Container extends React.Component<PropsTypes, StateType> {
+export default class BackgroundContainer extends React.Component<undefined, StateType> {
   state = {
     occurrences: [],
     definition: {
@@ -21,9 +19,8 @@ class Container extends React.Component<PropsTypes, StateType> {
       width: 0,
       top: 0
     },
-    quickInfo: {
+    QuickInfoBackground: {
       isVisible: false,
-      info: '',
       top: 0,
       left: 0
     }
@@ -38,12 +35,8 @@ class Container extends React.Component<PropsTypes, StateType> {
           <Occurrence key={i} {...occurrence} />
           // FIXME: Key should not be index
         ))}
-        <QuickInfo {...state.quickInfo} />
+        <QuickInfoBackground {...state.QuickInfoBackground} />
       </div>
     )
   }
-}
-
-export default function render($dom: HTMLElement) {
-  return ReactDOM.render(<Container />, $dom)
 }
