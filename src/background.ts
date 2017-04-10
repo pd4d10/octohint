@@ -4,11 +4,10 @@ import Service from './service'
 const services = {}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  const fileName = message.file + '.ts'
+  const fileName = message.file + '.ts' // FIXME:
   const service = services[fileName]
 
   console.log(message)
-  console.log(services)
   switch (message.type) {
     case 'service': {
       if (!service) {
