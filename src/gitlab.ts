@@ -1,9 +1,6 @@
 import Renderer from './renderer'
 
 class GitLabRenderer extends Renderer {
-  renderSwitch() {
-  }
-
   getCodeDOM() {
     return <HTMLElement>document.querySelector('.blob-content code')
   }

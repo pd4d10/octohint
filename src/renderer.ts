@@ -1,6 +1,4 @@
-import renderSwitch from './components/switch.tsx'
-import renderHeader from './components/header.tsx'
-import renderFooter from './components/footer.tsx'
+import render from './components/container'
 import { debounce } from 'lodash'
 
 export interface Padding {
@@ -10,7 +8,7 @@ export interface Padding {
 
 abstract class Renderer {
   isOpen = true
-  fileName = location.href + '.ts'
+  fileName = location.href + '.ts' // FIXME: Add ts extension
   USAGE_COLOR = 'rgba(173,214,255,.3)'
   WRITE_ACCESS_COLOR = 'rgba(14,99,156,.25)'
   DEBOUNCE_TIMEOUT = 300
@@ -21,10 +19,10 @@ abstract class Renderer {
   $code = this.getCodeDOM()
   code = this.getCode()
 
-  header: any
-  footer: any
+  reactInstance: any
+  // footer: any
 
-  abstract renderSwitch(): any
+  // abstract renderSwitch(): any
   abstract getCodeDOM(): HTMLElement
   abstract getFontWidth(): number
   abstract getPadding(): Padding
@@ -43,27 +41,26 @@ abstract class Renderer {
 
   getDefinitionStyle(info: object) {
     return {
-      height: `${this.LINE.height}px`,
-      width: `${this.LINE.width - 10}px`,
-      top: `${info.line * this.LINE.height + this.PADDING.top}px`,
-      left: `${this.PADDING.left}px`
+      height: this.LINE.height,
+      width: this.LINE.width - 10,
+      top: info.line * this.LINE.height
     }
   }
 
   getOccurrenceStyle(data: object) {
     return {
-      height: `${this.LINE.height}px`,
-      width: `${data.width * this.FONT_WIDTH}px`,
-      top: `${data.range.line * this.LINE.height + this.PADDING.top}px`,
-      left: `${data.range.character * this.FONT_WIDTH + this.PADDING.left}px`,
-      backgroundColor: data.isWriteAccess ? this.WRITE_ACCESS_COLOR : this.USAGE_COLOR,
+      height: this.LINE.height,
+      width: data.width * this.FONT_WIDTH,
+      top: data.range.line * this.LINE.height,
+      left: data.range.character * this.FONT_WIDTH,
+      isWriteAccess: data.isWriteAccess,
     }
   }
 
   getQuickInfoStyle(range: object) {
     return {
-      top: `${range.line * this.LINE.height + this.PADDING.top - 22}px`,
-      left: `${range.character * this.FONT_WIDTH + this.PADDING.left}px`,
+      top: range.line * this.LINE.height - 22,
+      left: range.character * this.FONT_WIDTH
     }
   }
 
@@ -79,7 +76,9 @@ abstract class Renderer {
     if (!this.isOpen) return
     const nextState = {
       occurrences: [],
-      isDefinitionVisible: false
+      definition: {
+        isVisible: false,
+      }
     }
 
     const position = this.getPosition(e)
@@ -92,8 +91,10 @@ abstract class Renderer {
     }, response => {
       if (response.info) {
         Object.assign(nextState, {
-          isDefinitionVisible: true,
-          definitionStyle: this.getDefinitionStyle(response.info)
+          definition: {
+            isVisible: true,
+            ...this.getDefinitionStyle(response.info)
+          }
         })
         // window.scrollTo(0, OFFSET_TOP + response.info.line * LINE_HEIGHT - 50)
       }
@@ -102,7 +103,7 @@ abstract class Renderer {
       // TODO: Fix position when horizontal scroll
       const occurrences = response.occurrences.map(data => this.getOccurrenceStyle(data))
       Object.assign(nextState, { occurrences })
-      this.header.setState(nextState)
+      this.reactInstance.setState(nextState)
     })
 
     // TODO: Exclude click event triggered by selecting text
@@ -131,11 +132,10 @@ abstract class Renderer {
   handleMouseOut() {
     if (!this.isOpen) return
 
-    this.footer.setState({
-      isVisible: false,
-    })
-    this.header.setState({
-      isQuickInfoVisible: false,
+    this.reactInstance.setState({
+      quickInfo: {
+        isVisible: false,
+      }
     })
   }
 
@@ -150,17 +150,18 @@ abstract class Renderer {
     }, response => {
       const { data } = response
       if (data) {
-        this.footer.setState({
-          isVisible: true,
-          info: data.info,
-          style: this.getQuickInfoStyle(data.range)
+        this.reactInstance.setState({
+          quickInfo: {
+            isVisible: true,
+            info: data.info,
+            ...this.getQuickInfoStyle(data.range)
+          }
         })
       } else {
-        this.footer.setState({
-          isVisible: false
-        })
-        this.header.setState({
-          isVisible: false
+        this.reactInstance.setState({
+          quickInfo: {
+            isVisible: false
+          }
         })
       }
     })
@@ -169,28 +170,26 @@ abstract class Renderer {
   /**
    * DOM structure:
    *
-   * <container>
+   * <parent>
    *   ...
-   *   <header /> --- For occurrences and definition highlight
    *   <code />
    *   ...
-   *   <footer /> --- For quick info
-   * </container>
+   *   <container />
+   * </parent>
    */
   render() {
-    const $container = this.$code.parentElement
-    $container.style.position = 'relative'
+    const $parent = this.$code.parentElement
+    $parent.style.position = 'relative'
 
     const $header = document.createElement('div')
-    $container.insertBefore($header, this.$code)
 
-    const $footer = document.createElement('div')
-    $container.appendChild($footer)
+    // Set style
+    $header.style.position = 'absolute'
+    $header.style.top = `${this.PADDING.top}px`
+    $header.style.left = `${this.PADDING.left}px`
 
-    // React instance
-    this.header = renderHeader($header)
-    this.footer = renderFooter($footer)
-    this.renderSwitch()
+    $parent.appendChild($header)
+    this.reactInstance = render($header)
   }
 
   constructor() {

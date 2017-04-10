@@ -1,9 +1,6 @@
 import Renderer from './renderer'
 
 class BitBucketRenderer extends Renderer {
-  renderSwitch() {
-  }
-
   getCodeDOM() {
     return <HTMLElement>document.querySelector('#fileview-original table')
   }

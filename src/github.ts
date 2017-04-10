@@ -23,21 +23,21 @@ class GitHubRenderer extends Renderer {
     }
   }
 
-  renderSwitch() {
-    const $actions = document.querySelector('.file-actions')
-    const $switch = document.createElement('div')
-    $switch.className = 'btn btn-sm'
-    $switch.style.marginRight = '6px'
-    $switch.addEventListener('click', () => {
-      this.header.setState({
-        occurrences: [],
-        isDefinitionVisible: false,
-        isQuickInfoVisible: false,
-      })
-      this.isOpen = !this.isOpen
-    })
-    $actions.insertBefore($switch, $actions.querySelector('.BtnGroup'))
-  }
+  // renderSwitch() {
+  //   const $actions = document.querySelector('.file-actions')
+  //   const $switch = document.createElement('div')
+  //   $switch.className = 'btn btn-sm'
+  //   $switch.style.marginRight = '6px'
+  //   $switch.addEventListener('click', () => {
+  //     this.header.setState({
+  //       occurrences: [],
+  //       isDefinitionVisible: false,
+  //       isQuickInfoVisible: false,
+  //     })
+  //     this.isOpen = !this.isOpen
+  //   })
+  //   $actions.insertBefore($switch, $actions.querySelector('.BtnGroup'))
+  // }
 }
 
 gitHubInjection(window, (err: Error) => {
