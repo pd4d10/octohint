@@ -26,6 +26,15 @@
         "gitlab.js"
       ],
       "run-at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://bitbucket.org/*"
+      ],
+      "js": [
+        "bitbucket.js"
+      ],
+      "run-at": "document_idle"
     }
   ]
 }

@@ -1,9 +1,5 @@
 import Renderer from './renderer'
 
-import renderSwitch from './components/switch.tsx'
-import renderHeader from './components/header.tsx'
-import renderFooter from './components/footer.tsx'
-
 class GitLabRenderer extends Renderer {
   renderSwitch() {
   }

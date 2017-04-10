@@ -10,7 +10,7 @@ export interface Padding {
 
 abstract class Renderer {
   isOpen = true
-  fileName = location.href
+  fileName = location.href + '.ts'
   USAGE_COLOR = 'rgba(173,214,255,.3)'
   WRITE_ACCESS_COLOR = 'rgba(14,99,156,.25)'
   DEBOUNCE_TIMEOUT = 300
@@ -19,6 +19,7 @@ abstract class Renderer {
   LINE = this.getLineWidthAndHeight()
   PADDING = this.getPadding()
   $code = this.getCodeDOM()
+  code = this.getCode()
 
   header: any
   footer: any
@@ -27,6 +28,10 @@ abstract class Renderer {
   abstract getCodeDOM(): HTMLElement
   abstract getFontWidth(): number
   abstract getPadding(): Padding
+
+  getCode() {
+    return this.$code.innerText
+  }
 
   getPosition(e: MouseEvent) {
     const rect = this.$code.getBoundingClientRect()
@@ -61,7 +66,6 @@ abstract class Renderer {
       left: `${range.character * this.FONT_WIDTH + this.PADDING.left}px`,
     }
   }
-
 
   getLineWidthAndHeight() {
     const rect = document.querySelector('#LC1').getBoundingClientRect()
@@ -195,7 +199,7 @@ abstract class Renderer {
     chrome.runtime.sendMessage({
       file: this.fileName,
       type: 'service',
-      data: this.$code.innerText,
+      data: this.code,
     }, response => {
       console.log(response)
       this.$code.addEventListener('click', (e: MouseEvent) => this.handleClick(e))

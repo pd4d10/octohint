@@ -1,5 +1,4 @@
 import Renderer from './renderer'
-import './style.css'
 
 // FIXME: Add types
 // import gitHubInjection from 'github-injection'
