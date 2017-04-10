@@ -20,6 +20,10 @@
   },
   "homepage": "https://github.com/pd4d10/intelli-octo",
   "dependencies": {
+    "@types/chrome": "^0.0.44",
+    "@types/lodash": "^4.14.61",
+    "@types/react": "^15.0.21",
+    "@types/react-dom": "^0.14.23",
     "github-injection": "^0.3.0",
     "lodash": "^4.17.4",
     "raven-js": "^3.14.0",
@@ -28,10 +32,6 @@
     "typescript": "^2.1.5"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.44",
-    "@types/lodash": "^4.14.61",
-    "@types/react": "^15.0.21",
-    "@types/react-dom": "^0.14.23",
     "css-loader": "^0.26.1",
     "style-loader": "^0.13.1",
     "stylelint": "^7.8.0",

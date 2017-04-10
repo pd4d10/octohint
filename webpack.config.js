@@ -2,7 +2,8 @@ module.exports = {
   entry: {
     background: './src/background',
     github: './src/github',
-    gitlab: './src/gitlab'
+    gitlab: './src/gitlab',
+    bitbucket: './src/bitbucket'
   },
   output: {
     path: './chrome',
@@ -22,6 +23,6 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.ts', ".js"]
+    extensions: ['.ts', '.tsx']
   },
 }

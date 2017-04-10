@@ -4,8 +4,9 @@
     "sourceMap": true,
     "noImplicitAny": true,
     "module": "commonjs",
-    "target": "es6",
+    "target": "es5",
     "jsx": "react",
+    // "jsxFactory": "h",
     "allowJs": true,
     "lib": ["es2015", "dom"]
   },
