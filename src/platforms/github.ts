@@ -11,9 +11,17 @@ class GitHubRenderer extends Renderer {
   }
 
   getFontWidth() {
-    // FIXME: First line no content
+    // FIXME: Handle when first line has no content
     const $ = <HTMLElement>document.querySelector('#LC1 > span')
     return $.getBoundingClientRect().width / $.innerText.length
+  }
+
+  getLineWidthAndHeight() {
+    const rect = document.querySelector('#LC1').getBoundingClientRect()
+    return {
+      width: rect.width,
+      height: rect.height
+    }
   }
 
   getPadding() {

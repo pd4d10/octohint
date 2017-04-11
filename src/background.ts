@@ -15,7 +15,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return
   }
 
-  console.log(message)
   switch (message.type) {
     case 'service': {
       if (service) {

@@ -1,31 +1,38 @@
 import { debounce, forEach } from 'lodash'
 import { render, setState } from './containers'
 
-export interface Padding {
+interface Padding {
   left: number,
-  top: number
+  top: number,
+}
+
+interface Line {
+  width: number,
+  height: number,
 }
 
 abstract class Renderer {
-  isOpen = true
+  isActive = true // TODO: Add a switch to turn it off
   fileName = location.href + '.ts' // FIXME: Add ts extension
-  USAGE_COLOR = 'rgba(173,214,255,.3)'
-  WRITE_ACCESS_COLOR = 'rgba(14,99,156,.25)'
   DEBOUNCE_TIMEOUT = 300
 
-  FONT_WIDTH = this.getFontWidth()
-  LINE = this.getLineWidthAndHeight()
-  PADDING = this.getPadding()
   $code = <HTMLElement>this.getCodeDOM()
+  fontWidth = this.getFontWidth()
+  line = this.getLineWidthAndHeight()
+  padding = this.getPadding()
   code = this.getCode()
   offsetTop = this.getOffsetTop(this.$code)
 
   abstract getCodeDOM(): Element
   abstract getFontWidth(): number
+  abstract getLineWidthAndHeight(): Line
   abstract getPadding(): Padding
 
+  getCode() {
+    return this.$code.innerText
+  }
+
   getOffsetTop(e: HTMLElement): number {
-    console.log(e)
     if (!e) {
       return 0
     }
@@ -34,53 +41,41 @@ abstract class Renderer {
     return e.offsetTop + this.getOffsetTop(parent)
   }
 
-  getCode() {
-    return this.$code.innerText
-  }
-
   getPosition(e: MouseEvent) {
     const rect = this.$code.getBoundingClientRect()
     return {
-      x: Math.floor((e.clientX - rect.left - this.PADDING.left) / this.FONT_WIDTH),
-      y: Math.floor((e.clientY - rect.top - this.PADDING.top) / this.LINE.height)
+      x: Math.floor((e.clientX - rect.left - this.padding.left) / this.fontWidth),
+      y: Math.floor((e.clientY - rect.top - this.padding.top) / this.line.height)
     }
   }
 
   getDefinitionStyle(info: object) {
     return {
-      height: this.LINE.height,
-      width: this.LINE.width - 10,
-      top: info.line * this.LINE.height
+      height: this.line.height,
+      width: this.line.width - 10,
+      top: info.line * this.line.height
     }
   }
 
   getOccurrenceStyle(data: object) {
     return {
-      height: this.LINE.height,
-      width: data.width * this.FONT_WIDTH,
-      top: data.range.line * this.LINE.height,
-      left: data.range.character * this.FONT_WIDTH,
+      height: this.line.height,
+      width: data.width * this.fontWidth,
+      top: data.range.line * this.line.height,
+      left: data.range.character * this.fontWidth,
       isWriteAccess: data.isWriteAccess,
     }
   }
 
   getQuickInfoStyle(range: object) {
     return {
-      top: range.line * this.LINE.height,
-      left: range.character * this.FONT_WIDTH
-    }
-  }
-
-  getLineWidthAndHeight() {
-    const rect = document.querySelector('#LC1').getBoundingClientRect()
-    return {
-      width: rect.width,
-      height: rect.height
+      top: range.line * this.line.height,
+      left: range.character * this.fontWidth
     }
   }
 
   handleClick(e: MouseEvent) {
-    if (!this.isOpen) return
+    if (!this.isActive) return
     const nextState = {
       occurrences: [],
       definition: {
@@ -103,7 +98,7 @@ abstract class Renderer {
             ...this.getDefinitionStyle(response.info)
           }
         })
-        window.scrollTo(0, this.offsetTop + this.PADDING.top + response.info.line * this.LINE.height - 80)
+        window.scrollTo(0, this.offsetTop + this.padding.top + response.info.line * this.line.height - 80)
       }
 
       // TODO: Fix overflow when length is large
@@ -120,7 +115,7 @@ abstract class Renderer {
   }
 
   handleKeyDown(e: KeyboardEvent) {
-    if (!this.isOpen) return
+    if (!this.isActive) return
 
     // FIXME: Should be Control for Windows and Linux user
     if (e.key === 'Meta') {
@@ -129,7 +124,7 @@ abstract class Renderer {
   }
 
   handleKeyUp(e: KeyboardEvent) {
-    if (!this.isOpen) return
+    if (!this.isActive) return
 
     if (e.key === 'Meta') {
       this.$code.style.cursor = 'default'
@@ -137,7 +132,7 @@ abstract class Renderer {
   }
 
   handleMouseOut() {
-    if (!this.isOpen) return
+    if (!this.isActive) return
 
     setState({
       quickInfo: {
@@ -147,7 +142,7 @@ abstract class Renderer {
   }
 
   handleMouseMove(e: MouseEvent) {
-    if (!this.isOpen) return
+    if (!this.isActive) return
 
     const position = this.getPosition(e)
     this.sendMessage({
@@ -203,14 +198,14 @@ abstract class Renderer {
     const $background = document.createElement('div')
     $background.style.position = 'absolute'
     $background.style.zIndex = '0'
-    $background.style.top = `${this.PADDING.top}px`
-    $background.style.left = `${this.PADDING.left}px`
+    $background.style.top = `${this.padding.top}px`
+    $background.style.left = `${this.padding.left}px`
 
     const $quickInfo = document.createElement('div')
     $quickInfo.style.position = 'absolute'
     $quickInfo.style.zIndex = '2'
-    $quickInfo.style.top = `${this.PADDING.top}px`
-    $quickInfo.style.left = `${this.PADDING.left}px`
+    $quickInfo.style.top = `${this.padding.top}px`
+    $quickInfo.style.left = `${this.padding.left}px`
 
     this.$code.insertBefore($background, this.$code.firstChild)
     this.$code.appendChild($quickInfo)

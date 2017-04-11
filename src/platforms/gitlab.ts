@@ -8,6 +8,7 @@ class GitLabRenderer extends Renderer {
     return document.querySelector('.blob-content code')
   }
 
+  // Rewrite this method, for lack of '\n' at blank line
   getCode() {
     return map(this.$code.children, line => {
       const $ = <HTMLElement>line
@@ -18,6 +19,14 @@ class GitLabRenderer extends Renderer {
   getFontWidth() {
     const $ = <HTMLElement>document.querySelector('#LC1 > span')
     return $.getBoundingClientRect().width / $.innerText.length
+  }
+
+  getLineWidthAndHeight() {
+    const rect = document.querySelector('#LC1').getBoundingClientRect()
+    return {
+      width: rect.width,
+      height: rect.height
+    }
   }
 
   getPadding() {
