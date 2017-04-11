@@ -136,7 +136,7 @@ abstract class Renderer {
     if (!this.isActive) return
 
     if (this.isMacOS ? (e.key === 'Meta') : (e.key === 'Control')) {
-      this.$code.style.cursor = 'default'
+      this.$code.style.cursor = null
     }
   }
 
