@@ -12,7 +12,7 @@ const Occurrence = (props: OccurrenceProps) => (
   <div
     style={{
       position: 'absolute',
-      background: props.isWriteAccess ? 'rgba(14,99,156,.25)' : 'rgba(173,214,255,.3)',
+      background: props.isWriteAccess ? 'rgba(14,99,156,.4)' : 'rgba(173,214,255,.7)',
       width: props.width,
       height: props.height,
       top: props.top,
