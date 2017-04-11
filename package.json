@@ -2,7 +2,7 @@
   "name": "intelli-octo",
   "private": true,
   "version": "0.0.1",
-  "description": "GitHub",
+  "description": "IntelliSense for GitHub, GitLab and Bitbucket",
   "scripts": {
     "start": "webpack -dw",
     "build": "webpack --config webpack.config.production.js",
@@ -37,12 +37,7 @@
     "css-loader": "^0.26.1",
     "source-map-loader": "^0.2.1",
     "style-loader": "^0.13.1",
-    "stylelint": "^7.8.0",
-    "stylelint-config-standard": "^16.0.0",
     "tslint": "^4.4.2",
     "webpack": "^2.2.1"
-  },
-  "stylelint": {
-    "extends": "stylelint-config-standard"
   }
 }
