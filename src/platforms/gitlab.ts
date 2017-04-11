@@ -9,7 +9,10 @@ class GitLabRenderer extends Renderer {
   }
 
   getCode() {
-    return map(this.$code.children, line => line.innerText).join('\n')
+    return map(this.$code.children, line => {
+      const $ = <HTMLElement>line
+      return $.innerText
+    }).join('\n')
   }
 
   getFontWidth() {

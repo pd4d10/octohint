@@ -18,11 +18,21 @@ abstract class Renderer {
   PADDING = this.getPadding()
   $code = <HTMLElement>this.getCodeDOM()
   code = this.getCode()
+  offsetTop = this.getOffsetTop(this.$code)
 
-  // abstract renderSwitch(): any
   abstract getCodeDOM(): Element
   abstract getFontWidth(): number
   abstract getPadding(): Padding
+
+  getOffsetTop(e: HTMLElement): number {
+    console.log(e)
+    if (!e) {
+      return 0
+    }
+
+    const parent = <HTMLElement>e.offsetParent
+    return e.offsetTop + this.getOffsetTop(parent)
+  }
 
   getCode() {
     return this.$code.innerText
@@ -93,11 +103,10 @@ abstract class Renderer {
             ...this.getDefinitionStyle(response.info)
           }
         })
-        // window.scrollTo(0, OFFSET_TOP + response.info.line * LINE_HEIGHT - 50)
+        window.scrollTo(0, this.offsetTop + this.PADDING.top + response.info.line * this.LINE.height - 80)
       }
 
       // TODO: Fix overflow when length is large
-      // TODO: Fix position when horizontal scroll
       const occurrences = response.occurrences.map(data => this.getOccurrenceStyle(data))
       Object.assign(nextState, { occurrences })
       setState(nextState)
