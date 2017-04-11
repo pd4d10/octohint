@@ -1,23 +1,35 @@
 import * as ts from 'typescript'
 import Service from './service'
 
-const services = {}
+const services: object = {}
+const TIMEOUT = 1000 * 60 * 5 // 5min
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const fileName = message.file + '.ts' // FIXME:
   const service = services[fileName]
 
+  if (!service && !message.code) {
+    sendResponse({
+      error: 'no-code'
+    })
+    return
+  }
+
   console.log(message)
   switch (message.type) {
     case 'service': {
-      if (!service) {
-        const { file, data } = message
-        services[fileName] = new Service(fileName, data)
-
-        // TODO: Add a timeout to delete service, to prevent memory leak
-
-        sendResponse(fileName, 'service created')
+      if (service) {
+        return
       }
+
+      const { file, code } = message
+      services[fileName] = new Service(fileName, code)
+
+      // Add a timeout to delete service to prevent memory leak
+      setTimeout(() => {
+        delete services[fileName]
+      }, TIMEOUT)
+      return
     }
     case 'occurrence': {
       const { x, y } = message.position
@@ -32,11 +44,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         occurrences,
         info,
       })
+      return
     }
     case 'quickInfo': {
       const { x, y } = message.position
       const data = service.getQuickInfo(y, x)
       sendResponse({ data })
+      return
     }
     default:
       return

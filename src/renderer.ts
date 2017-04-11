@@ -90,7 +90,7 @@ abstract class Renderer {
 
     const position = this.getPosition(e)
 
-    chrome.runtime.sendMessage({
+    this.sendMessage({
       file: this.fileName,
       type: 'occurrence',
       position,
@@ -150,7 +150,7 @@ abstract class Renderer {
     if (!this.isOpen) return
 
     const position = this.getPosition(e)
-    chrome.runtime.sendMessage({
+    this.sendMessage({
       file: this.fileName,
       type: 'quickInfo',
       position,
@@ -218,15 +218,31 @@ abstract class Renderer {
     render($background, $quickInfo)
   }
 
-  constructor() {
-    this.render()
+  sendMessage(data: object, cb) {
+    chrome.runtime.sendMessage(data, response => {
+      if (response && response.error === 'no-code') {
+        this.createService(() => {
+          this.sendMessage(data, cb)
+        })
+        return
+      }
 
+      cb(response)
+    })
+  }
+
+  createService(cb) {
     chrome.runtime.sendMessage({
       file: this.fileName,
       type: 'service',
-      data: this.code,
-    }, response => {
-      console.log(response)
+      code: this.code,
+    }, cb)
+  }
+
+  constructor() {
+    this.render()
+
+    this.createService(() => {
       this.$code.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
       this.$code.addEventListener('mousemove', debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT))
       this.$code.addEventListener('mouseout', () => this.handleMouseOut())
