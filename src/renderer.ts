@@ -113,6 +113,7 @@ abstract class Renderer {
   handleKeyDown(e: KeyboardEvent) {
     if (!this.isOpen) return
 
+    // FIXME: Should be Control for Windows and Linux user
     if (e.key === 'Meta') {
       this.$code.style.cursor = 'pointer'
     }

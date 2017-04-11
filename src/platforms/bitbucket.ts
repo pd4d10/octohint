@@ -1,4 +1,6 @@
-import Renderer from './renderer'
+import Renderer from '../renderer'
+
+// TODO: Dynamic injection
 
 class BitBucketRenderer extends Renderer {
   getCodeDOM() {

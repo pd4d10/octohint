@@ -21,7 +21,6 @@ export default class QuickInfo extends React.Component<undefined, State> {
       <div
         style={{
           display: state.isVisible ? 'block' : 'none',
-          zIndex: 1,
           position: 'relative',
           background: '#eee',
           border: '1px solid #aaa',

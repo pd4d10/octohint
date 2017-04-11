@@ -1,12 +1,14 @@
+var CleanWebpackPlugin = require('clean-webpack-plugin');
+
 module.exports = {
   entry: {
     background: './src/background',
-    github: './src/github',
-    gitlab: './src/gitlab',
-    bitbucket: './src/bitbucket'
+    github: './src/platforms/github',
+    gitlab: './src/platforms/gitlab',
+    bitbucket: './src/platforms/bitbucket'
   },
   output: {
-    path: './chrome',
+    path: './chrome/dist',
     filename: '[name].js'
   },
   // Enable sourcemaps for debugging webpack's output.
@@ -30,7 +32,7 @@ module.exports = {
   },
 
   // https://github.com/postcss/postcss-js/issues/10#issuecomment-179782081
-  node: { fs: 'empty' }
+  node: { fs: 'empty' },
 
   // When importing a module whose path matches one of the following, just
   // assume a corresponding global variable exists and use that instead.
@@ -40,4 +42,8 @@ module.exports = {
   //     "react": "React",
   //     "react-dom": "ReactDOM"
   // },
+
+  plugins: [
+    new CleanWebpackPlugin('chrome/dist')
+  ]
 }

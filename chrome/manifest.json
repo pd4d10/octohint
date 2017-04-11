@@ -5,7 +5,7 @@
   "description": "IntelliSense for GitHub, GitLab and Bitbucket",
   "homepage_url": "https://github.com/pd4d10/intelli-octo",
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["dist/background.js"]
   },
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "content_scripts": [
@@ -14,7 +14,7 @@
         "https://github.com/*"
       ],
       "js": [
-        "github.js"
+        "dist/github.js"
       ],
       "run-at": "document_idle"
     },
@@ -23,7 +23,7 @@
         "https://gitlab.com/*"
       ],
       "js": [
-        "gitlab.js"
+        "dist/gitlab.js"
       ],
       "run-at": "document_idle"
     },
@@ -32,7 +32,7 @@
         "https://bitbucket.org/*"
       ],
       "js": [
-        "bitbucket.js"
+        "dist/bitbucket.js"
       ],
       "run-at": "document_idle"
     }
