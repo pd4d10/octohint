@@ -1,7 +1,11 @@
 import * as ts from 'typescript'
 import Service from './service'
 
-const services: object = {}
+interface Services {
+  [key: string]: Service
+}
+
+const services: Services = {}
 const TIMEOUT = 1000 * 60 * 5 // 5min
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

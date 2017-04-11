@@ -1,4 +1,4 @@
-import { debounce, forEach } from 'lodash'
+import { debounce, forEach, map } from 'lodash'
 import { render, setState } from './containers'
 
 interface Padding {
@@ -9,6 +9,15 @@ interface Padding {
 interface Line {
   width: number,
   height: number,
+}
+
+interface Occurrence {
+  isWriteAccess: boolean,
+  width: number,
+  range: {
+    line: number,
+    character: number,
+  }
 }
 
 abstract class Renderer {
@@ -57,13 +66,13 @@ abstract class Renderer {
     }
   }
 
-  getOccurrenceStyle(data: object) {
+  getOccurrenceStyle(occurrence: Occurrence) {
     return {
       height: this.line.height,
-      width: data.width * this.fontWidth,
-      top: data.range.line * this.line.height,
-      left: data.range.character * this.fontWidth,
-      isWriteAccess: data.isWriteAccess,
+      width: occurrence.width * this.fontWidth,
+      top: occurrence.range.line * this.line.height,
+      left: occurrence.range.character * this.fontWidth,
+      isWriteAccess: occurrence.isWriteAccess,
     }
   }
 
@@ -102,7 +111,7 @@ abstract class Renderer {
       }
 
       // TODO: Fix overflow when length is large
-      const occurrences = response.occurrences.map(data => this.getOccurrenceStyle(data))
+      const occurrences = map(response.occurrences, occurrence => this.getOccurrenceStyle(occurrence))
       Object.assign(nextState, { occurrences })
       setState(nextState)
     })
@@ -191,8 +200,9 @@ abstract class Renderer {
     this.$code.style.position = 'relative'
 
     forEach(this.$code.children, $child => {
-      $child.style.position = 'relative'
-      $child.style.zIndex = '1'
+      const $ = <HTMLElement>$child
+      $.style.position = 'relative'
+      $.style.zIndex = '1'
     })
 
     const $background = document.createElement('div')
