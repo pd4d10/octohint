@@ -24,6 +24,7 @@ abstract class Renderer {
   isActive = true // TODO: Add a switch to turn it off
   fileName = location.href + '.ts' // FIXME: Add ts extension
   DEBOUNCE_TIMEOUT = 300
+  isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
   $code = <HTMLElement>this.getCodeDOM()
   fontWidth = this.getFontWidth()
@@ -98,7 +99,7 @@ abstract class Renderer {
       file: this.fileName,
       type: 'occurrence',
       position,
-      meta: e.metaKey,
+      meta: this.isMacOS ? e.metaKey : e.ctrlKey,
     }, response => {
       if (response.info) {
         Object.assign(nextState, {
@@ -126,8 +127,7 @@ abstract class Renderer {
   handleKeyDown(e: KeyboardEvent) {
     if (!this.isActive) return
 
-    // FIXME: Should be Control for Windows and Linux user
-    if (e.key === 'Meta') {
+    if (this.isMacOS ? (e.key === 'Meta') : (e.key === 'Control')) {
       this.$code.style.cursor = 'pointer'
     }
   }
@@ -135,7 +135,7 @@ abstract class Renderer {
   handleKeyUp(e: KeyboardEvent) {
     if (!this.isActive) return
 
-    if (e.key === 'Meta') {
+    if (this.isMacOS ? (e.key === 'Meta') : (e.key === 'Control')) {
       this.$code.style.cursor = 'default'
     }
   }
