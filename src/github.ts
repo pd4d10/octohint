@@ -7,7 +7,7 @@ const gitHubInjection = require('github-injection')
 
 class GitHubRenderer extends Renderer {
   getCodeDOM() {
-    return <HTMLElement>document.querySelector('.blob-wrapper > table')
+    return document.querySelector('.blob-wrapper > table')
   }
 
   getFontWidth() {

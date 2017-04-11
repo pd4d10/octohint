@@ -1,4 +1,4 @@
-import { debounce } from 'lodash'
+import { debounce, forEach } from 'lodash'
 import { render, setState } from './containers'
 
 export interface Padding {
@@ -16,13 +16,11 @@ abstract class Renderer {
   FONT_WIDTH = this.getFontWidth()
   LINE = this.getLineWidthAndHeight()
   PADDING = this.getPadding()
-  $code = this.getCodeDOM()
+  $code = <HTMLElement>this.getCodeDOM()
   code = this.getCode()
 
-  reactInstance: any
-
   // abstract renderSwitch(): any
-  abstract getCodeDOM(): HTMLElement
+  abstract getCodeDOM(): Element
   abstract getFontWidth(): number
   abstract getPadding(): Padding
 
@@ -34,7 +32,7 @@ abstract class Renderer {
     const rect = this.$code.getBoundingClientRect()
     return {
       x: Math.floor((e.clientX - rect.left - this.PADDING.left) / this.FONT_WIDTH),
-      y: Math.floor((e.clientY - rect.top) / this.LINE.height)
+      y: Math.floor((e.clientY - rect.top - this.PADDING.top) / this.LINE.height)
     }
   }
 
@@ -167,34 +165,47 @@ abstract class Renderer {
   }
 
   /**
-   * DOM structure:
+   * Problems:
+   * 1. Masks should not cover code
+   * 2. Masks should not be selected
+   * 3. Masks should follow Horizontal scroll
+   * 4. Quick info overflow on first or second line
    *
-   * <parent>
-   *   ...
-   *   <code />
-   *   ...
-   *   <container />
-   * </parent>
+   * DOM structure - z-index
+   *
+   *   <code>
+   *     ... - 1
+   *     <background /> - 0
+   *     <quickInfo /> - 2
+   *   </code>
+   *
+   * <code> and its childrens should not set background-color
+   * Order: background -> code childrens -> quickInfo
    */
   render() {
-    const $parent = this.$code.parentElement
-    $parent.style.position = 'relative'
     this.$code.style.position = 'relative'
+
+    forEach(this.$code.children, $child => {
+      $child.style.position = 'relative'
+      $child.style.zIndex = '1'
+    })
 
     const $background = document.createElement('div')
     $background.style.position = 'absolute'
+    $background.style.zIndex = '0'
     $background.style.top = `${this.PADDING.top}px`
     $background.style.left = `${this.PADDING.left}px`
 
     const $quickInfo = document.createElement('div')
     $quickInfo.style.position = 'absolute'
+    $quickInfo.style.zIndex = '2'
     $quickInfo.style.top = `${this.PADDING.top}px`
     $quickInfo.style.left = `${this.PADDING.left}px`
 
-    $parent.insertBefore($quickInfo, this.$code)
-    $parent.insertBefore($background, $quickInfo)
+    this.$code.insertBefore($background, this.$code.firstChild)
+    this.$code.appendChild($quickInfo)
 
-    this.reactInstance = render($background, $quickInfo)
+    render($background, $quickInfo)
   }
 
   constructor() {

@@ -1,13 +1,13 @@
 import Renderer from './renderer'
+import { map } from 'lodash'
 
 class GitLabRenderer extends Renderer {
   getCodeDOM() {
-    return <HTMLElement>document.querySelector('.blob-content code')
+    return document.querySelector('.blob-content code')
   }
 
   getCode() {
-    const lines = this.$code.children
-    return [].map.call(lines, line => line.innerText).join('\n')
+    return map(this.$code.children, line => line.innerText).join('\n')
   }
 
   getFontWidth() {
@@ -18,7 +18,7 @@ class GitLabRenderer extends Renderer {
   getPadding() {
     return {
       left: 10,
-      top: 10
+      top: 0
     }
   }
 }

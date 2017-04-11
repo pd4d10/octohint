@@ -11,6 +11,7 @@ const QuickInfoBackground = (props: QuickInfoBackgroundProps) => (
     style={{
       display: props.isVisible ? 'block' : 'none',
       position: 'absolute',
+      zIndex: -1,
       background: 'rgba(173,214,255,.15)',
       // lineHeight: '20px',
       // FIXME: Get line height from actual DOM

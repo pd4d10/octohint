@@ -2,11 +2,7 @@ import Renderer from './renderer'
 
 class BitBucketRenderer extends Renderer {
   getCodeDOM() {
-    return <HTMLElement>document.querySelector('#fileview-original table')
-  }
-
-  getCode() {
-    return document.querySelector('#fileview-original table .code').innerText
+    return document.querySelector('.file-source .code')
   }
 
   getFontWidth() {
@@ -23,8 +19,8 @@ class BitBucketRenderer extends Renderer {
 
   getPadding() {
     return {
-      left: 45,
-      top: 8
+      left: 10,
+      top: 8,
     }
   }
 }
