@@ -9,7 +9,7 @@ const services: Services = {}
 const TIMEOUT = 1000 * 60 * 5 // 5min
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  const fileName = message.file + '.ts' // FIXME: Add ts extension
+  const fileName = message.file + '.tsx' // FIXME: Add tsx extension
   const service = services[fileName]
 
   if (!service && !message.code) {
