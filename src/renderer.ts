@@ -21,17 +21,40 @@ interface Occurrence {
 }
 
 abstract class Renderer {
-  isActive = true // TODO: Add a switch to turn it off
-  fileName = location.href + '.ts' // FIXME: Add ts extension
+  fileName = location.href.split('#')[0] // Remove hash
+  isActive = /\.(tsx?|jsx?)$/.test(this.fileName) // TODO: Add a switch to turn it off
   DEBOUNCE_TIMEOUT = 300
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
-  $code = <HTMLElement>this.getCodeDOM()
-  fontWidth = this.getFontWidth()
-  line = this.getLineWidthAndHeight()
-  padding = this.getPadding()
-  code = this.getCode()
-  offsetTop = this.getOffsetTop(this.$code)
+  $code: HTMLElement
+  fontWidth: number
+  line: Line
+  padding: Padding
+  code: string
+  offsetTop: number
+
+  constructor() {
+    if (!this.isActive) {
+      return
+    }
+
+    this.$code = <HTMLElement>this.getCodeDOM()
+    this.fontWidth = this.getFontWidth()
+    this.line = this.getLineWidthAndHeight()
+    this.padding = this.getPadding()
+    this.code = this.getCode()
+    this.offsetTop = this.getOffsetTop(this.$code)
+
+    this.render()
+
+    this.createService(() => {
+      this.$code.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
+      this.$code.addEventListener('mousemove', debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT))
+      this.$code.addEventListener('mouseout', () => this.handleMouseOut())
+      document.addEventListener('keydown', e => this.handleKeyDown(e))
+      document.addEventListener('keyup', e => this.handleKeyUp(e))
+    })
+  }
 
   abstract getCodeDOM(): Element
   abstract getFontWidth(): number
@@ -85,7 +108,6 @@ abstract class Renderer {
   }
 
   handleClick(e: MouseEvent) {
-    if (!this.isActive) return
     const nextState = {
       occurrences: [],
       definition: {
@@ -125,24 +147,19 @@ abstract class Renderer {
   }
 
   handleKeyDown(e: KeyboardEvent) {
-    if (!this.isActive) return
-
     if (this.isMacOS ? (e.key === 'Meta') : (e.key === 'Control')) {
+      // FIXME: Slow when file is large
       this.$code.style.cursor = 'pointer'
     }
   }
 
   handleKeyUp(e: KeyboardEvent) {
-    if (!this.isActive) return
-
     if (this.isMacOS ? (e.key === 'Meta') : (e.key === 'Control')) {
       this.$code.style.cursor = null
     }
   }
 
   handleMouseOut() {
-    if (!this.isActive) return
-
     setState({
       quickInfo: {
         isVisible: false,
@@ -151,8 +168,6 @@ abstract class Renderer {
   }
 
   handleMouseMove(e: MouseEvent) {
-    if (!this.isActive) return
-
     const position = this.getPosition(e)
     this.sendMessage({
       file: this.fileName,
@@ -242,18 +257,6 @@ abstract class Renderer {
       type: 'service',
       code: this.code,
     }, cb)
-  }
-
-  constructor() {
-    this.render()
-
-    this.createService(() => {
-      this.$code.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
-      this.$code.addEventListener('mousemove', debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT))
-      this.$code.addEventListener('mouseout', () => this.handleMouseOut())
-      document.addEventListener('keydown', e => this.handleKeyDown(e))
-      document.addEventListener('keyup', e => this.handleKeyUp(e))
-    })
   }
 }
 
