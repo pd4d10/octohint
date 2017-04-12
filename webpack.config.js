@@ -3,9 +3,10 @@ var CleanWebpackPlugin = require('clean-webpack-plugin');
 module.exports = {
   entry: {
     background: './src/background',
+    sentry: './src/sentry',
     github: './src/platforms/github',
     gitlab: './src/platforms/gitlab',
-    bitbucket: './src/platforms/bitbucket'
+    bitbucket: './src/platforms/bitbucket',
   },
   output: {
     path: './chrome/dist',
