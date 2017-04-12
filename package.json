@@ -1,11 +1,12 @@
 {
   "name": "intelli-octo",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "IntelliSense for GitHub, GitLab and Bitbucket",
   "scripts": {
     "start": "webpack -dw",
     "build": "webpack --config webpack.config.production.js",
+    "package": "cp LICENSE chrome/; zip -r extension.zip ./chrome; rm chrome/LICENSE",
     "test": "echo TODO"
   },
   "repository": {
