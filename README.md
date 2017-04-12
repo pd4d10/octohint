@@ -2,6 +2,14 @@
 
 IntelliSense for GitHub, GitLab and Bitbucket
 
+<img src="assets/demo.gif" alt="Demo" width="593" />
+
+## Installation
+
+Install it from Chrome Web Store:
+
+https://chrome.google.com/webstore/detail/intelliocto/hbkpjkfdheainjkkebeoofkpgddnnbpk
+
 ## Features
 
 * Hover to see quick information
@@ -13,19 +21,11 @@ IntelliSense for GitHub, GitLab and Bitbucket
 * TypeScript
 * JavaScript
 
-More languages coming soon.
-
-## Installation
-
-Install it from Chrome Web Store:
-
-Versions for FireFox and Edge comming soon.
-
 ## Roadmap
 
-- [] Multi languages support
-- [] Enterprise version of GitHub and GitLab
-- [] Extensions for Firefox and Edge
+* Multi languages support
+* Enterprise version of GitHub and GitLab
+* Extensions for Firefox and Edge
 
 ## License
 
