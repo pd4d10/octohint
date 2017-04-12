@@ -1,4 +1,4 @@
-var CleanWebpackPlugin = require('clean-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -21,11 +21,11 @@ module.exports = {
         loader: 'awesome-typescript-loader',
         exclude: /node_modules/,
       },
-      { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
       {
         test: /\.css$/,
         loader: 'style-loader!css-loader'
-      }
+      },
+      { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
     ]
   },
   resolve: {

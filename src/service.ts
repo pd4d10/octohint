@@ -1,5 +1,6 @@
 import * as ts from 'typescript'
 
+// TODO: Include DOM and ES d.ts
 export default class Service {
   fileName: string
   service: ts.LanguageService

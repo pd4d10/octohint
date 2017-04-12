@@ -10,10 +10,7 @@ class GitLabRenderer extends Renderer {
 
   // Rewrite this method, for lack of '\n' at blank line
   getCode() {
-    return map(this.$code.children, line => {
-      const $ = <HTMLElement>line
-      return $.innerText
-    }).join('\n')
+    return map(this.$code.children, line => (<HTMLElement>line).innerText).join('\n')
   }
 
   getFontDOM() {

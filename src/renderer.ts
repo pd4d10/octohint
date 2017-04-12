@@ -24,7 +24,10 @@ interface Occurrence {
 
 abstract class Renderer {
   fileName = location.host + location.pathname // Exclude query and hash
-  isActive = /\.(tsx?|jsx?)$/.test(this.fileName) // TODO: Add a switch to turn it off
+  isActive = /\.(tsx?|jsx?)$/.test(this.fileName)
+  // TODO: Add a switch to turn it off
+  // TODO: Multi language support
+
   DEBOUNCE_TIMEOUT = 300
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
@@ -111,6 +114,7 @@ abstract class Renderer {
     return {
       top: range.line * this.line.height,
       left: range.character * this.fontWidth,
+      height: this.line.height,
       fontFamily: this.fontFamily
     }
   }
@@ -188,7 +192,8 @@ abstract class Renderer {
           quickInfo: {
             isVisible: true,
             info: data.info,
-            ...this.getQuickInfoStyle(data.range)
+            ...this.getQuickInfoStyle(data.range),
+            width: data.width * this.fontWidth,
           }
         })
       } else {

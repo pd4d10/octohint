@@ -6,7 +6,7 @@ import QuickInfoBackground, { QuickInfoBackgroundProps } from '../components/qui
 export interface StateType {
   occurrences: OccurrenceProps[],
   definition: DefinitionProps,
-  QuickInfoBackground: QuickInfoBackgroundProps
+  quickInfo: QuickInfoBackgroundProps
 }
 
 export default class Background extends Component<undefined, StateType> {
@@ -18,10 +18,12 @@ export default class Background extends Component<undefined, StateType> {
       width: 0,
       top: 0
     },
-    QuickInfoBackground: {
+    quickInfo: {
       isVisible: false,
       top: 0,
-      left: 0
+      left: 0,
+      width: 0,
+      height: 0,
     }
   }
 
@@ -31,7 +33,7 @@ export default class Background extends Component<undefined, StateType> {
       <div>
         <Definition {...state.definition} />
         {state.occurrences.map(occurrence => <Occurrence {...occurrence} />)}
-        <QuickInfoBackground {...state.QuickInfoBackground} />
+        <QuickInfoBackground {...state.quickInfo} />
       </div>
     )
   }

@@ -51,5 +51,3 @@ gitHubInjection(window, (err: Error) => {
   if (err) throw err
   const renderer = new GitHubRenderer()
 })
-
-// TODO: Multi language support
