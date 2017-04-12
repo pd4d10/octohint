@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { h, Component } from 'preact'
 
 export interface State {
   isVisible: boolean,
@@ -7,7 +7,7 @@ export interface State {
   left: number,
 }
 
-export default class QuickInfo extends React.Component<undefined, State> {
+export default class QuickInfo extends Component<undefined, State> {
   state = {
     isVisible: false,
     info: '',

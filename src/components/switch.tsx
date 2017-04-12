@@ -1,5 +1,6 @@
-import * as React from 'react'
-import * as ReactDOM from 'react-dom'
+// TODO: Add switch
+
+import { h, Component } from 'preact'
 
 interface PropsTypes {}
 
@@ -7,7 +8,7 @@ interface StateType {
   isOpen: boolean
 }
 
-class Switch extends React.Component<PropsTypes, StateType> {
+class Switch extends Component<PropsTypes, StateType> {
   state: StateType = {
     isOpen: true
   }
@@ -24,6 +25,6 @@ class Switch extends React.Component<PropsTypes, StateType> {
   }
 }
 
-export default function renderSwitch($dom: HTMLElement) {
-  return ReactDOM.render(<Switch />, $dom)
-}
+// export default function renderSwitch($dom: HTMLElement) {
+//   return ReactDOM.render(<Switch />, $dom)
+// }

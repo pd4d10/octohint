@@ -22,13 +22,10 @@
   "dependencies": {
     "@types/chrome": "^0.0.44",
     "@types/lodash": "^4.14.61",
-    "@types/react": "^15.0.21",
-    "@types/react-dom": "^0.14.23",
     "github-injection": "^0.3.0",
     "lodash": "^4.17.4",
+    "preact": "^8.1.0",
     "raven-js": "^3.14.0",
-    "react": "^15.5.3",
-    "react-dom": "^15.5.3",
     "typescript": "^2.1.5"
   },
   "devDependencies": {

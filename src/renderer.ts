@@ -1,5 +1,5 @@
 import { debounce, forEach, map } from 'lodash'
-import { render, setState } from './containers'
+import { renderToDOM, setState } from './containers'
 
 const BACKGROUND_ID = 'intelli-octo-background'
 
@@ -238,7 +238,7 @@ abstract class Renderer {
     this.$code.insertBefore($background, this.$code.firstChild)
     this.$code.appendChild($quickInfo)
 
-    render($background, $quickInfo)
+    renderToDOM($background, $quickInfo)
   }
 
   sendMessage(data: object, cb) {

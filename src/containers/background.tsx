@@ -1,5 +1,4 @@
-import * as React from 'react'
-// import * as ReactDOM from 'react-dom'
+import { h, Component } from 'preact'
 import Occurrence, { OccurrenceProps } from '../components/occurrence'
 import Definition, { DefinitionProps } from '../components/definition'
 import QuickInfoBackground, { QuickInfoBackgroundProps } from '../components/quick-info-background'
@@ -10,7 +9,7 @@ interface StateType {
   QuickInfoBackground: QuickInfoBackgroundProps
 }
 
-export default class BackgroundContainer extends React.Component<undefined, StateType> {
+export default class Background extends Component<undefined, StateType> {
   state = {
     occurrences: [],
     definition: {

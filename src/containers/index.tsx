@@ -1,14 +1,13 @@
-import * as React from 'react'
-import * as ReactDOM from 'react-dom'
+import { h, render, Component } from 'preact'
 import Background from './background'
 import QuickInfo from './quick-info'
 
-let background: React.Component
-let quickInfo: React.Component
+let background: Component
+let quickInfo: Component
 
-export function render($background: HTMLElement, $quickInfo: HTMLElement) {
-  background = ReactDOM.render(<Background />, $background)
-  quickInfo = ReactDOM.render(<QuickInfo />, $quickInfo)
+export function renderToDOM($background: HTMLElement, $quickInfo: HTMLElement) {
+  render(<Background ref={ref => background = ref} />, $background)
+  render(<QuickInfo ref={ref => quickInfo = ref} />, $quickInfo)
 }
 
 export function setState(state: object) {

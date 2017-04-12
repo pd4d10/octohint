@@ -6,7 +6,7 @@
     "module": "commonjs",
     "target": "es5",
     "jsx": "react",
-    // "jsxFactory": "h",
+    "jsxFactory": "h",
     "allowJs": true,
     "lib": ["es2015", "dom"]
   },
