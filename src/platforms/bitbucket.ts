@@ -8,7 +8,7 @@ class BitBucketRenderer extends Renderer {
   }
 
   getFontWidth() {
-    const $ = <HTMLElement>document.querySelector('span.kd') // FIXME:
+    const $ = <HTMLElement>this.$code.querySelector('span[class]')
     return $.getBoundingClientRect().width / $.innerText.length
   }
 

@@ -11,8 +11,7 @@ class GitHubRenderer extends Renderer {
   }
 
   getFontWidth() {
-    // FIXME: Handle when first line has no content
-    const $ = <HTMLElement>document.querySelector('#LC1 > span')
+    const $ = <HTMLElement>this.$code.querySelector('span[class]')
     return $.getBoundingClientRect().width / $.innerText.length
   }
 

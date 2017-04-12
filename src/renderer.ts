@@ -21,7 +21,7 @@ interface Occurrence {
 }
 
 abstract class Renderer {
-  fileName = location.href.split('#')[0] // Remove hash
+  fileName = location.host + location.pathname // Exclude query and hash
   isActive = /\.(tsx?|jsx?)$/.test(this.fileName) // TODO: Add a switch to turn it off
   DEBOUNCE_TIMEOUT = 300
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
