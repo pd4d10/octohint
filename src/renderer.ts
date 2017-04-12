@@ -1,6 +1,8 @@
 import { debounce, forEach, map } from 'lodash'
 import { render, setState } from './containers'
 
+const BACKGROUND_ID = 'intelli-octo-background'
+
 interface Padding {
   left: number,
   top: number,
@@ -34,7 +36,7 @@ abstract class Renderer {
   offsetTop: number
 
   constructor() {
-    if (!this.isActive) {
+    if (!this.isActive || document.getElementById(BACKGROUND_ID)) {
       return
     }
 
@@ -221,6 +223,7 @@ abstract class Renderer {
     })
 
     const $background = document.createElement('div')
+    $background.id = BACKGROUND_ID // This is a signature for initialized
     $background.style.position = 'absolute'
     $background.style.zIndex = '0'
     $background.style.top = `${this.padding.top}px`

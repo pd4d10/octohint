@@ -1,7 +1,5 @@
 import Renderer from '../renderer'
 
-// FIXME: Dynamic injection
-
 class BitBucketRenderer extends Renderer {
   getCodeDOM() {
     return document.querySelector('.file-source .code')
@@ -28,3 +26,21 @@ class BitBucketRenderer extends Renderer {
 }
 
 const renderer = new BitBucketRenderer()
+
+// Dynamic injection
+// https://github.com/OctoLinker/injection/blob/master/index.js
+const $DOM = document.querySelector('#source-container')
+
+const spy = new MutationObserver(function (mutations) {
+  mutations.forEach(function (mutation) {
+    if (mutation.type === 'childList' && mutation.addedNodes.length) {
+      new BitBucketRenderer()
+    }
+  })
+})
+
+spy.observe($DOM, {
+  attributes: true,
+  childList: true,
+  characterData: true
+})
