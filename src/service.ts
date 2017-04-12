@@ -1,4 +1,28 @@
 import * as ts from 'typescript'
+const defaultLib = [
+  require('raw-loader!typescript/lib/lib.d.ts'),
+  require('raw-loader!typescript/lib/lib.dom.d.ts'),
+  require('raw-loader!typescript/lib/lib.dom.iterable.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2015.collection.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2015.core.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2015.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2015.generator.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2015.iterable.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2015.promise.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2015.proxy.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2015.reflect.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2015.symbol.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2015.symbol.wellknown.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2016.array.include.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2016.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2017.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2017.object.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2017.sharedmemory.d.ts'),
+  require('raw-loader!typescript/lib/lib.es2017.string.d.ts'),
+  require('raw-loader!typescript/lib/lib.es5.d.ts'),
+  require('raw-loader!typescript/lib/lib.es6.d.ts'),
+  require('raw-loader!typescript/lib/lib.webworker.d.ts'),
+].join('\n')
 
 // TODO: Include DOM and ES d.ts
 export default class Service {
@@ -22,7 +46,15 @@ export default class Service {
       getScriptFileNames: () => [this.fileName],
       getScriptVersion: () => '0', // Version matters not here since no file change
       getScriptSnapshot: (fileName) => {
-        return fileName === this.fileName ? ts.ScriptSnapshot.fromString(code) : undefined
+        if (fileName === '//lib.d.ts') {
+          return ts.ScriptSnapshot.fromString(defaultLib)
+        }
+
+        if (fileName === this.fileName) {
+          return ts.ScriptSnapshot.fromString(code)
+        }
+
+        return undefined
       },
       getCurrentDirectory: () => '/',
       getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS }),
@@ -57,13 +89,15 @@ export default class Service {
 
   getDefinition(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const infos = this.service.getDefinitionAtPosition(this.fileName, position)
+    const infos = this.service.getDefinitionAtPosition(this.fileName, position) || []
 
-    if (infos && infos[0]) {
-      return this.source.getLineAndCharacterOfPosition(infos[0].textSpan.start)
-    } else {
+    const infosOfFile = infos.filter(info => info.fileName === this.fileName)
+
+    if (infosOfFile.length === 0) {
       return undefined
     }
+
+    return this.source.getLineAndCharacterOfPosition(infosOfFile[0].textSpan.start)
   }
 
   getQuickInfo(line: number, character: number) {
