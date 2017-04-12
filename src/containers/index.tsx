@@ -1,9 +1,9 @@
 import { h, render, Component } from 'preact'
-import Background from './background'
-import QuickInfo from './quick-info'
+import Background, { StateType as BackgroundStateType } from './background'
+import QuickInfo, { StateType as QuickInfoStateType } from './quick-info'
 
-let background: Component
-let quickInfo: Component
+let background: Component<undefined, BackgroundStateType>
+let quickInfo: Component<undefined, QuickInfoStateType>
 
 export function renderToDOM($background: HTMLElement, $quickInfo: HTMLElement) {
   render(<Background ref={ref => background = ref} />, $background)

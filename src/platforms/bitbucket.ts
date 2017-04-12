@@ -5,9 +5,8 @@ class BitBucketRenderer extends Renderer {
     return document.querySelector('.file-source .code')
   }
 
-  getFontWidth() {
-    const $ = <HTMLElement>this.$code.querySelector('span[class]')
-    return $.getBoundingClientRect().width / $.innerText.length
+  getFontDOM() {
+    return this.$code.querySelector('span[class]')
   }
 
   getLineWidthAndHeight() {

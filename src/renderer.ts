@@ -30,6 +30,7 @@ abstract class Renderer {
 
   $code: HTMLElement
   fontWidth: number
+  fontFamily: string
   line: Line
   padding: Padding
   code: string
@@ -41,11 +42,15 @@ abstract class Renderer {
     }
 
     this.$code = <HTMLElement>this.getCodeDOM()
-    this.fontWidth = this.getFontWidth()
     this.line = this.getLineWidthAndHeight()
     this.padding = this.getPadding()
     this.code = this.getCode()
     this.offsetTop = this.getOffsetTop(this.$code)
+
+    // Get font width and family
+    const fontDOM = <HTMLElement>this.getFontDOM()
+    this.fontWidth = fontDOM.getBoundingClientRect().width / fontDOM.innerText.length,
+    this.fontFamily = getComputedStyle(fontDOM).fontFamily
 
     this.render()
 
@@ -59,7 +64,7 @@ abstract class Renderer {
   }
 
   abstract getCodeDOM(): Element
-  abstract getFontWidth(): number
+  abstract getFontDOM(): Element
   abstract getLineWidthAndHeight(): Line
   abstract getPadding(): Padding
 
@@ -105,7 +110,8 @@ abstract class Renderer {
   getQuickInfoStyle(range: object) {
     return {
       top: range.line * this.line.height,
-      left: range.character * this.fontWidth
+      left: range.character * this.fontWidth,
+      fontFamily: this.fontFamily
     }
   }
 

@@ -16,9 +16,8 @@ class GitLabRenderer extends Renderer {
     }).join('\n')
   }
 
-  getFontWidth() {
-    const $ = <HTMLElement>this.$code.querySelector('span[class]:not(.line)')
-    return $.getBoundingClientRect().width / $.innerText.length
+  getFontDOM() {
+    return this.$code.querySelector('span[class]:not(.line)')
   }
 
   getLineWidthAndHeight() {

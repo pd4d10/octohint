@@ -3,7 +3,7 @@ import Occurrence, { OccurrenceProps } from '../components/occurrence'
 import Definition, { DefinitionProps } from '../components/definition'
 import QuickInfoBackground, { QuickInfoBackgroundProps } from '../components/quick-info-background'
 
-interface StateType {
+export interface StateType {
   occurrences: OccurrenceProps[],
   definition: DefinitionProps,
   QuickInfoBackground: QuickInfoBackgroundProps
@@ -30,10 +30,7 @@ export default class Background extends Component<undefined, StateType> {
     return (
       <div>
         <Definition {...state.definition} />
-        {state.occurrences.map((occurrence, i) => (
-          <Occurrence key={i} {...occurrence} />
-          // FIXME: Key should not be index
-        ))}
+        {state.occurrences.map(occurrence => <Occurrence {...occurrence} />)}
         <QuickInfoBackground {...state.QuickInfoBackground} />
       </div>
     )

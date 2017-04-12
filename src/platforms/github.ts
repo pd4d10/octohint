@@ -10,9 +10,8 @@ class GitHubRenderer extends Renderer {
     return document.querySelector('.blob-wrapper > table')
   }
 
-  getFontWidth() {
-    const $ = <HTMLElement>this.$code.querySelector('span[class]')
-    return $.getBoundingClientRect().width / $.innerText.length
+  getFontDOM() {
+    return this.$code.querySelector('span[class]')
   }
 
   getLineWidthAndHeight() {

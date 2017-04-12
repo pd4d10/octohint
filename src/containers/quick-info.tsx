@@ -1,18 +1,20 @@
 import { h, Component } from 'preact'
 
-export interface State {
+export interface StateType {
   isVisible: boolean,
   info: string,
   top: number,
   left: number,
+  fontFamily: string,
 }
 
-export default class QuickInfo extends Component<undefined, State> {
+export default class QuickInfo extends Component<undefined, StateType> {
   state = {
     isVisible: false,
     info: '',
     top: 0,
-    left: 0
+    left: 0,
+    fontFamily: 'monospace'
   }
 
   render() {
@@ -27,8 +29,7 @@ export default class QuickInfo extends Component<undefined, State> {
           fontSize: '12px',
           padding: '4px',
           lineHeight: 1,
-          fontFamily: 'SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace',
-          // FIXME: Get font family from actual DOM
+          fontFamily: state.fontFamily,
           top: state.top - 22,
           left: state.left,
           minWidth: '100%',
