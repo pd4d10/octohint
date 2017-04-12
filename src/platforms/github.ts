@@ -25,8 +25,9 @@ class GitHubRenderer extends Renderer {
   }
 
   getPadding() {
+    const gutter = <HTMLElement>document.querySelector('#L1')
     return {
-      left: 60,
+      left: gutter.getBoundingClientRect().width + 10,
       top: 0,
     }
   }
