@@ -1,4 +1,6 @@
-import { debounce, forEach, map } from 'lodash'
+import * as debounce from 'lodash/debounce'
+import * as forEach from 'lodash/forEach'
+import * as map from 'lodash/map'
 import { renderToDOM, setState } from './containers'
 
 const BACKGROUND_ID = 'intelli-octo-background'
@@ -111,8 +113,11 @@ abstract class Renderer {
   }
 
   getQuickInfoStyle(range: object) {
+    const top = range.line * this.line.height
     return {
-      top: range.line * this.line.height,
+      // First line, show quick info below
+      infoTop: range.line === 0 ? top + this.line.height : top - 22,
+      top,
       left: range.character * this.fontWidth,
       height: this.line.height,
       fontFamily: this.fontFamily
@@ -128,6 +133,10 @@ abstract class Renderer {
     }
 
     const position = this.getPosition(e)
+
+    if (position.x < 0 || position.y < 0) {
+      return
+    }
 
     this.sendMessage({
       file: this.fileName,
@@ -181,6 +190,11 @@ abstract class Renderer {
 
   handleMouseMove(e: MouseEvent) {
     const position = this.getPosition(e)
+
+    if (position.x < 0 || position.y < 0) {
+      return
+    }
+
     this.sendMessage({
       file: this.fileName,
       type: 'quickInfo',

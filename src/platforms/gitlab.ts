@@ -1,7 +1,5 @@
 import Renderer from '../renderer'
-import { map } from 'lodash'
-
-// TODO: Dynamic injection
+import * as map from 'lodash/map'
 
 class GitLabRenderer extends Renderer {
   getCodeDOM() {

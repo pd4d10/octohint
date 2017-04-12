@@ -3,18 +3,18 @@ import { h, Component } from 'preact'
 export interface StateType {
   isVisible: boolean,
   info: string,
-  top: number,
   left: number,
   fontFamily: string,
+  infoTop: number,
 }
 
 export default class QuickInfo extends Component<undefined, StateType> {
   state = {
     isVisible: false,
     info: '',
-    top: 0,
     left: 0,
-    fontFamily: 'monospace'
+    fontFamily: 'monospace',
+    infoTop: 0,
   }
 
   render() {
@@ -30,7 +30,7 @@ export default class QuickInfo extends Component<undefined, StateType> {
           padding: '4px',
           lineHeight: 1,
           fontFamily: state.fontFamily,
-          top: state.top - 22,
+          top: state.infoTop,
           left: state.left,
           minWidth: '100%',
         }}
