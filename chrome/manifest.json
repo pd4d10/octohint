@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "IntelliOcto",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "IntelliSense for GitHub, GitLab and Bitbucket",
   "homepage_url": "https://github.com/pd4d10/intelli-octo",
   "icons": {
