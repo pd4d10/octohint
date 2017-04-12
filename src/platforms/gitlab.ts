@@ -1,5 +1,4 @@
 import Renderer from '../renderer'
-import * as map from 'lodash/map'
 
 class GitLabRenderer extends Renderer {
   getCodeDOM() {
@@ -8,7 +7,7 @@ class GitLabRenderer extends Renderer {
 
   // Rewrite this method, for lack of '\n' at blank line
   getCode() {
-    return map(this.$code.children, line => (<HTMLElement>line).innerText).join('\n')
+    return [].map.call(this.$code.children, line => (<HTMLElement>line).innerText).join('\n')
   }
 
   getFontDOM() {

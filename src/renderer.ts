@@ -1,6 +1,4 @@
 import * as debounce from 'lodash/debounce'
-import * as forEach from 'lodash/forEach'
-import * as map from 'lodash/map'
 import { renderToDOM, setState } from './containers'
 
 const BACKGROUND_ID = 'intelli-octo-background'
@@ -155,7 +153,7 @@ abstract class Renderer {
       }
 
       // TODO: Fix overflow when length is large
-      const occurrences = map(response.occurrences, occurrence => this.getOccurrenceStyle(occurrence))
+      const occurrences = response.occurrences.map(occurrence => this.getOccurrenceStyle(occurrence))
       Object.assign(nextState, { occurrences })
       setState(nextState)
     })
@@ -241,7 +239,7 @@ abstract class Renderer {
   render() {
     this.$code.style.position = 'relative'
 
-    forEach(this.$code.children, $child => {
+    ; [].forEach.call(this.$code.children, $child => {
       const $ = <HTMLElement>$child
       $.style.position = 'relative'
       $.style.zIndex = '1'
