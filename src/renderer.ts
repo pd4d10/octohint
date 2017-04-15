@@ -1,6 +1,8 @@
 import * as debounce from 'lodash/debounce'
 import { renderToDOM, setState } from './containers'
 
+console.log(chrome)
+
 const BACKGROUND_ID = 'intelli-octo-background'
 
 interface Padding {
@@ -24,7 +26,8 @@ interface Occurrence {
 
 abstract class Renderer {
   fileName = location.host + location.pathname // Exclude query and hash
-  isActive = /\.(tsx?|jsx?)$/.test(this.fileName)
+  isActive = /\.(tsx?|jsx?|css|less|scss|html)$/.test(this.fileName)
+  // Fix URL like https://github.com/mozilla/pdf.js
   // TODO: Add a switch to turn it off
   // TODO: Multi language support
 
@@ -141,7 +144,7 @@ abstract class Renderer {
       type: 'occurrence',
       position,
       meta: this.isMacOS ? e.metaKey : e.ctrlKey,
-    }, response => {
+    }, (response: any) => {
       if (response.info) {
         Object.assign(nextState, {
           definition: {
@@ -153,7 +156,7 @@ abstract class Renderer {
       }
 
       // TODO: Fix overflow when length is large
-      const occurrences = response.occurrences.map(occurrence => this.getOccurrenceStyle(occurrence))
+      const occurrences = response.occurrences.map((occurrence: any) => this.getOccurrenceStyle(occurrence))
       Object.assign(nextState, { occurrences })
       setState(nextState)
     })
@@ -197,7 +200,7 @@ abstract class Renderer {
       file: this.fileName,
       type: 'quickInfo',
       position,
-    }, response => {
+    }, (response: any) => {
       const { data } = response
       if (data) {
         setState({
@@ -239,7 +242,7 @@ abstract class Renderer {
   render() {
     this.$code.style.position = 'relative'
 
-    ; [].forEach.call(this.$code.children, $child => {
+    ; [].forEach.call(this.$code.children, ($child: Element) => {
       const $ = <HTMLElement>$child
       $.style.position = 'relative'
       $.style.zIndex = '1'
@@ -264,7 +267,7 @@ abstract class Renderer {
     renderToDOM($background, $quickInfo)
   }
 
-  sendMessage(data: object, cb) {
+  sendMessage(data: object, cb: any) {
     chrome.runtime.sendMessage(data, response => {
       if (response && response.error === 'no-code') {
         this.createService(() => {
@@ -277,7 +280,7 @@ abstract class Renderer {
     })
   }
 
-  createService(cb) {
+  createService(cb: any) {
     chrome.runtime.sendMessage({
       file: this.fileName,
       type: 'service',

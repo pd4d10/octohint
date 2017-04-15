@@ -17,7 +17,7 @@ class Switch extends Component<PropsTypes, StateType> {
     return (
       <div
         style={this.state.isOpen ? {} : { color: '#aaa' }}
-        onClick={() => this.setState(previousState => ({
+        onClick={() => this.setState((previousState: any) => ({
           isOpen: !previousState.isOpen
         }))}
       >Intelli Octo</div>
