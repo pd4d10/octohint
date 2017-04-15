@@ -1,5 +1,6 @@
 import * as ts from 'typescript'
-import Service from './service'
+import Service from './services/service'
+import createService from './services'
 
 interface Services {
   [key: string]: Service
@@ -26,7 +27,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
 
       const { file, code } = message
-      services[fileName] = new Service(fileName, code)
+      services[fileName] = createService(fileName, code)
 
       // Add a timeout to delete service to prevent memory leak
       setTimeout(() => {

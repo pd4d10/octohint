@@ -4,10 +4,10 @@
   "version": "1.0.2",
   "description": "IntelliSense for GitHub, GitLab and Bitbucket",
   "scripts": {
-    "start": "webpack -dw",
+    "start": "webpack -w",
     "build": "webpack --config webpack.config.production.js",
     "package": "cp LICENSE chrome/; zip -r extension.zip ./chrome; rm chrome/LICENSE",
-    "test": "echo TODO"
+    "test": "tslint src"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,10 @@
     "lodash": "^4.17.4",
     "preact": "^8.1.0",
     "raven-js": "^3.14.0",
-    "typescript": "^2.1.5"
+    "typescript": "^2.1.5",
+    "vscode-css-languageservice": "^2.0.0",
+    "vscode-html-languageservice": "^2.0.1",
+    "vscode-languageserver-types": "^3.2.0"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^3.1.2",
@@ -35,9 +38,10 @@
     "css-loader": "^0.26.1",
     "raw-loader": "^0.5.1",
     "source-map-loader": "^0.2.1",
+    "string-replace-webpack-plugin": "^0.1.3",
     "style-loader": "^0.13.1",
     "tslint": "^4.4.2",
-    "webpack": "^2.2.1",
+    "webpack": "^2.4.1",
     "webpack-bundle-analyzer": "^2.3.1"
   }
 }

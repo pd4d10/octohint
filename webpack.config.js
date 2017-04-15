@@ -1,4 +1,7 @@
+const path = require('path')
+const webpack = require('webpack')
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+var StringReplacePlugin = require("string-replace-webpack-plugin");
 
 module.exports = {
   entry: {
@@ -9,13 +12,33 @@ module.exports = {
     bitbucket: './src/platforms/bitbucket',
   },
   output: {
-    path: './chrome/dist',
+    path: path.resolve('chrome/dist'),
     filename: '[name].js'
   },
   // Enable sourcemaps for debugging webpack's output.
   devtool: "source-map",
   module: {
     rules: [
+      {
+        // This is an ugly hack to prevent require error
+        test: /node_modules\/vscode.*\.js$/,
+        loader: StringReplacePlugin.replace({
+          replacements: [
+            {
+              pattern: /factory\(require, exports\)/g,
+              replacement: function (match, p1, offset, string) {
+                return 'factory(null, exports)'
+              }
+            },
+            {
+              pattern: /function \(require, exports\)/,
+              replacement: function (match, p1, offset, string) {
+                return 'function (UnUsedVar, exports)'
+              }
+            }
+          ]
+        })
+      },
       {
         test: /\.tsx?$/,
         loader: 'awesome-typescript-loader',
@@ -34,17 +57,8 @@ module.exports = {
 
   // https://github.com/postcss/postcss-js/issues/10#issuecomment-179782081
   node: { fs: 'empty' },
-
-  // When importing a module whose path matches one of the following, just
-  // assume a corresponding global variable exists and use that instead.
-  // This is important because it allows us to avoid bundling all of our
-  // dependencies, which allows browsers to cache those libraries between builds.
-  // externals: {
-  //     "react": "React",
-  //     "react-dom": "ReactDOM"
-  // },
-
   plugins: [
-    new CleanWebpackPlugin('chrome/dist')
+    new CleanWebpackPlugin('chrome/dist'),
+    new StringReplacePlugin()
   ]
 }
