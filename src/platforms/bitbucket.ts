@@ -22,6 +22,10 @@ class BitBucketRenderer extends Renderer {
       top: 8,
     }
   }
+
+  getTabSize() {
+    return 8
+  }
 }
 
 const renderer = new BitBucketRenderer()

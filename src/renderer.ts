@@ -27,6 +27,8 @@ interface Occurrence {
 abstract class Renderer {
   fileName = location.host + location.pathname // Exclude query and hash
   isActive = /\.(tsx?|jsx?|css|less|scss|html)$/.test(this.fileName)
+  tabSize: number
+
   // Fix URL like https://github.com/mozilla/pdf.js
   // TODO: Add a switch to turn it off
   // TODO: Multi language support
@@ -41,6 +43,12 @@ abstract class Renderer {
   padding: Padding
   code: string
   offsetTop: number
+
+  abstract getCodeDOM(): Element
+  abstract getFontDOM(): Element
+  abstract getLineWidthAndHeight(): Line
+  abstract getPadding(): Padding
+  abstract getTabSize(): number
 
   constructor() {
     if (!this.isActive || document.getElementById(BACKGROUND_ID)) {
@@ -57,6 +65,7 @@ abstract class Renderer {
     const fontDOM = <HTMLElement>this.getFontDOM()
     this.fontWidth = fontDOM.getBoundingClientRect().width / fontDOM.innerText.length,
     this.fontFamily = getComputedStyle(fontDOM).fontFamily
+    this.tabSize = this.getTabSize()
 
     this.render()
 
@@ -68,11 +77,6 @@ abstract class Renderer {
       document.addEventListener('keyup', e => this.handleKeyUp(e))
     })
   }
-
-  abstract getCodeDOM(): Element
-  abstract getFontDOM(): Element
-  abstract getLineWidthAndHeight(): Line
-  abstract getPadding(): Padding
 
   getCode() {
     return this.$code.innerText
@@ -284,7 +288,7 @@ abstract class Renderer {
     chrome.runtime.sendMessage({
       file: this.fileName,
       type: 'service',
-      code: this.code,
+      code: this.code.replace(/\t/g, ' '.repeat(this.tabSize)), // Replace tab with space
     }, cb)
   }
 }

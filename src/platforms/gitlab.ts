@@ -7,7 +7,7 @@ class GitLabRenderer extends Renderer {
 
   // Rewrite this method, for lack of '\n' at blank line
   getCode() {
-    return [].map.call(this.$code.children, line => (<HTMLElement>line).innerText).join('\n')
+    return [].map.call(this.$code.children, (line: Element) => (<HTMLElement>line).innerText).join('\n')
   }
 
   getFontDOM() {
@@ -27,6 +27,10 @@ class GitLabRenderer extends Renderer {
       left: 10,
       top: 0
     }
+  }
+
+  getTabSize() {
+    return 8
   }
 }
 
