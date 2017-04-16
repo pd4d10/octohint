@@ -13,8 +13,11 @@ class GitHubRenderer extends Renderer {
   getCode() {
     // If we use document.querySelector('.blob-wrapper > table').innerText
     // Empty line in comment is missing
-    // Example: https://github.com/gorhill/uBlock/blob/master/platform/safari/vapi-background.js
-    const trs = document.querySelectorAll('.blob-wrapper table tr')
+    // innerText behavior is different at FireFox, so use <td> instead of <tr>
+
+    // Test case:
+    // https://github.com/gorhill/uBlock/blob/master/platform/safari/vapi-background.js
+    const trs = document.querySelectorAll('.blob-wrapper table td.blob-code')
     return [].map.call(trs, (line: Element) => {
       const text = (<HTMLElement>line).innerText
       if (text === '\n') {
