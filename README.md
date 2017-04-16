@@ -18,8 +18,9 @@ https://chrome.google.com/webstore/detail/intelliocto/hbkpjkfdheainjkkebeoofkpgd
 
 ## Supported languages
 
-* TypeScript
-* JavaScript
+* TypeScript and JavaScript
+* CSS, LESS, SCSS
+* HTML
 
 ## Roadmap
 
