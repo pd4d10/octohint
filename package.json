@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack -w",
     "build": "webpack --config webpack.config.production.js",
-    "package": "cp LICENSE chrome/; zip -r extension.zip ./chrome; rm chrome/LICENSE",
+    "package": "cd chrome/; cp ../LICENSE ./; zip -r ../extension.zip ./; rm LICENSE; cd ../",
     "test": "tslint src"
   },
   "repository": {
@@ -44,6 +44,7 @@
     "style-loader": "^0.13.1",
     "tslint": "^4.4.2",
     "webpack": "^2.4.1",
-    "webpack-bundle-analyzer": "^2.3.1"
+    "webpack-bundle-analyzer": "^2.3.1",
+    "webpack-merge": "^4.1.0"
   }
 }
