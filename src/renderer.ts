@@ -43,6 +43,7 @@ abstract class Renderer {
   offsetTop: number
 
   abstract getCodeDOM(): Element
+  abstract getCode(): string
   abstract getFontDOM(): Element
   abstract getLineWidthAndHeight(): Line
   abstract getPadding(): Padding
@@ -74,10 +75,6 @@ abstract class Renderer {
       document.addEventListener('keydown', e => this.handleKeyDown(e))
       document.addEventListener('keyup', e => this.handleKeyUp(e))
     })
-  }
-
-  getCode() {
-    return this.$code.innerText
   }
 
   getOffsetTop(e: HTMLElement): number {

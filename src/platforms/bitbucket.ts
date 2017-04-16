@@ -5,6 +5,10 @@ class BitBucketRenderer extends Renderer {
     return document.querySelector('.file-source .code')
   }
 
+  getCode() {
+    return this.$code.innerText
+  }
+
   getFontDOM() {
     return this.$code.querySelector('span[class]')
   }

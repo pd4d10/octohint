@@ -5,8 +5,9 @@ class GitLabRenderer extends Renderer {
     return document.querySelector('.blob-content code')
   }
 
-  // Rewrite this method, for lack of '\n' at blank line
   getCode() {
+    // document.querySelector('.blob-content code').innerText miss empty line
+    // Example: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/app/assets/javascripts/project_avatar.js
     return [].map.call(this.$code.children, (line: Element) => (<HTMLElement>line).innerText).join('\n')
   }
 

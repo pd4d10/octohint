@@ -7,7 +7,21 @@ const gitHubInjection = require('github-injection')
 
 class GitHubRenderer extends Renderer {
   getCodeDOM() {
-    return document.querySelector('.blob-wrapper > table')
+    return document.querySelector('.blob-wrapper table')
+  }
+
+  getCode() {
+    // If we use document.querySelector('.blob-wrapper > table').innerText
+    // Empty line in comment is missing
+    // Example: https://github.com/gorhill/uBlock/blob/master/platform/safari/vapi-background.js
+    const trs = document.querySelectorAll('.blob-wrapper table tr')
+    return [].map.call(trs, (line: Element) => {
+      const text = (<HTMLElement>line).innerText
+      if (text === '\n') {
+        return ''
+      }
+      return text
+    }).join('\n')
   }
 
   getFontDOM() {
