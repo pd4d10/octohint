@@ -1,8 +1,6 @@
 import * as debounce from 'lodash/debounce'
 import { renderToDOM, setState } from './containers'
 
-console.log(chrome)
-
 const BACKGROUND_ID = 'intelli-octo-background'
 
 interface Padding {
