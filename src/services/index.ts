@@ -2,6 +2,7 @@ import * as ts from 'typescript'
 import TSService from './typescript'
 import HTMLService from './html'
 import { CSSService, LESSService, SCSSService } from './css'
+// import JSONService from './json'
 
 export default function createService(fileName: string, code: string) {
   switch (fileName.replace(/.*\.(.*?)$/, '$1')) {
@@ -18,6 +19,8 @@ export default function createService(fileName: string, code: string) {
       return new CSSService(fileName, code)
     case 'html':
       return new HTMLService(fileName, code)
+    // case 'json':
+    //   return new JSONService(fileName, code)
     default:
       throw new Error('No such service')
   }

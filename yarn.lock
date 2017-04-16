@@ -1533,6 +1533,12 @@ json5@^0.5.0, json5@^0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/json5/-/json5-0.5.1.tgz#1eade7acc012034ad84e2396767ead9fa5495821"
 
+jsonc-parser@^0.4.0:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/jsonc-parser/-/jsonc-parser-0.4.1.tgz#57e57ffb21d9aa04c5b3c9e64183944991e44d13"
+  dependencies:
+    vscode-nls "^2.0.2"
+
 jsonify@~0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/jsonify/-/jsonify-0.0.0.tgz#2c74b6ee41d93ca51b7b5aaee8f503631d252a73"
@@ -2977,6 +2983,15 @@ vscode-html-languageservice@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/vscode-html-languageservice/-/vscode-html-languageservice-2.0.1.tgz#580a4192d257b6173a8e9741d170e2f57da5c934"
   dependencies:
+    vscode-languageserver-types "^3.0.3"
+    vscode-nls "^2.0.2"
+    vscode-uri "^1.0.0"
+
+vscode-json-languageservice@^2.0.7:
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/vscode-json-languageservice/-/vscode-json-languageservice-2.0.7.tgz#5ebb8339a6a2818ad02847714f8b9114621244d9"
+  dependencies:
+    jsonc-parser "^0.4.0"
     vscode-languageserver-types "^3.0.3"
     vscode-nls "^2.0.2"
     vscode-uri "^1.0.0"
