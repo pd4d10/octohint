@@ -171,6 +171,10 @@ abstract class Renderer {
     if (this.isMacOS ? (e.key === 'Meta') : (e.key === 'Control')) {
       // FIXME: Slow when file is large
       this.$code.style.cursor = 'pointer'
+      // FIXME: Sometimes keyup can't be triggered, add a long enough timeout to restore
+      setTimeout(() => {
+        this.$code.style.cursor = null
+      }, 10000)
     }
   }
 
