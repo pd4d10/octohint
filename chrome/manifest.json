@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "IntelliOcto",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "IntelliSense for GitHub, GitLab and Bitbucket",
   "homepage_url": "https://github.com/pd4d10/intelli-octo",
   "icons": {
@@ -13,7 +13,6 @@
       "dist/background.js"
     ]
   },
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "content_scripts": [
     {
       "matches": [
