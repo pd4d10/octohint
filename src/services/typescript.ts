@@ -4,6 +4,7 @@ import Service from './service'
 declare var require: any
 
 const defaultLib = [
+  // ES and DOM standard
   require('raw-loader!typescript/lib/lib.d.ts'),
   require('raw-loader!typescript/lib/lib.dom.d.ts'),
   require('raw-loader!typescript/lib/lib.dom.iterable.d.ts'),
@@ -26,6 +27,8 @@ const defaultLib = [
   require('raw-loader!typescript/lib/lib.es5.d.ts'),
   require('raw-loader!typescript/lib/lib.es6.d.ts'),
   require('raw-loader!typescript/lib/lib.webworker.d.ts'),
+  // Node.js
+  require('raw-loader!@types/node/index.d.ts'),
 ].join('\n')
 
 export default class TSService extends Service {
