@@ -4,24 +4,30 @@ import HTMLService from './html'
 import { CSSService, LESSService, SCSSService } from './css'
 // import JSONService from './json'
 
-export default function createService(fileName: string, code: string) {
-  switch (fileName.replace(/.*\.(.*?)$/, '$1')) {
+function getServiceByFileName(ext: string) {
+  switch (ext) {
     case 'js':
     case 'jsx':
     case 'ts':
     case 'tsx':
-      return new TSService(fileName, code)
+      return TSService
     case 'less':
-      return new LESSService(fileName, code)
+      return LESSService
     case 'scss':
-      return new SCSSService(fileName, code)
+      return SCSSService
     case 'css':
-      return new CSSService(fileName, code)
+      return CSSService
     case 'html':
-      return new HTMLService(fileName, code)
+      return HTMLService
     // case 'json':
     //   return new JSONService(fileName, code)
     default:
       throw new Error('No such service')
   }
+}
+
+export default function createService(fileName: string, code: string) {
+  const ext = fileName.replace(/.*\.(.*?)$/, '$1')
+  const LanguageService = getServiceByFileName(ext)
+  return new LanguageService(fileName, code)
 }
