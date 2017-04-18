@@ -1,5 +1,7 @@
 # IntelliOcto [![Build Status](https://travis-ci.org/pd4d10/intelli-octo.svg?branch=master)](https://travis-ci.org/pd4d10/intelli-octo)
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/pd4d10/intelli-octo.svg)](https://greenkeeper.io/)
+
 IntelliSense for GitHub, GitLab and Bitbucket
 
 <img src="assets/demo.gif" alt="Demo" width="593" />
