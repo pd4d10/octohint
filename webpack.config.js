@@ -49,7 +49,12 @@ module.exports = {
         test: /\.css$/,
         loader: 'style-loader!css-loader'
       },
-      { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
+      {
+        enforce: "pre",
+        test: /\.js$/,
+        loader: "source-map-loader",
+        exclude: /node_modules/,
+      },
     ]
   },
   resolve: {
