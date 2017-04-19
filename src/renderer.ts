@@ -55,6 +55,12 @@ abstract class Renderer {
     }
 
     this.$code = <HTMLElement>this.getCodeDOM()
+
+    // If code blob DOM no exists, just quit
+    if (!this.$code) {
+      return
+    }
+
     this.line = this.getLineWidthAndHeight()
     this.padding = this.getPadding()
     this.code = this.getCode()
