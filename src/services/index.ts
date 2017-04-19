@@ -1,4 +1,3 @@
-import * as ts from 'typescript'
 import TSService from './typescript'
 import HTMLService from './html'
 import { CSSService, LESSService, SCSSService } from './css'

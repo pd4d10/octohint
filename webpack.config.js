@@ -6,6 +6,7 @@ var StringReplacePlugin = require("string-replace-webpack-plugin");
 module.exports = {
   entry: {
     // typescript: ['typescript'],
+    'ts-lib': './src/ts-lib',
     background: './src/background',
     sentry: './src/sentry',
     github: './src/platforms/github',
