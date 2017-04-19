@@ -1,6 +1,4 @@
-# IntelliOcto [![Build Status](https://travis-ci.org/pd4d10/intelli-octo.svg?branch=master)](https://travis-ci.org/pd4d10/intelli-octo)
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/pd4d10/intelli-octo.svg)](https://greenkeeper.io/)
+# IntelliOcto [![Build Status](https://travis-ci.org/pd4d10/intelli-octo.svg?branch=master)](https://travis-ci.org/pd4d10/intelli-octo) [![Greenkeeper badge](https://badges.greenkeeper.io/pd4d10/intelli-octo.svg)](https://greenkeeper.io/)
 
 IntelliSense for GitHub, GitLab and Bitbucket
 
@@ -8,9 +6,13 @@ IntelliSense for GitHub, GitLab and Bitbucket
 
 ## Installation
 
-Install it from Chrome Web Store:
+### Chrome
 
 https://chrome.google.com/webstore/detail/intelliocto/hbkpjkfdheainjkkebeoofkpgddnnbpk
+
+### Firefox
+
+Awaiting review
 
 ## Features
 
@@ -23,12 +25,6 @@ https://chrome.google.com/webstore/detail/intelliocto/hbkpjkfdheainjkkebeoofkpgd
 * TypeScript and JavaScript
 * CSS, LESS, SCSS
 * HTML
-
-## Roadmap
-
-* Multi languages support
-* Enterprise version of GitHub and GitLab
-* Extensions for Firefox and Edge
 
 ## License
 
