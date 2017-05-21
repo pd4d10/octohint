@@ -2,6 +2,12 @@
 # yarn lockfile v1
 
 
+"@types/angular@^1.6.17":
+  version "1.6.17"
+  resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.17.tgz#5bd59e77350943ffbffb8bb98dfe718acbb6ed27"
+  dependencies:
+    "@types/jquery" "*"
+
 "@types/chrome@^0.0.46":
   version "0.0.46"
   resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.46.tgz#f597623b2244c7484bbf59aceb9c8d16a39d4cd7"
@@ -18,6 +24,10 @@
   version "0.0.28"
   resolved "https://registry.yarnpkg.com/@types/filewriter/-/filewriter-0.0.28.tgz#c054e8af4d9dd75db4e63abc76f885168714d4b3"
 
+"@types/jquery@*", "@types/jquery@^2.0.45":
+  version "2.0.45"
+  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-2.0.45.tgz#cb99133aac1d997a820d6cf7258c91291c0a2adf"
+
 "@types/lodash@^4.14.61":
   version "4.14.61"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.61.tgz#0518c10805b1f9d21f98f82b1311ac2a6ec75892"
@@ -25,6 +35,18 @@
 "@types/node@^7.0.12":
   version "7.0.12"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-7.0.12.tgz#ae5f67a19c15f752148004db07cbbb372e69efc9"
+
+"@types/react@^15.0.24":
+  version "15.0.24"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-15.0.24.tgz#8a75299dc37906df327c18ca918bf97a55e7123b"
+
+"@types/safari-extension-content@^0.0.14":
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/@types/safari-extension-content/-/safari-extension-content-0.0.14.tgz#638e16d1ad0c2fc8c58e3f22913e61671c14f414"
+
+"@types/safari-extension@^0.0.27":
+  version "0.0.27"
+  resolved "https://registry.yarnpkg.com/@types/safari-extension/-/safari-extension-0.0.27.tgz#a204ba4aa6ba2eff8b70fe5a196fcdab5c751826"
 
 abbrev@1:
   version "1.0.9"
@@ -2550,9 +2572,9 @@ strip-json-comments@~1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-1.0.4.tgz#1e15fbcac97d3ee99bf2d73b4c656b082bbafb91"
 
-style-loader@^0.16.1:
-  version "0.16.1"
-  resolved "https://registry.yarnpkg.com/style-loader/-/style-loader-0.16.1.tgz#50e325258d4e78421dd9680636b41e8661595d10"
+style-loader@^0.17.0:
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/style-loader/-/style-loader-0.17.0.tgz#e8254bccdb7af74bd58274e36107b4d5ab4df310"
   dependencies:
     loader-utils "^1.0.2"
 

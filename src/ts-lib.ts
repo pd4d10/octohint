@@ -1,3 +1,5 @@
+// TODO: Go to definition
+
 window.TS_LIB = [
   // ES and DOM standard
   require('raw-loader!typescript/lib/lib.d.ts'),
@@ -24,4 +26,13 @@ window.TS_LIB = [
   require('raw-loader!typescript/lib/lib.webworker.d.ts'),
   // Node.js
   require('raw-loader!@types/node/index.d.ts'),
+  // Brower extensions
+  require('raw-loader!@types/chrome/index.d.ts'),
+  require('raw-loader!@types/safari-extension/index.d.ts'),
+  require('raw-loader!@types/safari-extension-content/index.d.ts'),
+  // Popular libs
+  require('raw-loader!@types/jquery/index.d.ts'),
+  require('raw-loader!@types/react/index.d.ts'),
+  require('raw-loader!@types/angular/index.d.ts'),
+  require('raw-loader!@types/lodash/index.d.ts')
 ].join('\n')
