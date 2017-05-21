@@ -9,7 +9,23 @@ interface Services {
 const services: Services = {}
 const TIMEOUT = 1000 * 60 * 5 // 5min
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+const isChrome = window.chrome && window.chrome.runtime
+
+function handleMessage(cb) {
+  if (isChrome) {
+    chrome.runtime.onMessage.addListener(cb)
+    return
+  }
+
+  safari.application.addEventListener('message', res => {
+    console.log(res)
+    cb(res.message, undefined, message => {
+      res.target.page.dispatchMessage('test', message)
+    })
+  }, false)
+}
+
+handleMessage((message, sender, sendResponse) => {
   const fileName = message.file.replace(/js$/, 'ts').replace(/jsx$/, 'tsx') // FIXME:
   const service = services[fileName]
 
@@ -22,6 +38,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   switch (message.type) {
     case 'service': {
+      sendResponse({}) // Trigger for Safari
       if (service) {
         return
       }

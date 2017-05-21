@@ -22,6 +22,26 @@ interface Occurrence {
   }
 }
 
+const isChrome = window.chrome && window.chrome.runtime
+
+function sendMessage(data, cb) {
+  if (isChrome) {
+    chrome.runtime.sendMessage(data, cb)
+    return
+  }
+
+  window.INTELLI_OCTO_ON_MESSAGE = cb
+  safari.self.tab.dispatchMessage('from page', data)
+}
+
+// For Safari
+if (!isChrome) {
+  window.INTELLI_OCTO_ON_MESSAGE = () => {}
+  safari.self.addEventListener('message', res => {
+    window.INTELLI_OCTO_ON_MESSAGE(res.message)
+  }, false)
+}
+
 abstract class Renderer {
   fileName = location.host + location.pathname // Exclude query and hash
   isActive = /\.(tsx?|jsx?|css|less|scss|html)$/.test(this.fileName)
@@ -277,7 +297,7 @@ abstract class Renderer {
   }
 
   sendMessage(data: object, cb: any) {
-    chrome.runtime.sendMessage(data, response => {
+    sendMessage(data, response => {
       if (response && response.error === 'no-code') {
         this.createService(() => {
           this.sendMessage(data, cb)
@@ -290,7 +310,7 @@ abstract class Renderer {
   }
 
   createService(cb: any) {
-    chrome.runtime.sendMessage({
+    sendMessage({
       file: this.fileName,
       type: 'service',
       code: this.code.replace(/\t/g, ' '.repeat(this.tabSize)), // Replace tab with space

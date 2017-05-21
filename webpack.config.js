@@ -3,9 +3,11 @@ const webpack = require('webpack')
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 var StringReplacePlugin = require("string-replace-webpack-plugin");
 
+// TODO:
+const dest = `${process.env.SAFARI ? 'intelli-octo.safariextension' : 'chrome'}/dist`
+
 module.exports = {
   entry: {
-    // typescript: ['typescript'],
     'ts-lib': './src/ts-lib',
     background: './src/background',
     sentry: './src/sentry',
@@ -14,7 +16,7 @@ module.exports = {
     bitbucket: './src/platforms/bitbucket',
   },
   output: {
-    path: path.resolve('chrome/dist'),
+    path: path.resolve(dest),
     filename: '[name].js'
   },
   // Enable sourcemaps for debugging webpack's output.
@@ -65,21 +67,7 @@ module.exports = {
   // https://github.com/postcss/postcss-js/issues/10#issuecomment-179782081
   node: { fs: 'empty' },
   plugins: [
-    new CleanWebpackPlugin('chrome/dist'),
+    new CleanWebpackPlugin(dest),
     new StringReplacePlugin()
-    // new webpack.optimize.CommonsChunkPlugin({
-    //   name: "typescript",
-
-    //   // filename: "vendor.js"
-    //   // (Give the chunk a different name)
-
-    //   minChunks: Infinity,
-    //   // (with more entries, this ensures that no other module
-    //   //  goes into the vendor chunk)
-    // })
-    // new webpack.optimize.AggressiveSplittingPlugin({
-    //   // minSize: 10000,
-    //   maxSize: 4 * 1024 * 1024,
-    // })
   ]
 }

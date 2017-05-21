@@ -5,7 +5,9 @@
   "description": "IntelliSense for GitHub, GitLab and Bitbucket",
   "scripts": {
     "start": "webpack -w",
+    "start-safari": "SAFARI=1 npm start",
     "build": "webpack --config webpack.config.production.js",
+    "build-safari": "SAFARI=1 npm run build",
     "package": "cd chrome/; cp ../LICENSE ./; zip -r ../extension.zip ./; rm LICENSE; cd ../",
     "test": "tslint src"
   },
