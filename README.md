@@ -10,9 +10,9 @@ IntelliOcto is a web extension which adds IntelliSense support for GitHub, GitLa
 
 https://chrome.google.com/webstore/detail/intelliocto/hbkpjkfdheainjkkebeoofkpgddnnbpk
 
-### Firefox
+### Safari
 
-Awaiting review
+Coming soon
 
 ## Features
 
