@@ -1,3 +1,8 @@
+/**
+ * Polyfill for message handler
+ * Because message listen and emit of Chrome and Safari are slightly different
+ */
+
 const isChrome = window.chrome && window.chrome.runtime
 
 export function handleMessage(cb) {
@@ -7,7 +12,6 @@ export function handleMessage(cb) {
   }
 
   safari.application.addEventListener('message', res => {
-    console.log(res)
     cb(res.message, undefined, message => {
       res.target.page.dispatchMessage('test', message)
     })

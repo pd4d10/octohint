@@ -3,20 +3,24 @@ const webpack = require('webpack')
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 var StringReplacePlugin = require("string-replace-webpack-plugin");
 
-// TODO:
-const dest = `${process.env.SAFARI ? 'intelli-octo.safariextension' : 'chrome'}/dist`
-
 module.exports = {
   entry: {
-    'ts-lib': './src/ts-lib',
-    background: './src/background',
-    sentry: './src/sentry',
-    github: './src/platforms/github',
-    gitlab: './src/platforms/gitlab',
-    bitbucket: './src/platforms/bitbucket',
+    // For Chrome
+    'chrome/dist/sentry': './src/sentry',
+    'chrome/dist/ts-lib': './src/ts-lib',
+    'chrome/dist/background': './src/background',
+    'chrome/dist/github': './src/platforms/github',
+    'chrome/dist/gitlab': './src/platforms/gitlab',
+    'chrome/dist/bitbucket': './src/platforms/bitbucket',
+
+    // For Safari
+    'intelli-octo.safariextension/dist/sentry': './src/sentry',
+    'intelli-octo.safariextension/dist/ts-lib': './src/ts-lib',
+    'intelli-octo.safariextension/dist/background': './src/background',
+    'intelli-octo.safariextension/dist/content': './src/content',
   },
   output: {
-    path: path.resolve(dest),
+    path: path.resolve('.'),
     filename: '[name].js'
   },
   // Enable sourcemaps for debugging webpack's output.
@@ -67,7 +71,7 @@ module.exports = {
   // https://github.com/postcss/postcss-js/issues/10#issuecomment-179782081
   node: { fs: 'empty' },
   plugins: [
-    new CleanWebpackPlugin(dest),
+    new CleanWebpackPlugin(['chrome/dist', 'intelli-octo.safariextension/dist']),
     new StringReplacePlugin()
   ]
 }

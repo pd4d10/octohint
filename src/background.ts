@@ -18,7 +18,6 @@ function handleMessage(cb) {
   }
 
   safari.application.addEventListener('message', res => {
-    console.log(res)
     cb(res.message, undefined, message => {
       res.target.page.dispatchMessage('test', message)
     })

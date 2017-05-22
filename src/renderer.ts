@@ -62,7 +62,7 @@ abstract class Renderer {
   code: string
   offsetTop: number
 
-  abstract getCodeDOM(): Element
+  abstract getCodeDOM(): Element | null
   abstract getCode(): string
   abstract getFontDOM(): Element
   abstract getLineWidthAndHeight(): Line

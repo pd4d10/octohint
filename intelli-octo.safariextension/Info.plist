@@ -28,7 +28,7 @@
 			<key>End</key>
 			<array>
 				<string>dist/sentry.js</string>
-				<string>dist/github.js</string>
+				<string>dist/content.js</string>
 			</array>
 		</dict>
 	</dict>
