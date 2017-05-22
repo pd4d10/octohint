@@ -30,6 +30,4 @@ window.TS_LIB = [
   require('raw-loader!@types/chrome/index.d.ts'),
   require('raw-loader!@types/safari-extension/index.d.ts'),
   require('raw-loader!@types/safari-extension-content/index.d.ts'),
-  // Popular libs
-  require('raw-loader!@types/jquery/index.d.ts'),
 ].join('\n')
