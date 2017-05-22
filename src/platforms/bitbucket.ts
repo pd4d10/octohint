@@ -36,8 +36,6 @@ const renderer = new BitBucketRenderer()
 
 // Dynamic injection
 // https://github.com/OctoLinker/injection/blob/master/index.js
-const $DOM = document.querySelector('#source-container')
-
 const spy = new MutationObserver(function (mutations) {
   mutations.forEach(function (mutation) {
     if (mutation.type === 'childList' && mutation.addedNodes.length) {
@@ -46,8 +44,11 @@ const spy = new MutationObserver(function (mutations) {
   })
 })
 
-spy.observe($DOM, {
-  attributes: true,
-  childList: true,
-  characterData: true
-})
+const $DOM = document.querySelector('#source-container')
+if ($DOM) {
+  spy.observe($DOM, {
+    attributes: true,
+    childList: true,
+    characterData: true
+  })
+}
