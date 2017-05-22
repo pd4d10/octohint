@@ -42,10 +42,16 @@
 	<dict>
 		<key>Website Access</key>
 		<dict>
+			<key>Allowed Domains</key>
+			<array>
+				<string>github.com</string>
+				<string>gitlab.com</string>
+				<string>bitbucket.org</string>
+			</array>
 			<key>Include Secure Pages</key>
 			<true/>
 			<key>Level</key>
-			<string>All</string>
+			<string>Some</string>
 		</dict>
 	</dict>
 	<key>Website</key>
