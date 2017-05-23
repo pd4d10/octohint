@@ -7,13 +7,13 @@
 	<key>Builder Version</key>
 	<string>12604.1.22</string>
 	<key>CFBundleDisplayName</key>
-	<string>IntelliOcto</string>
+	<string>Intelli-Octo</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.pd4d10.intelli-octo</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>1.3.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>Chrome</key>
