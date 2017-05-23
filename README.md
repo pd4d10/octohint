@@ -1,8 +1,8 @@
-# IntelliOcto
+# Intelli-Octo
 
 [![Build Status](https://travis-ci.org/pd4d10/intelli-octo.svg?branch=master)](https://travis-ci.org/pd4d10/intelli-octo) [![Join the chat at https://gitter.im/intelli-octo/Lobby](https://badges.gitter.im/intelli-octo/Lobby.svg)](https://gitter.im/intelli-octo/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-IntelliOcto is a browser extension which adds IntelliSense to GitHub, GitLab and Bitbucket.
+Intelli-Octo is a browser extension which adds IntelliSense to GitHub, GitLab and Bitbucket.
 
 <img src="assets/demo.gif" alt="Demo" width="593" />
 
@@ -12,7 +12,7 @@ IntelliOcto is a browser extension which adds IntelliSense to GitHub, GitLab and
 
 Install it from Chrome Web Store:
 
-https://chrome.google.com/webstore/detail/intelliocto/hbkpjkfdheainjkkebeoofkpgddnnbpk
+https://chrome.google.com/webstore/detail/intelli-octo/hbkpjkfdheainjkkebeoofkpgddnnbpk
 
 Mannual install:
 
