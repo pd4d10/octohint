@@ -47,7 +47,6 @@ abstract class Renderer {
   isActive = /\.(tsx?|jsx?|css|less|scss|html)$/.test(this.fileName)
   tabSize: number
 
-  // Fix URL like https://github.com/mozilla/pdf.js
   // TODO: Add a switch to turn it off
   // TODO: Multi language support
 
@@ -56,7 +55,7 @@ abstract class Renderer {
 
   $code: HTMLElement
   fontWidth: number
-  fontFamily: string
+  fontFamily: string | null
   line: Line
   padding: Padding
   code: string
@@ -64,7 +63,7 @@ abstract class Renderer {
 
   abstract getCodeDOM(): Element | null
   abstract getCode(): string
-  abstract getFontDOM(): Element
+  abstract getFontDOM(): Element | null
   abstract getLineWidthAndHeight(): Line
   abstract getPadding(): Padding
   abstract getTabSize(): number
