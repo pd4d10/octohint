@@ -10,13 +10,19 @@ IntelliOcto is a browser extension which adds IntelliSense to GitHub, GitLab and
 
 ### Chrome
 
+Install it from Chrome Web Store:
+
 https://chrome.google.com/webstore/detail/intelliocto/hbkpjkfdheainjkkebeoofkpgddnnbpk
+
+Mannual install:
+
+Go to [release page](https://github.com/pd4d10/intelli-octo/releases), find `chrome.zip` file and download it.
 
 ### Safari
 
 Since I have no Apple Developer Program account, Safari users should install it mannually, maybe a little complicated.
 
-1. Download [this zip file], double click to unpack it in Finder
+1. Download [this zip file](https://github.com/pd4d10/intelli-octo/releases/download/v1.3.0/intelli-octo.safariextension.zip), double click to unpack it in Finder
 
 2. [Enable Develop tools of Safari](https://developer.apple.com/library/content/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/GettingStarted/GettingStarted.html)
 
