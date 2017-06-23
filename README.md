@@ -1,8 +1,11 @@
-# Intelli-Octo
+# Intelli-octo
 
-[![Build Status](https://travis-ci.org/pd4d10/intelli-octo.svg?branch=master)](https://travis-ci.org/pd4d10/intelli-octo) [![Join the chat at https://gitter.im/intelli-octo/Lobby](https://badges.gitter.im/intelli-octo/Lobby.svg)](https://gitter.im/intelli-octo/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/pd4d10/intelli-octo.svg)](https://travis-ci.org/pd4d10/intelli-octo)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/intelli-octo/hbkpjkfdheainjkkebeoofkpgddnnbpk)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/d/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/intelli-octo/hbkpjkfdheainjkkebeoofkpgddnnbpk)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/stars/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/intelli-octo/hbkpjkfdheainjkkebeoofkpgddnnbpk)
 
-Intelli-Octo is a browser extension which adds IntelliSense to GitHub, GitLab and Bitbucket.
+Intelli-octo is a browser extension which adds IntelliSense to GitHub, GitLab and Bitbucket.
 
 <img src="assets/demo.gif" alt="Demo" width="593" />
 
