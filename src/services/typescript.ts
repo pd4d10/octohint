@@ -28,6 +28,9 @@ export default class TSService extends Service {
       getCurrentDirectory: () => '/',
       getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS }),
       getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
+      log: console.log,
+      trace: console.trace,
+      error: console.error,
     }
 
     // Create the language service files

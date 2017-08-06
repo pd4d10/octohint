@@ -20,7 +20,7 @@ class Switch extends Component<PropsTypes, StateType> {
         onClick={() => this.setState((previousState: any) => ({
           isOpen: !previousState.isOpen
         }))}
-      >Intelli Octo</div>
+      >Octohint</div>
     )
   }
 }

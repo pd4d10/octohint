@@ -5,11 +5,11 @@
 	<key>Author</key>
 	<string>pd4d10</string>
 	<key>Builder Version</key>
-	<string>12604.1.22</string>
+	<string>12604.1.32.0.1</string>
 	<key>CFBundleDisplayName</key>
-	<string>Intelli-octo</string>
+	<string>Octohint</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.pd4d10.intelli-octo</string>
+	<string>com.pd4d10.octohint</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
@@ -55,6 +55,6 @@
 		</dict>
 	</dict>
 	<key>Website</key>
-	<string>https://github.com/pd4d10/intelli-octo</string>
+	<string>https://github.com/pd4d10/octohint</string>
 </dict>
 </plist>

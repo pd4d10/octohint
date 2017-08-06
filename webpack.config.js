@@ -14,10 +14,10 @@ module.exports = {
     'chrome/dist/bitbucket': './src/platforms/bitbucket',
 
     // For Safari
-    'intelli-octo.safariextension/dist/sentry': './src/sentry',
-    'intelli-octo.safariextension/dist/ts-lib': './src/ts-lib',
-    'intelli-octo.safariextension/dist/background': './src/background',
-    'intelli-octo.safariextension/dist/content': './src/content',
+    'octohint.safariextension/dist/sentry': './src/sentry',
+    'octohint.safariextension/dist/ts-lib': './src/ts-lib',
+    'octohint.safariextension/dist/background': './src/background',
+    'octohint.safariextension/dist/content': './src/content',
   },
   output: {
     path: path.resolve('.'),
@@ -71,7 +71,7 @@ module.exports = {
   // https://github.com/postcss/postcss-js/issues/10#issuecomment-179782081
   node: { fs: 'empty' },
   plugins: [
-    new CleanWebpackPlugin(['chrome/dist', 'intelli-octo.safariextension/dist']),
+    new CleanWebpackPlugin(['chrome/dist', 'octohint.safariextension/dist']),
     new StringReplacePlugin()
   ]
 }

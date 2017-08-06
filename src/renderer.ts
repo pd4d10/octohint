@@ -1,7 +1,7 @@
 import * as debounce from 'lodash/debounce'
 import { renderToDOM, setState } from './containers'
 
-const BACKGROUND_ID = 'intelli-octo-background'
+const BACKGROUND_ID = 'octohint-background'
 
 interface Padding {
   left: number,
@@ -30,15 +30,15 @@ function sendMessage(data, cb) {
     return
   }
 
-  window.INTELLI_OCTO_ON_MESSAGE = cb
+  window.OCTOHINT_ON_MESSAGE = cb
   safari.self.tab.dispatchMessage('from page', data)
 }
 
 // For Safari
 if (!isChrome) {
-  window.INTELLI_OCTO_ON_MESSAGE = () => {}
+  window.OCTOHINT_ON_MESSAGE = () => {}
   safari.self.addEventListener('message', res => {
-    window.INTELLI_OCTO_ON_MESSAGE(res.message)
+    window.OCTOHINT_ON_MESSAGE(res.message)
   }, false)
 }
 

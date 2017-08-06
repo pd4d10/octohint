@@ -24,11 +24,11 @@ export function sendMessage(data, cb) {
     return
   }
 
-  window.INTELLI_OCTO_ON_MESSAGE = cb
+  window.OCTOHINT_ON_MESSAGE = cb
   safari.self.tab.dispatchMessage('from page', data)
 }
 
 // For Safari
 if (!isChrome) {
-  safari.self.addEventListener('message', window.INTELLI_OCTO_ON_MESSAGE, false)
+  safari.self.addEventListener('message', window.OCTOHINT_ON_MESSAGE, false)
 }
