@@ -47,11 +47,14 @@ class GitHubRenderer extends Renderer {
     }
   }
 
+  /**
+   * GitHub's tab size respect editorconfig's config, could be any value
+   * So we find line containing `\t` and calculate width of it
+   */
   getTabSize() {
     const lines = this.code.split('\n')
 
     let tabLine: number
-    // let tabNumber = 0
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
       // Find the line start of tab
@@ -73,7 +76,7 @@ class GitHubRenderer extends Renderer {
       return 8 // Default
     }
 
-    const $line = document.querySelector(`#LC${tabLine + 1}`)
+    const $line = document.querySelector(`#LC${tabLine + 1}`) as HTMLElement
     const childs = $line.childNodes
 
     // (tabNumber * tabSize + charNumber) * fontWidth = width
@@ -94,6 +97,7 @@ class GitHubRenderer extends Renderer {
         }
         continue
       }
+      // FIXME: https://github.com/webpack/webpack/blob/c54a538d6b4bad8ae37f5af1eec480e473d798d1/lib/WebpackOptionsApply.js
       const width = $child.getBoundingClientRect().left - $line.getBoundingClientRect().left - 10
       return Math.round(((width / this.fontWidth) - charNumber) / tabNumber)
     }

@@ -86,6 +86,8 @@ abstract class Renderer {
     this.offsetTop = this.getOffsetTop(this.$code)
 
     // Get font width and family
+    // FIXME: https://github.com/pd4d10/tiza/blob/v1.0.0/dist/tiza.min.js
+    // FIXME: Empty file
     const fontDOM = <HTMLElement>this.getFontDOM()
     this.fontWidth = fontDOM.getBoundingClientRect().width / fontDOM.innerText.length,
     this.fontFamily = getComputedStyle(fontDOM).fontFamily

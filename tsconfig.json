@@ -2,12 +2,11 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "sourceMap": true,
-    "noImplicitAny": true,
+    "strict": true,
     "module": "commonjs",
     "target": "es5",
     "jsx": "react",
     "jsxFactory": "h",
-    "strictNullChecks": true,
     "allowJs": true,
     "lib": ["es2015", "dom"]
   },
@@ -15,6 +14,7 @@
     "src/**/*"
   ],
   "exclude": [
+    "chrome/dist",
     "node_modules"
   ]
 }
