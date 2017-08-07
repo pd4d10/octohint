@@ -1,38 +1,41 @@
-import { h, render, Component } from 'preact';
+import { h, Component } from 'preact'
 
 const builtInPermissions = [
   'https://bitbucket.org/*',
   'https://github.com/*',
   'https://gitlab.com/*',
-];
+]
 
-class Options extends Component<{}, { origins: string[]; temp: string }> {
+export default class Options extends Component<
+  {},
+  { origins: string[]; temp: string }
+> {
   state = {
     origins: [],
     temp: '',
-  };
+  }
 
   constructor() {
-    super();
+    super()
     chrome.permissions.getAll(({ origins = [] }) => {
       this.setState({
         origins,
-      });
-    });
+      })
+    })
   }
 
   handleChange = e => {
     this.setState({
       temp: e.target.value,
-    });
-  };
+    })
+  }
 
-  handleAdd = (e) => {
+  handleAdd = e => {
     e.preventDefault()
-    const { origins, temp } = this.state;
+    const { origins, temp } = this.state
     if (!temp) {
-      alert('fail');
-      return;
+      alert('fail')
+      return
     }
     chrome.permissions.request({ origins: [temp] }, granted => {
       if (granted) {
@@ -40,11 +43,11 @@ class Options extends Component<{}, { origins: string[]; temp: string }> {
           this.setState({
             origins,
             temp: '',
-          });
-        });
+          })
+        })
       }
-    });
-  };
+    })
+  }
 
   handleRemove = (origin: string) => {
     chrome.permissions.remove({ origins: [origin] }, removed => {
@@ -52,11 +55,11 @@ class Options extends Component<{}, { origins: string[]; temp: string }> {
         chrome.permissions.getAll(({ origins = [] }) => {
           this.setState({
             origins,
-          });
-        });
+          })
+        })
       }
-    });
-  };
+    })
+  }
 
   render() {
     return (
@@ -111,10 +114,6 @@ class Options extends Component<{}, { origins: string[]; temp: string }> {
           </a>
         </footer>
       </div>
-    );
+    )
   }
 }
-
-const container = document.createElement('div');
-document.body.appendChild(container);
-render(<Options />, container);

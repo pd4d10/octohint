@@ -1,5 +1,5 @@
 import * as debounce from 'lodash/debounce'
-import { renderToDOM, setState } from './containers'
+import { renderToDOM, setState } from '../containers'
 
 const BACKGROUND_ID = 'octohint-background'
 

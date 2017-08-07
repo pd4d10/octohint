@@ -6,18 +6,27 @@ import createService from './services'
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status !== 'complete') return
 
-  chrome.tabs.executeScript(tabId, {
-    code: 'var injected = window.octohintinjected; window.octohintInjected = true; injected;',
-  }, res => {
-    if (chrome.runtime.lastError || res[0]) return
-    chrome.tabs.executeScript(tabId, {
-      file: 'dist/sentry.js',
-    }, () => {
-      chrome.tabs.executeScript(tabId, {
-        file: 'dist/contentscript.js'
-      })
-    })
-  })
+  chrome.tabs.executeScript(
+    tabId,
+    {
+      code:
+        'var injected = window.octohintinjected; window.octohintInjected = true; injected;',
+    },
+    res => {
+      if (chrome.runtime.lastError || res[0]) return
+      chrome.tabs.executeScript(
+        tabId,
+        {
+          file: 'dist/sentry.js',
+        },
+        () => {
+          chrome.tabs.executeScript(tabId, {
+            file: 'dist/content-script.js',
+          })
+        }
+      )
+    }
+  )
 })
 
 interface Services {
@@ -35,11 +44,15 @@ function handleMessage(cb) {
     return
   }
 
-  safari.application.addEventListener('message', res => {
-    cb(res.message, undefined, message => {
-      res.target.page.dispatchMessage('test', message)
-    })
-  }, false)
+  safari.application.addEventListener(
+    'message',
+    res => {
+      cb(res.message, undefined, message => {
+        res.target.page.dispatchMessage('test', message)
+      })
+    },
+    false
+  )
 }
 
 handleMessage((message, sender, sendResponse) => {
@@ -48,7 +61,7 @@ handleMessage((message, sender, sendResponse) => {
 
   if (!service && !message.code) {
     sendResponse({
-      error: 'no-code'
+      error: 'no-code',
     })
     return
   }
@@ -64,10 +77,10 @@ handleMessage((message, sender, sendResponse) => {
       services[fileName] = createService(fileName, code)
 
       chrome.browserAction.setIcon({
-        path: 'icon.png'
+        path: 'icon.png',
       })
       chrome.browserAction.setTitle({
-        title: 'Octohint is active.'
+        title: 'Octohint is active.',
       })
 
       // Add a timeout to delete service to prevent memory leak
