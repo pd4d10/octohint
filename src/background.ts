@@ -10,9 +10,10 @@ import createService from './services'
 //   })
 // })
 
+// https://github.com/buunguyen/octotree/blob/61b54094ff62a725f58cff6d2dae019f8ee68562/src/config/chrome/background.js
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   chrome.tabs.executeScript(tabId, {
-    code: 'var injected = window.octotreeInjected; window.octotreeInjected = true; injected;',
+    code: 'var injected = window.octohintinjected; window.octohintInjected = true; injected;',
   }, res => {
     if (chrome.runtime.lastError || res[0]) return
     chrome.tabs.executeScript(tabId, {

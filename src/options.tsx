@@ -1,58 +1,120 @@
-import { h, render, Component } from 'preact'
+import { h, render, Component } from 'preact';
 
-class Options extends Component<undefined, undefined> {
+const builtInPermissions = [
+  'https://bitbucket.org/*',
+  'https://github.com/*',
+  'https://gitlab.com/*',
+];
+
+class Options extends Component<{}, { origins: string[]; temp: string }> {
   state = {
     origins: [],
     temp: '',
-  }
+  };
 
-  constructor(props) {
-    super(props)
-    chrome.permissions.getAll(({ origins }) => {
+  constructor() {
+    super();
+    chrome.permissions.getAll(({ origins = [] }) => {
       this.setState({
         origins,
-      })
-    })
+      });
+    });
   }
 
-  handleChange = (e) => {
+  handleChange = e => {
     this.setState({
-      temp: e.target.value
-    })
-  }
+      temp: e.target.value,
+    });
+  };
 
-  handleAdd = () => {
-    const { origins, temp } = this.state
+  handleAdd = (e) => {
+    e.preventDefault()
+    const { origins, temp } = this.state;
     if (!temp) {
-      alert('fail')
-      return
+      alert('fail');
+      return;
     }
-
-    chrome.permissions.request({ origins: [`${temp}/*`] }, granted => {
+    chrome.permissions.request({ origins: [temp] }, granted => {
       if (granted) {
-        chrome.permissions.getAll(({ origins }) => {
+        chrome.permissions.getAll(({ origins = [] }) => {
           this.setState({
             origins,
             temp: '',
-          })
-        })
+          });
+        });
       }
-    })
-  }
+    });
+  };
 
-  // TODO: Remove origin
+  handleRemove = (origin: string) => {
+    chrome.permissions.remove({ origins: [origin] }, removed => {
+      if (removed) {
+        chrome.permissions.getAll(({ origins = [] }) => {
+          this.setState({
+            origins,
+          });
+        });
+      }
+    });
+  };
+
   render() {
     return (
-      <div>
-        <label>Add another website:</label>
-        <input type='text' value={this.state.temp} onChange={this.handleChange} />
-        <button onClick={this.handleAdd}>Add</button>
-        <ul>
-          {this.state.origins.map(origin => <li key={origin}>{origin}</li>)}
-        </ul>
+      <div style={{ lineHeight: '1.8' }}>
+        <form onSubmit={this.handleAdd}>
+          <p>
+            Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a
+            different site. If it doesn't work, see{' '}
+            <a href="https://developer.chrome.com/extensions/match_patterns">
+              Match Patterns
+            </a>
+          </p>
+          <table>
+            <thead />
+            <tbody>
+              <tr>
+                <td>
+                  <input
+                    style={{ minWidth: '200px' }}
+                    type="text"
+                    value={this.state.temp}
+                    onChange={this.handleChange}
+                    placeholder="https://www.example.com/*"
+                  />
+                </td>
+                <td>
+                  <button type="submit">Add</button>
+                </td>
+              </tr>
+              {this.state.origins.map(origin =>
+                <tr key={origin}>
+                  <td style={{ minWidth: '220px' }}>
+                    {origin}
+                  </td>
+                  <td>
+                    {builtInPermissions.includes(origin) ||
+                      <a href="#" onClick={() => this.handleRemove(origin)}>
+                        Remove
+                      </a>}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </form>
+        <hr />
+        <footer>
+          <a href="https://github.com/pd4d10/octohint">Source code</a>
+          <br />
+          <a href="https://github.com/pd4d10/octohint/issues/new">
+            Submit an issue
+          </a>
+        </footer>
       </div>
-    )
+    );
   }
 }
 
-render(<Options />, document.body)
+const container = document.createElement('div');
+document.body.appendChild(container);
+render(<Options />, container);

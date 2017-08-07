@@ -8,7 +8,7 @@
     "jsx": "react",
     "jsxFactory": "h",
     "allowJs": true,
-    "lib": ["es2015", "dom"]
+    "lib": ["dom", "esnext"]
   },
   "include": [
     "src/**/*"
