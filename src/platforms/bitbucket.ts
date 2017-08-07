@@ -1,16 +1,16 @@
 import Renderer from '../renderer'
 
 class BitBucketRenderer extends Renderer {
-  getCodeDOM() {
+  getContainter() {
     return document.querySelector('.file-source .code')
   }
 
   getCode() {
-    return this.$code.innerText
+    return this.$container.innerText
   }
 
   getFontDOM() {
-    return this.$code.querySelector('span[class]')
+    return this.$container.querySelector('span[class]')
   }
 
   getLineWidthAndHeight() {

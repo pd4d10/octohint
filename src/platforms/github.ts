@@ -6,8 +6,8 @@ declare var require: any
 const gitHubInjection = require('github-injection')
 
 class GitHubRenderer extends Renderer {
-  getCodeDOM() {
-    return document.querySelector('.blob-wrapper table')
+  getContainter() {
+    return document.querySelector('.blob-wrapper')
   }
 
   getCode() {
@@ -30,11 +30,12 @@ class GitHubRenderer extends Renderer {
   }
 
   getFontDOM() {
-    return this.$code.querySelector('span[class]')
+    return document.querySelector('.blob-wrapper span[class]')
   }
 
   getLineWidthAndHeight() {
-    const rect = document.querySelector('#LC1').getBoundingClientRect()
+    const $ = document.querySelector('#LC1') as HTMLElement
+    const rect = $.getBoundingClientRect()
     return {
       width: rect.width,
       height: rect.height,
@@ -42,7 +43,7 @@ class GitHubRenderer extends Renderer {
   }
 
   getPadding() {
-    const gutter = <HTMLElement>document.querySelector('#L1')
+    const gutter = document.querySelector('#L1') as HTMLElement
     return {
       left: gutter.getBoundingClientRect().width + 10,
       top: 0,

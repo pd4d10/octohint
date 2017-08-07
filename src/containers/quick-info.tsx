@@ -5,34 +5,59 @@ export interface StateType {
   info: string
   left: number
   fontFamily: string
-  infoTop: number
+  line: number
+  height: number
 }
 
-export default class QuickInfo extends Component<undefined, StateType> {
+export default class QuickInfo extends Component<
+  { ref: (ref: any) => any },
+  StateType
+> {
   state = {
     isVisible: false,
     info: '',
     left: 0,
     fontFamily: 'monospace',
-    infoTop: 0,
+    fontWidth: 0,
+    line: 0,
+    height: 0,
   }
 
   render() {
     const { state } = this
+    const padding = 4
+    const border = 1
+    // https://stackoverflow.com/questions/28680940/text-is-breaking-using-absolute-positioning
+    // After applying `position: absolute`, words always break to next line
+    // `white-space: no-wrap` could only handle short case
+    // So we calculate it mannualy
+    let width =
+      state.fontWidth * state.info.length + 2 * padding + 2 * border + 2
+    if (width > 300) {
+      width = 300
+    }
+
+    // For line 0 and 1, show info below
+    const positionStyle = {}
+    if (state.line === 0 || state.line === 1) {
+      positionStyle.top = (state.line + 1) * state.height
+    } else {
+      positionStyle.bottom = 0 - state.line * state.height
+    }
+
     return (
       <div
         style={{
           display: state.isVisible ? 'block' : 'none',
-          position: 'relative',
+          position: 'absolute',
           background: '#eee',
-          border: '1px solid #aaa',
+          border: `${border}px solid #aaa`,
           fontSize: '12px',
-          padding: '4px',
-          lineHeight: 1,
+          padding: `2px ${padding}px`,
           fontFamily: state.fontFamily,
-          top: state.infoTop,
           left: state.left,
-          minWidth: '100%',
+          width,
+          ...positionStyle,
         }}
       >
         {state.info}

@@ -53,7 +53,7 @@ abstract class Renderer {
   DEBOUNCE_TIMEOUT = 300
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
-  $code: HTMLElement
+  $container: HTMLElement
   fontWidth: number
   fontFamily: string | null
   line: Line
@@ -61,7 +61,7 @@ abstract class Renderer {
   code: string
   offsetTop: number
 
-  abstract getCodeDOM(): Element | null
+  abstract getContainter(): Element | null
   abstract getCode(): string
   abstract getFontDOM(): Element | null
   abstract getLineWidthAndHeight(): Line
@@ -73,17 +73,17 @@ abstract class Renderer {
       return
     }
 
-    this.$code = <HTMLElement>this.getCodeDOM()
+    this.$container = <HTMLElement>this.getContainter()
 
     // If code blob DOM no exists, just quit
-    if (!this.$code) {
+    if (!this.$container) {
       return
     }
 
     this.line = this.getLineWidthAndHeight()
     this.padding = this.getPadding()
     this.code = this.getCode()
-    this.offsetTop = this.getOffsetTop(this.$code)
+    this.offsetTop = this.getOffsetTop(this.$container)
 
     // Get font width and family
     // FIXME: https://github.com/pd4d10/tiza/blob/v1.0.0/dist/tiza.min.js
@@ -96,9 +96,9 @@ abstract class Renderer {
     this.render()
 
     this.createService(() => {
-      this.$code.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
-      this.$code.addEventListener('mousemove', debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT))
-      this.$code.addEventListener('mouseout', () => this.handleMouseOut())
+      this.$container.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
+      this.$container.addEventListener('mousemove', debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT))
+      this.$container.addEventListener('mouseout', () => this.handleMouseOut())
       document.addEventListener('keydown', e => this.handleKeyDown(e))
       document.addEventListener('keyup', e => this.handleKeyUp(e))
     })
@@ -114,11 +114,12 @@ abstract class Renderer {
   }
 
   getPosition(e: MouseEvent) {
-    const rect = this.$code.getBoundingClientRect()
-    return {
+    const rect = this.$container.getBoundingClientRect()
+    const data = {
       x: Math.floor((e.clientX - rect.left - this.padding.left) / this.fontWidth),
       y: Math.floor((e.clientY - rect.top - this.padding.top) / this.line.height)
     }
+    return data
   }
 
   getDefinitionStyle(info: object) {
@@ -142,12 +143,12 @@ abstract class Renderer {
   getQuickInfoStyle(range: object) {
     const top = range.line * this.line.height
     return {
-      // First line, show quick info below
-      infoTop: range.line === 0 ? top + this.line.height : top - 22,
       top,
+      line: range.line,
       left: range.character * this.fontWidth,
       height: this.line.height,
-      fontFamily: this.fontFamily
+      fontFamily: this.fontFamily,
+      fontWidth: this.fontWidth,
     }
   }
 
@@ -197,17 +198,17 @@ abstract class Renderer {
   handleKeyDown(e: KeyboardEvent) {
     if (this.isMacOS ? (e.key === 'Meta') : (e.key === 'Control')) {
       // FIXME: Slow when file is large
-      this.$code.style.cursor = 'pointer'
+      this.$container.style.cursor = 'pointer'
       // FIXME: Sometimes keyup can't be triggered, add a long enough timeout to restore
       setTimeout(() => {
-        this.$code.style.cursor = null
+        this.$container.style.cursor = null
       }, 10000)
     }
   }
 
   handleKeyUp(e: KeyboardEvent) {
     if (this.isMacOS ? (e.key === 'Meta') : (e.key === 'Control')) {
-      this.$code.style.cursor = null
+      this.$container.style.cursor = null
     }
   }
 
@@ -270,9 +271,9 @@ abstract class Renderer {
    * Order: background -> code childrens -> quickInfo
    */
   render() {
-    this.$code.style.position = 'relative'
+    this.$container.style.position = 'relative'
 
-    ; [].forEach.call(this.$code.children, ($child: Element) => {
+    ; [].forEach.call(this.$container.children, ($child: Element) => {
       const $ = <HTMLElement>$child
       $.style.position = 'relative'
       $.style.zIndex = '1'
@@ -291,8 +292,8 @@ abstract class Renderer {
     $quickInfo.style.top = `${this.padding.top}px`
     $quickInfo.style.left = `${this.padding.left}px`
 
-    this.$code.insertBefore($background, this.$code.firstChild)
-    this.$code.appendChild($quickInfo)
+    this.$container.insertBefore($background, this.$container.firstChild)
+    this.$container.appendChild($quickInfo)
 
     renderToDOM($background, $quickInfo)
   }

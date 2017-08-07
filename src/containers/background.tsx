@@ -11,7 +11,10 @@ export interface StateType {
   quickInfo: QuickInfoBackgroundProps
 }
 
-export default class Background extends Component<undefined, StateType> {
+export default class Background extends Component<
+  { ref: (ref: any) => any },
+  StateType
+> {
   state = {
     occurrences: [],
     definition: {
