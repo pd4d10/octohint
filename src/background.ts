@@ -2,14 +2,6 @@ import * as ts from 'typescript'
 import Service from './services/service'
 import createService from './services'
 
-// chrome.browserAction.onClicked.addListener(tab => {
-//   console.log(tab)
-//   chrome.permissions.request({ origins: [tab.url as string] }, granted => {
-//     if (!granted) {
-//     }
-//   })
-// })
-
 // https://github.com/buunguyen/octotree/blob/61b54094ff62a725f58cff6d2dae019f8ee68562/src/config/chrome/background.js
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status !== 'complete') return

@@ -15,7 +15,6 @@
     ]
   },
   "permissions": [
-    "storage",
     "https://github.com/*",
     "https://gitlab.com/*",
     "https://bitbucket.org/*"
@@ -23,12 +22,6 @@
   "optional_permissions": [
     "<all_urls>"
   ],
-  "browser_action": {
-    "default_icon": {
-      "128": "icon.png"
-    },
-    "default_title": "Google Mail"
-  },
   "options_page": "dist/options.html",
   "options_ui": {
     "page": "dist/options.html",
