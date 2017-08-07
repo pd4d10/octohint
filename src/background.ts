@@ -2,6 +2,25 @@ import * as ts from 'typescript'
 import Service from './services/service'
 import createService from './services'
 
+// chrome.browserAction.onClicked.addListener(tab => {
+//   console.log(tab)
+//   chrome.permissions.request({ origins: [tab.url as string] }, granted => {
+//     if (!granted) {
+//     }
+//   })
+// })
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  chrome.tabs.executeScript(tabId, {
+    code: 'var injected = window.octotreeInjected; window.octotreeInjected = true; injected;',
+  }, res => {
+    if (chrome.runtime.lastError || res[0]) return
+    chrome.tabs.executeScript(tabId, {
+      file: 'dist/contentscript.js',
+    })
+  })
+})
+
 interface Services {
   [key: string]: Service
 }
@@ -44,6 +63,13 @@ handleMessage((message, sender, sendResponse) => {
 
       const { file, code } = message
       services[fileName] = createService(fileName, code)
+
+      chrome.browserAction.setIcon({
+        path: 'icon.png'
+      })
+      chrome.browserAction.setTitle({
+        title: 'Octohint is active.'
+      })
 
       // Add a timeout to delete service to prevent memory leak
       setTimeout(() => {

@@ -41,6 +41,7 @@
     "awesome-typescript-loader": "^3.1.2",
     "clean-webpack-plugin": "^0.1.16",
     "css-loader": "^0.28.0",
+    "html-webpack-plugin": "^2.30.1",
     "raw-loader": "^0.5.1",
     "source-map-loader": "^0.2.1",
     "string-replace-webpack-plugin": "^0.1.3",

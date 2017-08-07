@@ -14,36 +14,24 @@
       "dist/background.js"
     ]
   },
-  "content_scripts": [
-    {
-      "matches": [
-        "https://github.com/*"
-      ],
-      "js": [
-        "dist/sentry.js",
-        "dist/github.js"
-      ],
-      "run-at": "document_idle"
+  "permissions": [
+    "storage",
+    "https://github.com/*",
+    "https://gitlab.com/*",
+    "https://bitbucket.org/*"
+  ],
+  "optional_permissions": [
+    "<all_urls>"
+  ],
+  "browser_action": {
+    "default_icon": {
+      "128": "icon.png"
     },
-    {
-      "matches": [
-        "https://gitlab.com/*"
-      ],
-      "js": [
-        "dist/sentry.js",
-        "dist/gitlab.js"
-      ],
-      "run-at": "document_idle"
-    },
-    {
-      "matches": [
-        "https://bitbucket.org/*"
-      ],
-      "js": [
-        "dist/sentry.js",
-        "dist/bitbucket.js"
-      ],
-      "run-at": "document_idle"
-    }
-  ]
+    "default_title": "Google Mail"
+  },
+  "options_page": "dist/options.html",
+  "options_ui": {
+    "page": "dist/options.html",
+    "chrome_style": true
+  }
 }

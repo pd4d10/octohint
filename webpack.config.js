@@ -2,25 +2,30 @@ const path = require('path')
 const webpack = require('webpack')
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 var StringReplacePlugin = require("string-replace-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   entry: {
     // For Chrome
-    'chrome/dist/sentry': './src/sentry',
-    'chrome/dist/ts-lib': './src/ts-lib',
-    'chrome/dist/background': './src/background',
-    'chrome/dist/github': './src/platforms/github',
-    'chrome/dist/gitlab': './src/platforms/gitlab',
-    'chrome/dist/bitbucket': './src/platforms/bitbucket',
+    sentry: './src/sentry',
+    'ts-lib': './src/ts-lib',
+    background: './src/background',
+    // 'github': './src/platforms/github',
+    // 'gitlab': './src/platforms/gitlab',
+    // 'bitbucket': './src/platforms/bitbucket',
+    contentscript: './src/content',
 
     // For Safari
-    'octohint.safariextension/dist/sentry': './src/sentry',
-    'octohint.safariextension/dist/ts-lib': './src/ts-lib',
-    'octohint.safariextension/dist/background': './src/background',
-    'octohint.safariextension/dist/content': './src/content',
+    // 'octohint.safariextension/dist/sentry': './src/sentry',
+    // 'octohint.safariextension/dist/ts-lib': './src/ts-lib',
+    // 'octohint.safariextension/dist/background': './src/background',
+    // 'octohint.safariextension/dist/content': './src/content',
+
+    // Options
+    options: './src/options'
   },
   output: {
-    path: path.resolve('.'),
+    path: path.resolve('./chrome/dist'),
     filename: '[name].js'
   },
   // Enable sourcemaps for debugging webpack's output.
@@ -72,6 +77,11 @@ module.exports = {
   node: { fs: 'empty' },
   plugins: [
     new CleanWebpackPlugin(['chrome/dist', 'octohint.safariextension/dist']),
-    new StringReplacePlugin()
+    new StringReplacePlugin(),
+    new HtmlWebpackPlugin({
+      title: 'Options',
+      filename: 'options.html',
+      chunks: ['options'],
+    }),
   ]
 }
