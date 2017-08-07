@@ -1,11 +1,13 @@
 import { h, Component } from 'preact'
 import Occurrence, { OccurrenceProps } from '../components/occurrence'
 import Definition, { DefinitionProps } from '../components/definition'
-import QuickInfoBackground, { QuickInfoBackgroundProps } from '../components/quick-info-background'
+import QuickInfoBackground, {
+  QuickInfoBackgroundProps,
+} from '../components/quick-info-background'
 
 export interface StateType {
-  occurrences: OccurrenceProps[],
-  definition: DefinitionProps,
+  occurrences: OccurrenceProps[]
+  definition: DefinitionProps
   quickInfo: QuickInfoBackgroundProps
 }
 
@@ -16,7 +18,7 @@ export default class Background extends Component<undefined, StateType> {
       isVisible: false,
       height: 0,
       width: 0,
-      top: 0
+      top: 0,
     },
     quickInfo: {
       isVisible: false,
@@ -24,7 +26,7 @@ export default class Background extends Component<undefined, StateType> {
       left: 0,
       width: 0,
       height: 0,
-    }
+    },
   }
 
   render() {

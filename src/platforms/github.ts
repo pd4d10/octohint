@@ -18,13 +18,15 @@ class GitHubRenderer extends Renderer {
     // Test case:
     // https://github.com/gorhill/uBlock/blob/master/platform/safari/vapi-background.js
     const trs = document.querySelectorAll('.blob-wrapper table td.blob-code')
-    return [].map.call(trs, (line: Element) => {
-      const text = (<HTMLElement>line).innerText
-      if (text === '\n') {
-        return ''
-      }
-      return text
-    }).join('\n')
+    return [].map
+      .call(trs, (line: Element) => {
+        const text = (<HTMLElement>line).innerText
+        if (text === '\n') {
+          return ''
+        }
+        return text
+      })
+      .join('\n')
   }
 
   getFontDOM() {
@@ -35,7 +37,7 @@ class GitHubRenderer extends Renderer {
     const rect = document.querySelector('#LC1').getBoundingClientRect()
     return {
       width: rect.width,
-      height: rect.height
+      height: rect.height,
     }
   }
 
@@ -98,8 +100,11 @@ class GitHubRenderer extends Renderer {
         continue
       }
       // FIXME: https://github.com/webpack/webpack/blob/c54a538d6b4bad8ae37f5af1eec480e473d798d1/lib/WebpackOptionsApply.js
-      const width = $child.getBoundingClientRect().left - $line.getBoundingClientRect().left - 10
-      return Math.round(((width / this.fontWidth) - charNumber) / tabNumber)
+      const width =
+        $child.getBoundingClientRect().left -
+        $line.getBoundingClientRect().left -
+        10
+      return Math.round((width / this.fontWidth - charNumber) / tabNumber)
     }
   }
 

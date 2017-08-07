@@ -9,8 +9,10 @@
     "package-chrome": "cd chrome/; cp ../LICENSE ./; zip -r ../chrome.zip ./; rm LICENSE; cd ../",
     "package-safari": "cd octohint.safariextension/; cp ../LICENSE ./; zip -r ../octohint.safariextension.zip ./; rm LICENSE; cd ../",
     "package": "npm run package-chrome && npm run package-safari",
+    "fix": "prettier --write --no-semi --single-quote --trailing-comma es5 src/**/*.{ts,tsx}",
     "test": ""
   },
+  "pre-commit": ["fix"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pd4d10/octohint.git"
@@ -42,6 +44,8 @@
     "clean-webpack-plugin": "^0.1.16",
     "css-loader": "^0.28.0",
     "html-webpack-plugin": "^2.30.1",
+    "pre-commit": "^1.2.2",
+    "prettier": "^1.5.3",
     "raw-loader": "^0.5.1",
     "source-map-loader": "^0.2.1",
     "string-replace-webpack-plugin": "^0.1.3",

@@ -1,11 +1,11 @@
 import { h, Component } from 'preact'
 
 export interface StateType {
-  isVisible: boolean,
-  info: string,
-  left: number,
-  fontFamily: string,
-  infoTop: number,
+  isVisible: boolean
+  info: string
+  left: number
+  fontFamily: string
+  infoTop: number
 }
 
 export default class QuickInfo extends Component<undefined, StateType> {
@@ -34,7 +34,9 @@ export default class QuickInfo extends Component<undefined, StateType> {
           left: state.left,
           minWidth: '100%',
         }}
-      >{state.info}</div>
+      >
+        {state.info}
+      </div>
     )
   }
 }

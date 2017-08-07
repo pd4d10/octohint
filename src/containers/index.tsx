@@ -6,8 +6,8 @@ let background: Component<undefined, BackgroundStateType>
 let quickInfo: Component<undefined, QuickInfoStateType>
 
 export function renderToDOM($background: HTMLElement, $quickInfo: HTMLElement) {
-  render(<Background ref={ref => background = ref} />, $background)
-  render(<QuickInfo ref={ref => quickInfo = ref} />, $quickInfo)
+  render(<Background ref={ref => (background = ref)} />, $background)
+  render(<QuickInfo ref={ref => (quickInfo = ref)} />, $quickInfo)
 }
 
 export function setState(state: object) {

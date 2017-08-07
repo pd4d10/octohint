@@ -1,14 +1,14 @@
 import { h } from 'preact'
 
 export interface QuickInfoBackgroundProps {
-  isVisible: boolean,
-  top: number,
-  left: number,
-  width: number,
-  height: number,
+  isVisible: boolean
+  top: number
+  left: number
+  width: number
+  height: number
 }
 
-const QuickInfoBackground = (props: QuickInfoBackgroundProps) => (
+const QuickInfoBackground = (props: QuickInfoBackgroundProps) =>
   <div
     style={{
       display: props.isVisible ? 'block' : 'none',
@@ -21,6 +21,5 @@ const QuickInfoBackground = (props: QuickInfoBackgroundProps) => (
       height: props.height,
     }}
   />
-)
 
 export default QuickInfoBackground

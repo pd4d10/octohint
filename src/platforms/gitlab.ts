@@ -9,7 +9,12 @@ class GitLabRenderer extends Renderer {
   getCode() {
     // document.querySelector('.blob-content code').innerText miss empty line
     // Example: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/app/assets/javascripts/project_avatar.js
-    return [].map.call(this.$code.children, (line: Element) => (<HTMLElement>line).innerText).join('\n')
+    return [].map
+      .call(
+        this.$code.children,
+        (line: Element) => (<HTMLElement>line).innerText
+      )
+      .join('\n')
   }
 
   getFontDOM() {
@@ -20,14 +25,14 @@ class GitLabRenderer extends Renderer {
     const rect = document.querySelector('#LC1').getBoundingClientRect()
     return {
       width: rect.width,
-      height: rect.height
+      height: rect.height,
     }
   }
 
   getPadding() {
     return {
       left: 10,
-      top: 0
+      top: 0,
     }
   }
 

@@ -10,17 +10,20 @@ interface StateType {
 
 class Switch extends Component<PropsTypes, StateType> {
   state: StateType = {
-    isOpen: true
+    isOpen: true,
   }
 
   render() {
     return (
       <div
         style={this.state.isOpen ? {} : { color: '#aaa' }}
-        onClick={() => this.setState((previousState: any) => ({
-          isOpen: !previousState.isOpen
-        }))}
-      >Octohint</div>
+        onClick={() =>
+          this.setState((previousState: any) => ({
+            isOpen: !previousState.isOpen,
+          }))}
+      >
+        Octohint
+      </div>
     )
   }
 }

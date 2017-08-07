@@ -15,8 +15,9 @@ class BitBucketRenderer extends Renderer {
 
   getLineWidthAndHeight() {
     return {
-      width: (<HTMLElement>document.querySelector('.file-source')).offsetWidth - 43,
-      height: 16
+      width:
+        (<HTMLElement>document.querySelector('.file-source')).offsetWidth - 43,
+      height: 16,
     }
   }
 
@@ -36,8 +37,8 @@ const renderer = new BitBucketRenderer()
 
 // Dynamic injection
 // https://github.com/OctoLinker/injection/blob/master/index.js
-const spy = new MutationObserver(function (mutations) {
-  mutations.forEach(function (mutation) {
+const spy = new MutationObserver(function(mutations) {
+  mutations.forEach(function(mutation) {
     if (mutation.type === 'childList' && mutation.addedNodes.length) {
       new BitBucketRenderer()
     }
@@ -49,6 +50,6 @@ if ($DOM) {
   spy.observe($DOM, {
     attributes: true,
     childList: true,
-    characterData: true
+    characterData: true,
   })
 }

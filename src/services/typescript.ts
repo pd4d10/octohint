@@ -14,7 +14,7 @@ export default class TSService extends Service {
     const servicesHost: ts.LanguageServiceHost = {
       getScriptFileNames: () => [this.fileName],
       getScriptVersion: () => '0', // Version matters not here since no file change
-      getScriptSnapshot: (fileName) => {
+      getScriptSnapshot: fileName => {
         if (fileName === '//lib.d.ts') {
           return ts.ScriptSnapshot.fromString(defaultLib)
         }
@@ -27,14 +27,17 @@ export default class TSService extends Service {
       },
       getCurrentDirectory: () => '/',
       getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS }),
-      getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
+      getDefaultLibFileName: options => ts.getDefaultLibFilePath(options),
       log: console.log,
       trace: console.trace,
       error: console.error,
     }
 
     // Create the language service files
-    this._languageService = ts.createLanguageService(servicesHost, ts.createDocumentRegistry())
+    this._languageService = ts.createLanguageService(
+      servicesHost,
+      ts.createDocumentRegistry()
+    )
     const program = this._languageService.getProgram()
     this._sourceFile = program.getSourceFile(this.fileName)
   }
@@ -45,7 +48,10 @@ export default class TSService extends Service {
 
   getOccurrences(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const occurrences = this._languageService.getOccurrencesAtPosition(this.fileName, position)
+    const occurrences = this._languageService.getOccurrencesAtPosition(
+      this.fileName,
+      position
+    )
 
     if (!occurrences) {
       return []
@@ -53,15 +59,19 @@ export default class TSService extends Service {
 
     const data = occurrences.map(occurrence => ({
       isWriteAccess: occurrence.isWriteAccess,
-      range: this._sourceFile.getLineAndCharacterOfPosition(occurrence.textSpan.start),
-      width: occurrence.textSpan.length
+      range: this._sourceFile.getLineAndCharacterOfPosition(
+        occurrence.textSpan.start
+      ),
+      width: occurrence.textSpan.length,
     }))
     return data
   }
 
   getDefinition(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const infos = this._languageService.getDefinitionAtPosition(this.fileName, position) || []
+    const infos =
+      this._languageService.getDefinitionAtPosition(this.fileName, position) ||
+      []
 
     const infosOfFile = infos.filter(info => info.fileName === this.fileName)
 
@@ -69,24 +79,31 @@ export default class TSService extends Service {
       return undefined
     }
 
-    return this._sourceFile.getLineAndCharacterOfPosition(infosOfFile[0].textSpan.start)
+    return this._sourceFile.getLineAndCharacterOfPosition(
+      infosOfFile[0].textSpan.start
+    )
   }
 
   getQuickInfo(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const quickInfo = this._languageService.getQuickInfoAtPosition(this.fileName, position)
+    const quickInfo = this._languageService.getQuickInfoAtPosition(
+      this.fileName,
+      position
+    )
 
     if (!quickInfo) {
       return undefined
     }
 
     const info = ts.displayPartsToString(quickInfo.displayParts)
-    const range = this._sourceFile.getLineAndCharacterOfPosition(quickInfo.textSpan.start)
+    const range = this._sourceFile.getLineAndCharacterOfPosition(
+      quickInfo.textSpan.start
+    )
 
     const data = {
       info,
       range,
-      width: quickInfo.textSpan.length
+      width: quickInfo.textSpan.length,
     }
     return data
   }
