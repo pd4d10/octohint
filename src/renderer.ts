@@ -259,24 +259,23 @@ abstract class Renderer {
    * 3. Masks should follow Horizontal scroll
    * 4. Quick info overflow on first or second line
    *
-   * DOM structure - z-index
+   * DOM structure    - z-index
    *
-   *   <code>
-   *     ... - 1
-   *     <background /> - 0
-   *     <quickInfo /> - 2
-   *   </code>
+   * <container>
+   *   <background /> - 0
+   *   ...            - 1
+   *   <quickInfo />  - 2
+   * </container>
    *
-   * <code> and its childrens should not set background-color
-   * Order: background -> code childrens -> quickInfo
+   * <container> and its childrens should not set background-color
+   * Order: background -> other childrens(including code) -> quickInfo
    */
   render() {
     this.$container.style.position = 'relative'
 
-    ; [].forEach.call(this.$container.children, ($child: Element) => {
-      const $ = <HTMLElement>$child
-      $.style.position = 'relative'
-      $.style.zIndex = '1'
+    ; [].forEach.call(this.$container.children, ($child: HTMLElement) => {
+      $child.style.position = 'relative'
+      $child.style.zIndex = '1'
     })
 
     const $background = document.createElement('div')

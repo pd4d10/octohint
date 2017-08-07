@@ -37,6 +37,7 @@ export default class QuickInfo extends Component<
       width = 300
     }
 
+    // TODO: Show info according to height
     // For line 0 and 1, show info below
     const positionStyle = {}
     if (state.line === 0 || state.line === 1) {

@@ -12,7 +12,9 @@
     "fix": "prettier --write --no-semi --single-quote --trailing-comma es5 src/**/*.{ts,tsx}",
     "test": ""
   },
-  "pre-commit": ["fix"],
+  "pre-commit": [
+    "fix"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pd4d10/octohint.git"
@@ -33,7 +35,7 @@
     "lodash": "^4.17.4",
     "preact": "^8.1.0",
     "raven-js": "^3.14.0",
-    "typescript": "^2.3.2",
+    "typescript": "^2.4.2",
     "vscode-css-languageservice": "^2.0.0",
     "vscode-html-languageservice": "^2.0.1",
     "vscode-json-languageservice": "^2.0.7",
