@@ -5,8 +5,6 @@
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/d/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/stars/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
 
-Octohint is a browser extension which adds IntelliSense to GitHub, GitLab and Bitbucket.
-
 <img src="assets/demo.gif" alt="Demo" width="593" />
 
 ## Installation
@@ -25,7 +23,7 @@ Go to [release page](https://github.com/pd4d10/octohint/releases), find `chrome.
 
 Since I have no Apple Developer Program account, Safari users should install it mannually, maybe a little complicated.
 
-1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v1.3.0/octohint.safariextension.zip), double click to unpack it in Finder
+1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v1.3.0/intelli-octo.safariextension.zip), double click to unpack it in Finder
 
 2. [Enable Develop tools of Safari](https://developer.apple.com/library/content/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/GettingStarted/GettingStarted.html)
 
