@@ -11,8 +11,6 @@
 
 Octohint is a browser extension which adds IntelliSense hint for GitHub, GitLab and Bitbucket.
 
-If it is hosted on different site, you should go to chrome://extensions, click options of Octohint, then add [match patterns](https://developer.chrome.com/extensions/match_patterns) of your site, like `https://www.example.com/*`.
-
 ## Installation
 
 ### Chrome
@@ -48,6 +46,12 @@ Since I have no Apple Developer Program account, Safari users should install it 
 * TypeScript and JavaScript
 * CSS, LESS, SCSS
 * HTML
+
+## Options
+
+If GitHub/GitLab/Bitbucket you are using is hosted on different site, go to chrome://extensions, click options of Octohint, then add [match patterns](https://developer.chrome.com/extensions/match_patterns) of your site, like `https://www.example.com/*`.
+
+<img src="assets/options.png" alt="options" width="422">
 
 ## License
 
