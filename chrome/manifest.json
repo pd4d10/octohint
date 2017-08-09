@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Octohint",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "IntelliSense for GitHub, GitLab and Bitbucket",
   "homepage_url": "https://github.com/pd4d10/octohint",
   "icons": {
