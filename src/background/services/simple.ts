@@ -5,8 +5,15 @@ interface Result {
   character: number
 }
 
+const tokenRegex = /[A-Za-z0-9_]/
+
 // Find all positions of substring
-function findAllPositions(str: string, substr: string, res: number[] = [], offset: number = 0): number[] {
+function findAllPositions(
+  str: string,
+  substr: string,
+  res: number[] = [],
+  offset: number = 0
+): number[] {
   const idx = str.slice(offset).indexOf(substr)
   if (idx === -1) return res
 
@@ -22,25 +29,28 @@ export default class SimpleService extends Service {
     this.lines = code.split('\n')
   }
 
+  // TODO: CJK character
   getOccurrences(line: number, character: number) {
     const l = this.lines[line]
     let token = ''
 
     // Get token
     for (let i = character; i < l.length; i++) {
-      if (/[\w|\d]/.test(l[i])) {
+      if (tokenRegex.test(l[i])) {
         token += l[i]
       } else {
         break
       }
     }
     for (let i = character - 1; i > -1; i--) {
-      if (/[\w|\d]/.test(l[i])) {
+      if (tokenRegex.test(l[i])) {
         token = l[i] + token
       } else {
         break
       }
     }
+
+    if (!token) return []
 
     // Find the other token
     const results: Result[] = []

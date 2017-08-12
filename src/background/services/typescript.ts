@@ -25,8 +25,11 @@ export default class TSService extends Service {
         }
       },
       getCurrentDirectory: () => '/',
-      getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS, allowJs: true }),
-      getDefaultLibFileName: () => defaultLibName
+      getCompilationSettings: () => ({
+        module: ts.ModuleKind.CommonJS,
+        allowJs: true,
+      }),
+      getDefaultLibFileName: () => defaultLibName,
       // log: console.log,
       // trace: console.trace,
       // error: console.error,

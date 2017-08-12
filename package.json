@@ -10,7 +10,7 @@
     "package-safari": "cd octohint.safariextension/; cp ../LICENSE ./; zip -r ../octohint.safariextension.zip ./; rm LICENSE; cd ../",
     "package": "npm run package-chrome && npm run package-safari",
     "fix": "prettier --write --no-semi --single-quote --trailing-comma es5 src/**/*.{ts,tsx} webpack.*.js",
-    "test": ""
+    "test": "tslint src/**/*.ts"
   },
   "pre-commit": [
     "fix"
@@ -52,6 +52,9 @@
     "source-map-loader": "^0.2.1",
     "string-replace-webpack-plugin": "^0.1.3",
     "style-loader": "^0.17.0",
+    "tslint": "^5.6.0",
+    "tslint-config-prettier": "^1.3.0",
+    "tslint-plugin-prettier": "^1.0.0",
     "webpack": "^2.4.1",
     "webpack-bundle-analyzer": "^2.3.1",
     "webpack-merge": "^4.1.0"

@@ -4,21 +4,21 @@ import { renderToDOM, setState } from '../containers'
 const BACKGROUND_ID = 'octohint-background'
 
 interface Padding {
-  left: number,
-  top: number,
+  left: number
+  top: number
 }
 
 interface Line {
-  width: number,
-  height: number,
+  width: number
+  height: number
 }
 
 interface Occurrence {
-  isWriteAccess: boolean,
-  width: number,
+  isWriteAccess: boolean
+  width: number
   range: {
-    line: number,
-    character: number,
+    line: number
+    character: number
   }
 }
 
@@ -37,9 +37,13 @@ function sendMessage(data, cb) {
 // For Safari
 if (!isChrome) {
   window.OCTOHINT_ON_MESSAGE = () => {}
-  safari.self.addEventListener('message', res => {
-    window.OCTOHINT_ON_MESSAGE(res.message)
-  }, false)
+  safari.self.addEventListener(
+    'message',
+    res => {
+      window.OCTOHINT_ON_MESSAGE(res.message)
+    },
+    false
+  )
 }
 
 abstract class Renderer {
@@ -79,13 +83,29 @@ abstract class Renderer {
     // Get font width and family
     // FIXME: https://github.com/pd4d10/tiza/blob/v1.0.0/dist/tiza.min.js
     // FIXME: Empty file
-    const fontDOM = <HTMLElement>this.getFontDOM()
-    this.fontWidth = fontDOM.getBoundingClientRect().width / fontDOM.innerText.length,
+    const fontDOM = this.getFontDOM()
+
+    if (!fontDOM) return
+
+    this.fontWidth =
+      fontDOM.getBoundingClientRect().width /
+      (fontDOM as HTMLElement).innerText.length
+
     this.fontFamily = getComputedStyle(fontDOM).fontFamily
+
     this.render()
+
     this.createService(() => {
-      this.$container.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
-      this.$container.addEventListener('mousemove', debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT))
+      this.$container.addEventListener('click', (e: MouseEvent) =>
+        this.handleClick(e)
+      )
+      this.$container.addEventListener(
+        'mousemove',
+        debounce(
+          (e: MouseEvent) => this.handleMouseMove(e),
+          this.DEBOUNCE_TIMEOUT
+        )
+      )
       this.$container.addEventListener('mouseout', () => this.handleMouseOut())
       document.addEventListener('keydown', e => this.handleKeyDown(e))
       document.addEventListener('keyup', e => this.handleKeyUp(e))
@@ -104,8 +124,12 @@ abstract class Renderer {
   getPosition(e: MouseEvent) {
     const rect = this.$container.getBoundingClientRect()
     const data = {
-      x: Math.floor((e.clientX - rect.left - this.padding.left) / this.fontWidth),
-      y: Math.floor((e.clientY - rect.top - this.padding.top) / this.line.height)
+      x: Math.floor(
+        (e.clientX - rect.left - this.padding.left) / this.fontWidth
+      ),
+      y: Math.floor(
+        (e.clientY - rect.top - this.padding.top) / this.line.height
+      ),
     }
     return data
   }
@@ -114,7 +138,7 @@ abstract class Renderer {
     return {
       height: this.line.height,
       width: this.line.width - 10,
-      top: info.line * this.line.height
+      top: info.line * this.line.height,
     }
   }
 
@@ -145,7 +169,7 @@ abstract class Renderer {
       occurrences: [],
       definition: {
         isVisible: false,
-      }
+      },
     }
 
     const position = this.getPosition(e)
@@ -154,27 +178,38 @@ abstract class Renderer {
       return
     }
 
-    this.sendMessage({
-      file: this.fileName,
-      type: 'occurrence',
-      position,
-      meta: this.isMacOS ? e.metaKey : e.ctrlKey,
-    }, (response: any) => {
-      if (response.info) {
-        Object.assign(nextState, {
-          definition: {
-            isVisible: true,
-            ...this.getDefinitionStyle(response.info)
-          }
-        })
-        window.scrollTo(0, this.offsetTop + this.padding.top + response.info.line * this.line.height - 80)
-      }
+    this.sendMessage(
+      {
+        file: this.fileName,
+        type: 'occurrence',
+        position,
+        meta: this.isMacOS ? e.metaKey : e.ctrlKey,
+      },
+      (response: any) => {
+        if (response.info) {
+          Object.assign(nextState, {
+            definition: {
+              isVisible: true,
+              ...this.getDefinitionStyle(response.info),
+            },
+          })
+          window.scrollTo(
+            0,
+            this.offsetTop +
+              this.padding.top +
+              response.info.line * this.line.height -
+              80
+          )
+        }
 
-      // TODO: Fix overflow when length is large
-      const occurrences = response.occurrences.map((occurrence: any) => this.getOccurrenceStyle(occurrence))
-      Object.assign(nextState, { occurrences })
-      setState(nextState)
-    })
+        // TODO: Fix overflow when length is large
+        const occurrences = response.occurrences.map((occurrence: any) =>
+          this.getOccurrenceStyle(occurrence)
+        )
+        Object.assign(nextState, { occurrences })
+        setState(nextState)
+      }
+    )
 
     // TODO: Exclude click event triggered by selecting text
     // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
@@ -184,7 +219,7 @@ abstract class Renderer {
   }
 
   handleKeyDown(e: KeyboardEvent) {
-    if (this.isMacOS ? (e.key === 'Meta') : (e.key === 'Control')) {
+    if (this.isMacOS ? e.key === 'Meta' : e.key === 'Control') {
       // FIXME: Slow when file is large
       this.$container.style.cursor = 'pointer'
       // FIXME: Sometimes keyup can't be triggered, add a long enough timeout to restore
@@ -195,7 +230,7 @@ abstract class Renderer {
   }
 
   handleKeyUp(e: KeyboardEvent) {
-    if (this.isMacOS ? (e.key === 'Meta') : (e.key === 'Control')) {
+    if (this.isMacOS ? e.key === 'Meta' : e.key === 'Control') {
       this.$container.style.cursor = null
     }
   }
@@ -204,7 +239,7 @@ abstract class Renderer {
     setState({
       quickInfo: {
         isVisible: false,
-      }
+      },
     })
   }
 
@@ -215,29 +250,32 @@ abstract class Renderer {
       return
     }
 
-    this.sendMessage({
-      file: this.fileName,
-      type: 'quickInfo',
-      position,
-    }, (response: any) => {
-      const { data } = response
-      if (data) {
-        setState({
-          quickInfo: {
-            isVisible: true,
-            info: data.info,
-            ...this.getQuickInfoStyle(data.range),
-            width: data.width * this.fontWidth,
-          }
-        })
-      } else {
-        setState({
-          quickInfo: {
-            isVisible: false
-          }
-        })
+    this.sendMessage(
+      {
+        file: this.fileName,
+        type: 'quickInfo',
+        position,
+      },
+      (response: any) => {
+        const { data } = response
+        if (data) {
+          setState({
+            quickInfo: {
+              isVisible: true,
+              info: data.info,
+              ...this.getQuickInfoStyle(data.range),
+              width: data.width * this.fontWidth,
+            },
+          })
+        } else {
+          setState({
+            quickInfo: {
+              isVisible: false,
+            },
+          })
+        }
       }
-    })
+    )
   }
 
   /**
@@ -260,8 +298,7 @@ abstract class Renderer {
    */
   render() {
     this.$container.style.position = 'relative'
-
-    ; [].forEach.call(this.$container.children, ($child: HTMLElement) => {
+    ;[].forEach.call(this.$container.children, ($child: HTMLElement) => {
       $child.style.position = 'relative'
       $child.style.zIndex = '1'
     })
@@ -301,11 +338,14 @@ abstract class Renderer {
   createService(cb: any) {
     const tabSize = this.getTabSize()
 
-    sendMessage({
-      file: this.fileName,
-      type: 'service',
-      code: this.code.replace(/\t/g, ' '.repeat(tabSize)), // Replace tab with space
-    }, cb)
+    sendMessage(
+      {
+        file: this.fileName,
+        type: 'service',
+        code: this.code.replace(/\t/g, ' '.repeat(tabSize)), // Replace tab with space
+      },
+      cb
+    )
   }
 }
 
