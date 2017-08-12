@@ -3,7 +3,7 @@ abstract class Service {
 
   constructor(fileName: string, code: string) {
     this.fileName = fileName
-    console.log(fileName)
+    // console.log(fileName)
     this.createService(code)
   }
 

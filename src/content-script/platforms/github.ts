@@ -1,11 +1,6 @@
 import Renderer from './renderer'
 
-// FIXME: Add types
-// import gitHubInjection from 'github-injection'
-declare var require: any
-const gitHubInjection = require('github-injection')
-
-class GitHubRenderer extends Renderer {
+export default class GitHubRenderer extends Renderer {
   getContainer() {
     return document.querySelector('.blob-wrapper')
   }
@@ -125,8 +120,3 @@ class GitHubRenderer extends Renderer {
   //   $actions.insertBefore($switch, $actions.querySelector('.BtnGroup'))
   // }
 }
-
-gitHubInjection(window, (err: Error) => {
-  if (err) throw err
-  const renderer = new GitHubRenderer()
-})

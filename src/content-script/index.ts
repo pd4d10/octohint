@@ -1,8 +1,63 @@
+import GitHubRenderer from './platforms/github'
+import BitBucketRenderer from './platforms/bitbucket'
+import GitLabRenderer from './platforms/gitlab'
+
+const gitHubInjection = require('github-injection')
+
+// Firefox will fail to get `window.chrome`
+// const isChrome = window.chrome && window.chrome.runtime
+const isSafari =
+  window.safari && window.safari.self && window.safari.self.addEventListener
+
+function sendMessage(data, cb) {
+  if (isSafari) {
+    window.OCTOHINT_ON_MESSAGE = cb
+    safari.self.tab.dispatchMessage('from page', data)
+    return
+  }
+
+  chrome.runtime.sendMessage(data, cb)
+}
+
+// For Safari
+if (isSafari) {
+  window.OCTOHINT_ON_MESSAGE = () => {}
+  safari.self.addEventListener(
+    'message',
+    res => {
+      window.OCTOHINT_ON_MESSAGE(res.message)
+    },
+    false
+  )
+}
+
 // TODO: Dynamic import
 if (document.querySelector('.blob-wrapper')) {
-  require('./platforms/github')
+  gitHubInjection(window, (err: Error) => {
+    if (err) throw err
+    const renderer = new GitHubRenderer(sendMessage)
+  })
 } else if (document.querySelector('.blob-content')) {
-  require('./platforms/gitlab')
+  const renderer = new GitLabRenderer(sendMessage)
 } else if (document.querySelector('.file-source')) {
-  require('./platforms/bitbucket')
+  const renderer = new BitBucketRenderer(sendMessage)
+
+  // Dynamic injection
+  // https://github.com/OctoLinker/injection/blob/master/index.js
+  const spy = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'childList' && mutation.addedNodes.length) {
+        new BitBucketRenderer(sendMessage)
+      }
+    })
+  })
+
+  const $DOM = document.querySelector('#source-container')
+  if ($DOM) {
+    spy.observe($DOM, {
+      attributes: true,
+      childList: true,
+      characterData: true,
+    })
+  }
 }

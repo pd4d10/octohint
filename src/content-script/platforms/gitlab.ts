@@ -1,7 +1,7 @@
 import Renderer from './renderer'
 
 // FIXME: GitLab has switched to dynamic loading, can't find DOM at first time
-class GitLabRenderer extends Renderer {
+export default class GitLabRenderer extends Renderer {
   getContainer() {
     return document.querySelector('.blob-content .code')
   }
@@ -40,5 +40,3 @@ class GitLabRenderer extends Renderer {
     return 8
   }
 }
-
-const renderer = new GitLabRenderer()

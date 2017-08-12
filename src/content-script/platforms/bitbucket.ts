@@ -1,6 +1,6 @@
 import Renderer from './renderer'
 
-class BitBucketRenderer extends Renderer {
+export default class BitBucketRenderer extends Renderer {
   getContainer() {
     return document.querySelector('.file-source .code')
   }
@@ -31,25 +31,4 @@ class BitBucketRenderer extends Renderer {
   getTabSize() {
     return 8
   }
-}
-
-const renderer = new BitBucketRenderer()
-
-// Dynamic injection
-// https://github.com/OctoLinker/injection/blob/master/index.js
-const spy = new MutationObserver(function(mutations) {
-  mutations.forEach(function(mutation) {
-    if (mutation.type === 'childList' && mutation.addedNodes.length) {
-      new BitBucketRenderer()
-    }
-  })
-})
-
-const $DOM = document.querySelector('#source-container')
-if ($DOM) {
-  spy.observe($DOM, {
-    attributes: true,
-    childList: true,
-    characterData: true,
-  })
 }

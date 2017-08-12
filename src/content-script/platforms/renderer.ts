@@ -22,30 +22,6 @@ interface Occurrence {
   }
 }
 
-const isChrome = window.chrome && window.chrome.runtime
-
-function sendMessage(data, cb) {
-  if (isChrome) {
-    chrome.runtime.sendMessage(data, cb)
-    return
-  }
-
-  window.OCTOHINT_ON_MESSAGE = cb
-  safari.self.tab.dispatchMessage('from page', data)
-}
-
-// For Safari
-if (!isChrome) {
-  window.OCTOHINT_ON_MESSAGE = () => {}
-  safari.self.addEventListener(
-    'message',
-    res => {
-      window.OCTOHINT_ON_MESSAGE(res.message)
-    },
-    false
-  )
-}
-
 abstract class Renderer {
   fileName = location.protocol + '//' + location.host + location.pathname // Exclude query and hash
   DEBOUNCE_TIMEOUT = 300
@@ -66,7 +42,11 @@ abstract class Renderer {
   abstract getPadding(): Padding
   abstract getTabSize(): number
 
-  constructor() {
+  nativeSendMessage: any
+
+  constructor(nativeSendMessage: any) {
+    this.nativeSendMessage = nativeSendMessage
+
     // If an instance is already set then quit
     if (document.getElementById(BACKGROUND_ID)) return
 
@@ -323,7 +303,7 @@ abstract class Renderer {
   }
 
   sendMessage(data: object, cb: any) {
-    sendMessage(data, response => {
+    this.nativeSendMessage(data, response => {
       if (response && response.error === 'no-code') {
         this.createService(() => {
           this.sendMessage(data, cb)
@@ -338,7 +318,7 @@ abstract class Renderer {
   createService(cb: any) {
     const tabSize = this.getTabSize()
 
-    sendMessage(
+    this.nativeSendMessage(
       {
         file: this.fileName,
         type: 'service',
