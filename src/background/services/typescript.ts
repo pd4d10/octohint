@@ -3,6 +3,7 @@ import Service from './service'
 
 declare var require: any
 
+const defaultLibName = '//lib.d.ts'
 const defaultLib = window.TS_LIB
 
 export default class TSService extends Service {
@@ -15,19 +16,17 @@ export default class TSService extends Service {
       getScriptFileNames: () => [this.fileName],
       getScriptVersion: () => '0', // Version matters not here since no file change
       getScriptSnapshot: fileName => {
-        if (fileName === '//lib.d.ts') {
+        if (fileName === defaultLibName) {
           return ts.ScriptSnapshot.fromString(defaultLib)
         }
 
         if (fileName === this.fileName) {
           return ts.ScriptSnapshot.fromString(code)
         }
-
-        return undefined
       },
       getCurrentDirectory: () => '/',
-      getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS }),
-      getDefaultLibFileName: options => ts.getDefaultLibFilePath(options),
+      getCompilationSettings: () => ({ module: ts.ModuleKind.CommonJS, allowJs: true }),
+      getDefaultLibFileName: () => defaultLibName
       // log: console.log,
       // trace: console.trace,
       // error: console.error,

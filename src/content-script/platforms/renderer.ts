@@ -43,13 +43,7 @@ if (!isChrome) {
 }
 
 abstract class Renderer {
-  fileName = location.host + location.pathname // Exclude query and hash
-  isActive = /\.(tsx?|jsx?|css|less|scss|html)$/.test(this.fileName)
-  tabSize: number
-
-  // TODO: Add a switch to turn it off
-  // TODO: Multi language support
-
+  fileName = location.protocol + '//' + location.host + location.pathname // Exclude query and hash
   DEBOUNCE_TIMEOUT = 300
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
@@ -61,7 +55,7 @@ abstract class Renderer {
   code: string
   offsetTop: number
 
-  abstract getContainter(): Element | null
+  abstract getContainer(): Element | null
   abstract getCode(): string
   abstract getFontDOM(): Element | null
   abstract getLineWidthAndHeight(): Line
@@ -69,16 +63,13 @@ abstract class Renderer {
   abstract getTabSize(): number
 
   constructor() {
-    if (!this.isActive || document.getElementById(BACKGROUND_ID)) {
-      return
-    }
+    // If an instance is already set then quit
+    if (document.getElementById(BACKGROUND_ID)) return
 
-    this.$container = <HTMLElement>this.getContainter()
+    this.$container = <HTMLElement>this.getContainer()
 
-    // If code blob DOM no exists, just quit
-    if (!this.$container) {
-      return
-    }
+    // If code blob DOM not exists then quit
+    if (!this.$container) return
 
     this.line = this.getLineWidthAndHeight()
     this.padding = this.getPadding()
@@ -91,10 +82,7 @@ abstract class Renderer {
     const fontDOM = <HTMLElement>this.getFontDOM()
     this.fontWidth = fontDOM.getBoundingClientRect().width / fontDOM.innerText.length,
     this.fontFamily = getComputedStyle(fontDOM).fontFamily
-    this.tabSize = this.getTabSize()
-
     this.render()
-
     this.createService(() => {
       this.$container.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
       this.$container.addEventListener('mousemove', debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT))
@@ -311,10 +299,12 @@ abstract class Renderer {
   }
 
   createService(cb: any) {
+    const tabSize = this.getTabSize()
+
     sendMessage({
       file: this.fileName,
       type: 'service',
-      code: this.code.replace(/\t/g, ' '.repeat(this.tabSize)), // Replace tab with space
+      code: this.code.replace(/\t/g, ' '.repeat(tabSize)), // Replace tab with space
     }, cb)
   }
 }

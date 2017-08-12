@@ -6,7 +6,7 @@ declare var require: any
 const gitHubInjection = require('github-injection')
 
 class GitHubRenderer extends Renderer {
-  getContainter() {
+  getContainer() {
     return document.querySelector('.blob-wrapper')
   }
 

@@ -1,6 +1,8 @@
+import Service from './service'
 import TSService from './typescript'
 import HTMLService from './html'
 import { CSSService, LESSService, SCSSService } from './css'
+import SimpleService from './simple'
 // import JSONService from './json'
 
 function getServiceByFileName(ext: string) {
@@ -21,11 +23,11 @@ function getServiceByFileName(ext: string) {
     // case 'json':
     //   return new JSONService(fileName, code)
     default:
-      throw new Error('No such service')
+      return SimpleService
   }
 }
 
-export default function createService(fileName: string, code: string) {
+export function createService(fileName: string, code: string) {
   const ext = fileName.replace(/.*\.(.*?)$/, '$1')
   const LanguageService = getServiceByFileName(ext)
   return new LanguageService(fileName, code)

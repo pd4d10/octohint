@@ -1,6 +1,6 @@
 import * as ts from 'typescript'
 import Service from './services/service'
-import createService from './services'
+import { createService } from './services'
 
 // https://github.com/buunguyen/octotree/blob/61b54094ff62a725f58cff6d2dae019f8ee68562/src/config/chrome/background.js
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -56,7 +56,7 @@ function handleMessage(cb) {
 }
 
 handleMessage((message, sender, sendResponse) => {
-  const fileName = message.file.replace(/js$/, 'ts').replace(/jsx$/, 'tsx') // FIXME:
+  const fileName = message.file //.replace(/js$/, 'ts').replace(/jsx$/, 'tsx') // FIXME:
   const service = services[fileName]
 
   if (!service && !message.code) {
@@ -76,12 +76,12 @@ handleMessage((message, sender, sendResponse) => {
       const { file, code } = message
       services[fileName] = createService(fileName, code)
 
-      chrome.browserAction.setIcon({
-        path: 'icon.png',
-      })
-      chrome.browserAction.setTitle({
-        title: 'Octohint is active.',
-      })
+      // chrome.browserAction.setIcon({
+      //   path: 'icon.png',
+      // })
+      // chrome.browserAction.setTitle({
+      //   title: 'Octohint is active.',
+      // })
 
       // Add a timeout to delete service to prevent memory leak
       setTimeout(() => {

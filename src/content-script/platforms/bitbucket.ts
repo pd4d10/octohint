@@ -1,7 +1,7 @@
 import Renderer from './renderer'
 
 class BitBucketRenderer extends Renderer {
-  getContainter() {
+  getContainer() {
     return document.querySelector('.file-source .code')
   }
 
