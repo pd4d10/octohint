@@ -1,11 +1,12 @@
 {
   "name": "octohint",
   "private": true,
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "IntelliSense for GitHub, GitLab and Bitbucket",
   "scripts": {
     "start": "webpack -w",
     "build": "webpack --config webpack.config.production.js",
+    "build-safari": "cp -r chrome/dist octohint.safariextension",
     "package-chrome": "cd chrome/; cp ../LICENSE ./; zip -r ../chrome.zip ./; rm LICENSE; cd ../",
     "package-safari": "cd octohint.safariextension/; cp ../LICENSE ./; zip -r ../octohint.safariextension.zip ./; rm LICENSE; cd ../",
     "package": "npm run package-chrome && npm run package-safari",
