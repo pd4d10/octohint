@@ -2,32 +2,36 @@ import * as ts from 'typescript'
 import Service from './services/service'
 import { createService } from './services'
 
-// https://github.com/buunguyen/octotree/blob/61b54094ff62a725f58cff6d2dae019f8ee68562/src/config/chrome/background.js
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status !== 'complete') return
+const isChrome = window.chrome && window.chrome.runtime
 
-  chrome.tabs.executeScript(
-    tabId,
-    {
-      code:
-        'var injected = window.octohintinjected; window.octohintInjected = true; injected;',
-    },
-    res => {
-      if (chrome.runtime.lastError || res[0]) return
-      chrome.tabs.executeScript(
-        tabId,
-        {
-          file: 'dist/sentry.js',
-        },
-        () => {
-          chrome.tabs.executeScript(tabId, {
-            file: 'dist/content-script.js',
-          })
-        }
-      )
-    }
-  )
-})
+// https://github.com/buunguyen/octotree/blob/61b54094ff62a725f58cff6d2dae019f8ee68562/src/config/chrome/background.js
+if (isChrome) {
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status !== 'complete') return
+
+    chrome.tabs.executeScript(
+      tabId,
+      {
+        code:
+          'var injected = window.octohintinjected; window.octohintInjected = true; injected;',
+      },
+      res => {
+        if (chrome.runtime.lastError || res[0]) return
+        chrome.tabs.executeScript(
+          tabId,
+          {
+            file: 'dist/sentry.js',
+          },
+          () => {
+            chrome.tabs.executeScript(tabId, {
+              file: 'dist/content-script.js',
+            })
+          }
+        )
+      }
+    )
+  })
+}
 
 interface Services {
   [key: string]: Service
@@ -35,8 +39,6 @@ interface Services {
 
 const services: Services = {}
 const TIMEOUT = 1000 * 60 * 5 // 5min
-
-const isChrome = window.chrome && window.chrome.runtime
 
 function handleMessage(cb) {
   if (isChrome) {

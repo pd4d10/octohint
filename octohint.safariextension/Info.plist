@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.3.0</string>
+	<string>1.5.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>Chrome</key>
@@ -28,12 +28,12 @@
 			<key>End</key>
 			<array>
 				<string>dist/sentry.js</string>
-				<string>dist/content.js</string>
+				<string>dist/content-script.js</string>
 			</array>
 		</dict>
 	</dict>
 	<key>Description</key>
-	<string>IntelliSense for GitHub, GitLab and Bitbucket</string>
+	<string>IntelliSense hint for GitHub</string>
 	<key>DeveloperIdentifier</key>
 	<string>0000000000</string>
 	<key>ExtensionInfoDictionaryVersion</key>
