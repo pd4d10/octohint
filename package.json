@@ -2,7 +2,7 @@
   "name": "octohint",
   "private": true,
   "version": "1.5.0",
-  "description": "IntelliSense for GitHub, GitLab and Bitbucket",
+  "description": "IntelliSense hint for GitHub",
   "scripts": {
     "start": "webpack -w",
     "build": "webpack --config webpack.config.production.js",

@@ -18,7 +18,17 @@ function findAllPositions(
   if (idx === -1) return res
 
   const realIdx = offset + idx
-  res.push(realIdx)
+
+  if (
+    !(str[realIdx - 1] && tokenRegex.test(str[realIdx - 1])) &&
+    !(
+      str[realIdx + substr.length] &&
+      tokenRegex.test(str[realIdx + substr.length])
+    )
+  ) {
+    res.push(realIdx)
+  }
+
   return findAllPositions(str, substr, res, realIdx + substr.length)
 }
 
