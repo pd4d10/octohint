@@ -1,3 +1,5 @@
+import { Occurrence, QuickInfo, Definition } from '../../types'
+
 abstract class Service {
   fileName: string
 
@@ -8,9 +10,9 @@ abstract class Service {
   }
 
   abstract createService(code: string): void
-  abstract getOccurrences(line: number, character: number): any
-  abstract getDefinition(line: number, character: number): any
-  abstract getQuickInfo(line: number, character: number): any
+  abstract getOccurrences(line: number, character: number): Occurrence[] | void
+  abstract getDefinition(line: number, character: number): Definition | void
+  abstract getQuickInfo(line: number, character: number): QuickInfo | void
 }
 
 export default Service

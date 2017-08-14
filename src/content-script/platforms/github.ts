@@ -100,23 +100,13 @@ export default class GitHubRenderer extends Renderer {
         $child.getBoundingClientRect().left -
         $line.getBoundingClientRect().left -
         10
-      return Math.round((width / this.fontWidth - charNumber) / tabNumber)
-    }
-  }
+      const tabSize = Math.round(
+        (width / this.fontWidth - charNumber) / tabNumber
+      )
 
-  // renderSwitch() {
-  //   const $actions = document.querySelector('.file-actions')
-  //   const $switch = document.createElement('div')
-  //   $switch.className = 'btn btn-sm'
-  //   $switch.style.marginRight = '6px'
-  //   $switch.addEventListener('click', () => {
-  //     this.header.setState({
-  //       occurrences: [],
-  //       isDefinitionVisible: false,
-  //       isQuickInfoVisible: false,
-  //     })
-  //     this.isOpen = !this.isOpen
-  //   })
-  //   $actions.insertBefore($switch, $actions.querySelector('.BtnGroup'))
-  // }
+      return tabSize || 8
+    }
+
+    return 8
+  }
 }

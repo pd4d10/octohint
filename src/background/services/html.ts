@@ -14,18 +14,18 @@ export default class HTMLService extends Service {
   }
 
   getOccurrences(line: number, character: number) {
-    const occurrences = this._languageService.findDocumentHighlights(
-      this._document,
-      { line, character },
-      this._htmlDocument
-    )
-    return occurrences.map(occurrence => ({
-      range: occurrence.range.start,
-      width: occurrence.range.end.character - occurrence.range.start.character,
-    }))
+    return this._languageService
+      .findDocumentHighlights(
+        this._document,
+        { line, character },
+        this._htmlDocument
+      )
+      .map(highlight => ({
+        range: highlight.range.start,
+        width: highlight.range.end.character - highlight.range.start.character,
+      }))
   }
 
-  getDefinition(line: number, character: number) {}
-
-  getQuickInfo(line: number, character: number) {}
+  getDefinition() {}
+  getQuickInfo() {}
 }

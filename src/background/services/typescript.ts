@@ -50,36 +50,34 @@ export default class TSService extends Service {
 
   getOccurrences(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const occurrences = this._languageService.getOccurrencesAtPosition(
+    const references = this._languageService.getReferencesAtPosition(
       this.fileName,
       position
     )
 
-    if (!occurrences) {
-      return []
-    }
+    if (!references) return
 
-    const data = occurrences.map(occurrence => ({
-      isWriteAccess: occurrence.isWriteAccess,
+    return references.map(reference => ({
+      isWriteAccess: reference.isWriteAccess,
       range: this._sourceFile.getLineAndCharacterOfPosition(
-        occurrence.textSpan.start
+        reference.textSpan.start
       ),
-      width: occurrence.textSpan.length,
+      width: reference.textSpan.length,
     }))
-    return data
   }
 
   getDefinition(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const infos =
-      this._languageService.getDefinitionAtPosition(this.fileName, position) ||
-      []
+    const infos = this._languageService.getDefinitionAtPosition(
+      this.fileName,
+      position
+    )
+
+    // Sometime returns undefined
+    if (!infos) return
 
     const infosOfFile = infos.filter(info => info.fileName === this.fileName)
-
-    if (infosOfFile.length === 0) {
-      return undefined
-    }
+    if (infosOfFile.length === 0) return
 
     return this._sourceFile.getLineAndCharacterOfPosition(
       infosOfFile[0].textSpan.start
@@ -93,20 +91,16 @@ export default class TSService extends Service {
       position
     )
 
-    if (!quickInfo) {
-      return undefined
-    }
+    // Sometime returns undefined
+    if (!quickInfo) return
 
-    const info = ts.displayPartsToString(quickInfo.displayParts)
-    const range = this._sourceFile.getLineAndCharacterOfPosition(
-      quickInfo.textSpan.start
-    )
-
-    const data = {
-      info,
-      range,
+    // TODO: Colorize display parts
+    return {
+      info: ts.displayPartsToString(quickInfo.displayParts),
+      range: this._sourceFile.getLineAndCharacterOfPosition(
+        quickInfo.textSpan.start
+      ),
       width: quickInfo.textSpan.length,
     }
-    return data
   }
 }

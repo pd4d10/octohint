@@ -1,9 +1,5 @@
+import { LineAndCharacter } from 'typescript'
 import Service from './service'
-
-interface Result {
-  line: number
-  character: number
-}
 
 const tokenRegex = /[A-Za-z0-9_]/
 
@@ -63,22 +59,21 @@ export default class SimpleService extends Service {
     if (!token) return []
 
     // Find the other token
-    const results: Result[] = []
+    const range: LineAndCharacter[] = []
     this.lines.forEach((content, line) => {
       findAllPositions(content, token).forEach(character => {
-        results.push({ line, character })
+        range.push({ line, character })
       })
     })
 
-    const data = results.map(result => ({
+    const occurrence = range.map(result => ({
       range: result,
       width: token.length,
     }))
 
-    return data
+    return occurrence
   }
 
-  // No supported
   getDefinition() {}
   getQuickInfo() {}
 }

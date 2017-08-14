@@ -1,6 +1,7 @@
 import * as ts from 'typescript'
 import Service from './services/service'
 import { createService } from './services'
+import { MessageType, ContentMessage, BackgroundMessage } from '../types'
 
 const isChrome = window.chrome && window.chrome.runtime
 
@@ -40,7 +41,7 @@ interface Services {
 const services: Services = {}
 const TIMEOUT = 1000 * 60 * 5 // 5min
 
-function handleMessage(cb) {
+function addListener(cb: any) {
   if (isChrome) {
     chrome.runtime.onMessage.addListener(cb)
     return
@@ -48,8 +49,8 @@ function handleMessage(cb) {
 
   safari.application.addEventListener(
     'message',
-    res => {
-      cb(res.message, undefined, message => {
+    (res: any) => {
+      cb(res.message, undefined, (message: any) => {
         res.target.page.dispatchMessage('test', message)
       })
     },
@@ -57,8 +58,12 @@ function handleMessage(cb) {
   )
 }
 
-handleMessage((message, sender, sendResponse) => {
-  const fileName = message.file //.replace(/js$/, 'ts').replace(/jsx$/, 'tsx') // FIXME:
+function handleMessage(
+  message: ContentMessage,
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (message: BackgroundMessage) => void
+) {
+  const fileName = message.file
   const service = services[fileName]
 
   if (!service && !message.code) {
@@ -69,14 +74,11 @@ handleMessage((message, sender, sendResponse) => {
   }
 
   switch (message.type) {
-    case 'service': {
+    case MessageType.service: {
       sendResponse({}) // Trigger for Safari
-      if (service) {
-        return
-      }
+      if (service) return
 
-      const { file, code } = message
-      services[fileName] = createService(fileName, code)
+      services[fileName] = createService(fileName, message.code)
 
       // chrome.browserAction.setIcon({
       //   path: 'icon.png',
@@ -91,22 +93,16 @@ handleMessage((message, sender, sendResponse) => {
       }, TIMEOUT)
       return
     }
-    case 'occurrence': {
+    case MessageType.occurrence: {
       const { x, y } = message.position
-      const occurrences = service.getOccurrences(y, x)
-
-      let info: ts.LineAndCharacter
-      if (message.meta) {
-        info = service.getDefinition(y, x)
-      }
 
       sendResponse({
-        occurrences,
-        info,
+        occurrences: service.getOccurrences(y, x),
+        info: message.meta ? service.getDefinition(y, x) : undefined,
       })
       return
     }
-    case 'quickInfo': {
+    case MessageType.quickInfo: {
       const { x, y } = message.position
       const data = service.getQuickInfo(y, x)
       sendResponse({ data })
@@ -115,4 +111,6 @@ handleMessage((message, sender, sendResponse) => {
     default:
       return
   }
-})
+}
+
+addListener(handleMessage)

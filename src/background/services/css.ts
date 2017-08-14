@@ -16,15 +16,16 @@ abstract class BaseService extends Service {
   }
 
   getOccurrences(line: number, character: number) {
-    const occurrences = this._languageService.findDocumentHighlights(
-      this._document,
-      { line, character },
-      this._stylesheet
-    )
-    return occurrences.map(occurrence => ({
-      range: occurrence.range.start,
-      width: occurrence.range.end.character - occurrence.range.start.character,
-    }))
+    return this._languageService
+      .findDocumentHighlights(
+        this._document,
+        { line, character },
+        this._stylesheet
+      )
+      .map(highlight => ({
+        range: highlight.range.start,
+        width: highlight.range.end.character - highlight.range.start.character,
+      }))
   }
 
   getDefinition(line: number, character: number) {
@@ -42,17 +43,24 @@ abstract class BaseService extends Service {
       { line, character },
       this._stylesheet
     )
-    if (!hover || !hover.contents) {
-      return undefined
+
+    if (!hover || !hover.contents || !hover.range) {
+      return
     }
 
+    // TODO: Show all information
     let info: string
     if (typeof hover.contents === 'string') {
       info = hover.contents
-    } else if (typeof hover.contents[0] === 'string') {
-      info = hover.contents[0]
+    } else if (Array.isArray(hover.contents)) {
+      const str = hover.contents[0]
+      if (typeof str === 'string') {
+        info = str
+      } else {
+        return
+      }
     } else {
-      return undefined
+      return
     }
 
     return {

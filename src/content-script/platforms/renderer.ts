@@ -1,5 +1,12 @@
 import * as debounce from 'lodash/debounce'
+import { LineAndCharacter } from 'typescript'
 import { renderToDOM, setState } from '../containers'
+import {
+  MessageType,
+  ContentMessage,
+  BackgroundMessage,
+  Range,
+} from '../../types'
 
 const BACKGROUND_ID = 'octohint-background'
 
@@ -16,10 +23,7 @@ interface Line {
 interface Occurrence {
   isWriteAccess: boolean
   width: number
-  range: {
-    line: number
-    character: number
-  }
+  range: LineAndCharacter
 }
 
 abstract class Renderer {
@@ -42,7 +46,10 @@ abstract class Renderer {
   abstract getPadding(): Padding
   abstract getTabSize(): number
 
-  nativeSendMessage: any
+  nativeSendMessage: (
+    data: ContentMessage,
+    cb: (message: BackgroundMessage) => void
+  ) => void
 
   constructor(nativeSendMessage: any) {
     this.nativeSendMessage = nativeSendMessage
@@ -114,11 +121,11 @@ abstract class Renderer {
     return data
   }
 
-  getDefinitionStyle(info: object) {
+  getDefinitionStyle(line: number) {
     return {
       height: this.line.height,
       width: this.line.width - 10,
-      top: info.line * this.line.height,
+      top: line * this.line.height,
     }
   }
 
@@ -132,7 +139,7 @@ abstract class Renderer {
     }
   }
 
-  getQuickInfoStyle(range: object) {
+  getQuickInfoStyle(range: Range) {
     const top = range.line * this.line.height
     return {
       top,
@@ -161,7 +168,7 @@ abstract class Renderer {
     this.sendMessage(
       {
         file: this.fileName,
-        type: 'occurrence',
+        type: MessageType.occurrence,
         position,
         meta: this.isMacOS ? e.metaKey : e.ctrlKey,
       },
@@ -170,7 +177,7 @@ abstract class Renderer {
           Object.assign(nextState, {
             definition: {
               isVisible: true,
-              ...this.getDefinitionStyle(response.info),
+              ...this.getDefinitionStyle(response.info.line),
             },
           })
           window.scrollTo(
@@ -233,7 +240,7 @@ abstract class Renderer {
     this.sendMessage(
       {
         file: this.fileName,
-        type: 'quickInfo',
+        type: MessageType.quickInfo,
         position,
       },
       (response: any) => {
@@ -302,7 +309,7 @@ abstract class Renderer {
     renderToDOM($background, $quickInfo)
   }
 
-  sendMessage(data: object, cb: any) {
+  sendMessage(data: ContentMessage, cb: any) {
     this.nativeSendMessage(data, response => {
       if (response && response.error === 'no-code') {
         this.createService(() => {
@@ -321,7 +328,7 @@ abstract class Renderer {
     this.nativeSendMessage(
       {
         file: this.fileName,
-        type: 'service',
+        type: MessageType.service,
         code: this.code.replace(/\t/g, ' '.repeat(tabSize)), // Replace tab with space
       },
       cb

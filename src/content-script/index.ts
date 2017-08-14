@@ -1,3 +1,4 @@
+import { ContentMessage, BackgroundMessage } from '../types'
 import GitHubRenderer from './platforms/github'
 import BitBucketRenderer from './platforms/bitbucket'
 import GitLabRenderer from './platforms/gitlab'
@@ -9,7 +10,10 @@ const gitHubInjection = require('github-injection')
 const isSafari =
   window.safari && window.safari.self && window.safari.self.addEventListener
 
-function sendMessage(data, cb) {
+function sendMessage(
+  data: ContentMessage,
+  cb: (message: BackgroundMessage) => void
+) {
   if (isSafari) {
     window.OCTOHINT_ON_MESSAGE = cb
     safari.self.tab.dispatchMessage('from page', data)
