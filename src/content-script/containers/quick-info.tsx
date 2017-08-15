@@ -9,10 +9,7 @@ export interface StateType {
   height: number
 }
 
-export default class QuickInfo extends Component<
-  { ref: (ref: any) => any },
-  StateType
-> {
+export default class QuickInfo extends Component<{ ref: (ref: any) => any }, StateType> {
   state = {
     isVisible: false,
     info: '',
@@ -31,8 +28,7 @@ export default class QuickInfo extends Component<
     // After applying `position: absolute`, words always break to next line
     // `white-space: no-wrap` could only handle short case
     // So we calculate it mannualy
-    let width =
-      state.fontWidth * state.info.length + 2 * padding + 2 * border + 2
+    let width = state.fontWidth * state.info.length + 2 * padding + 2 * border + 2
     if (width > 300) {
       width = 300
     }

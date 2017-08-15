@@ -72,7 +72,4 @@ interface ContentMessageOfQuickInfo extends BaseContentMessage {
   position: Position
 }
 
-export type ContentMessage =
-  | ContentMessageOfService
-  | ContentMessageOfOccurrence
-  | ContentMessageOfQuickInfo
+export type ContentMessage = ContentMessageOfService | ContentMessageOfOccurrence | ContentMessageOfQuickInfo

@@ -17,11 +17,7 @@ abstract class BaseService extends Service {
 
   getOccurrences(line: number, character: number) {
     return this._languageService
-      .findDocumentHighlights(
-        this._document,
-        { line, character },
-        this._stylesheet
-      )
+      .findDocumentHighlights(this._document, { line, character }, this._stylesheet)
       .map(highlight => ({
         range: highlight.range.start,
         width: highlight.range.end.character - highlight.range.start.character,
@@ -29,20 +25,12 @@ abstract class BaseService extends Service {
   }
 
   getDefinition(line: number, character: number) {
-    const definition = this._languageService.findDefinition(
-      this._document,
-      { line, character },
-      this._stylesheet
-    )
+    const definition = this._languageService.findDefinition(this._document, { line, character }, this._stylesheet)
     return definition.range.start
   }
 
   getQuickInfo(line: number, character: number) {
-    const hover = this._languageService.doHover(
-      this._document,
-      { line, character },
-      this._stylesheet
-    )
+    const hover = this._languageService.doHover(this._document, { line, character }, this._stylesheet)
 
     if (!hover || !hover.contents || !hover.range) {
       return

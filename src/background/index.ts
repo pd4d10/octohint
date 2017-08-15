@@ -13,8 +13,7 @@ if (isChrome) {
     chrome.tabs.executeScript(
       tabId,
       {
-        code:
-          'var injected = window.octohintinjected; window.octohintInjected = true; injected;',
+        code: 'var injected = window.octohintinjected; window.octohintInjected = true; injected;',
       },
       res => {
         if (chrome.runtime.lastError || res[0]) return

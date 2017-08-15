@@ -10,9 +10,7 @@ export default class GitLabRenderer extends Renderer {
     // document.querySelector('.blob-content code').innerText miss empty line
     // Example: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/app/assets/javascripts/project_avatar.js
     const codeDOM = document.querySelectorAll('.blob-content .line')
-    const code = [].map
-      .call(codeDOM, (line: Element) => (<HTMLElement>line).innerText)
-      .join('\n')
+    const code = [].map.call(codeDOM, (line: Element) => (<HTMLElement>line).innerText).join('\n')
     return code
   }
 

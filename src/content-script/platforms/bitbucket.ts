@@ -15,8 +15,7 @@ export default class BitBucketRenderer extends Renderer {
 
   getLineWidthAndHeight() {
     return {
-      width:
-        (<HTMLElement>document.querySelector('.file-source')).offsetWidth - 43,
+      width: (<HTMLElement>document.querySelector('.file-source')).offsetWidth - 43,
       height: 16,
     }
   }

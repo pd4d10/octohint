@@ -4,12 +4,7 @@ import Service from './service'
 const tokenRegex = /[A-Za-z0-9_]/
 
 // Find all positions of substring
-function findAllPositions(
-  str: string,
-  substr: string,
-  res: number[] = [],
-  offset: number = 0
-): number[] {
+function findAllPositions(str: string, substr: string, res: number[] = [], offset: number = 0): number[] {
   const idx = str.slice(offset).indexOf(substr)
   if (idx === -1) return res
 
@@ -17,10 +12,7 @@ function findAllPositions(
 
   if (
     !(str[realIdx - 1] && tokenRegex.test(str[realIdx - 1])) &&
-    !(
-      str[realIdx + substr.length] &&
-      tokenRegex.test(str[realIdx + substr.length])
-    )
+    !(str[realIdx + substr.length] && tokenRegex.test(str[realIdx + substr.length]))
   ) {
     res.push(realIdx)
   }

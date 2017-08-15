@@ -1,9 +1,7 @@
 import { h, Component } from 'preact'
 import Occurrence, { OccurrenceProps } from '../components/occurrence'
 import Definition, { DefinitionProps } from '../components/definition'
-import QuickInfoBackground, {
-  QuickInfoBackgroundProps,
-} from '../components/quick-info-background'
+import QuickInfoBackground, { QuickInfoBackgroundProps } from '../components/quick-info-background'
 
 export interface StateType {
   occurrences: OccurrenceProps[]
@@ -11,10 +9,7 @@ export interface StateType {
   quickInfo: QuickInfoBackgroundProps
 }
 
-export default class Background extends Component<
-  { ref: (ref: any) => any },
-  StateType
-> {
+export default class Background extends Component<{ ref: (ref: any) => any }, StateType> {
   state = {
     occurrences: [],
     definition: {

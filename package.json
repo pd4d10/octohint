@@ -10,7 +10,7 @@
     "package-chrome": "cd chrome/; cp ../LICENSE ./; zip -r ../chrome.zip ./; rm LICENSE; cd ../",
     "package-safari": "cd octohint.safariextension/; cp ../LICENSE ./; zip -r ../octohint.safariextension.zip ./; rm LICENSE; cd ../",
     "package": "npm run package-chrome && npm run package-safari",
-    "fix": "prettier --write --no-semi --single-quote --trailing-comma es5 src/**/*.{ts,tsx} webpack.*.js",
+    "fix": "tslint --fix 'src/**/*.{ts,tsx}'",
     "test": "tslint src/**/*.ts"
   },
   "pre-commit": [

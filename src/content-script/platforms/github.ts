@@ -96,13 +96,8 @@ export default class GitHubRenderer extends Renderer {
         continue
       }
       // FIXME: https://github.com/webpack/webpack/blob/c54a538d6b4bad8ae37f5af1eec480e473d798d1/lib/WebpackOptionsApply.js
-      const width =
-        $child.getBoundingClientRect().left -
-        $line.getBoundingClientRect().left -
-        10
-      const tabSize = Math.round(
-        (width / this.fontWidth - charNumber) / tabNumber
-      )
+      const width = $child.getBoundingClientRect().left - $line.getBoundingClientRect().left - 10
+      const tabSize = Math.round((width / this.fontWidth - charNumber) / tabNumber)
 
       return tabSize || 8
     }

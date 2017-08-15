@@ -1,12 +1,7 @@
 import * as debounce from 'lodash/debounce'
 import { LineAndCharacter } from 'typescript'
 import { renderToDOM, setState } from '../containers'
-import {
-  MessageType,
-  ContentMessage,
-  BackgroundMessage,
-  Range,
-} from '../../types'
+import { MessageType, ContentMessage, BackgroundMessage, Range } from '../../types'
 
 const BACKGROUND_ID = 'octohint-background'
 
@@ -46,10 +41,7 @@ abstract class Renderer {
   abstract getPadding(): Padding
   abstract getTabSize(): number
 
-  nativeSendMessage: (
-    data: ContentMessage,
-    cb: (message: BackgroundMessage) => void
-  ) => void
+  nativeSendMessage: (data: ContentMessage, cb: (message: BackgroundMessage) => void) => void
 
   constructor(nativeSendMessage: any) {
     this.nativeSendMessage = nativeSendMessage
@@ -74,24 +66,17 @@ abstract class Renderer {
 
     if (!fontDOM) return
 
-    this.fontWidth =
-      fontDOM.getBoundingClientRect().width /
-      (fontDOM as HTMLElement).innerText.length
+    this.fontWidth = fontDOM.getBoundingClientRect().width / (fontDOM as HTMLElement).innerText.length
 
     this.fontFamily = getComputedStyle(fontDOM).fontFamily
 
     this.render()
 
     this.createService(() => {
-      this.$container.addEventListener('click', (e: MouseEvent) =>
-        this.handleClick(e)
-      )
+      this.$container.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
       this.$container.addEventListener(
         'mousemove',
-        debounce(
-          (e: MouseEvent) => this.handleMouseMove(e),
-          this.DEBOUNCE_TIMEOUT
-        )
+        debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT)
       )
       this.$container.addEventListener('mouseout', () => this.handleMouseOut())
       document.addEventListener('keydown', e => this.handleKeyDown(e))
@@ -111,12 +96,8 @@ abstract class Renderer {
   getPosition(e: MouseEvent) {
     const rect = this.$container.getBoundingClientRect()
     const data = {
-      x: Math.floor(
-        (e.clientX - rect.left - this.padding.left) / this.fontWidth
-      ),
-      y: Math.floor(
-        (e.clientY - rect.top - this.padding.top) / this.line.height
-      ),
+      x: Math.floor((e.clientX - rect.left - this.padding.left) / this.fontWidth),
+      y: Math.floor((e.clientY - rect.top - this.padding.top) / this.line.height),
     }
     return data
   }
@@ -180,19 +161,11 @@ abstract class Renderer {
               ...this.getDefinitionStyle(response.info.line),
             },
           })
-          window.scrollTo(
-            0,
-            this.offsetTop +
-              this.padding.top +
-              response.info.line * this.line.height -
-              80
-          )
+          window.scrollTo(0, this.offsetTop + this.padding.top + response.info.line * this.line.height - 80)
         }
 
         // TODO: Fix overflow when length is large
-        const occurrences = response.occurrences.map((occurrence: any) =>
-          this.getOccurrenceStyle(occurrence)
-        )
+        const occurrences = response.occurrences.map((occurrence: any) => this.getOccurrenceStyle(occurrence))
         Object.assign(nextState, { occurrences })
         setState(nextState)
       }

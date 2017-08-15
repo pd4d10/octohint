@@ -7,13 +7,9 @@ const gitHubInjection = require('github-injection')
 
 // Firefox will fail to get `window.chrome`
 // const isChrome = window.chrome && window.chrome.runtime
-const isSafari =
-  window.safari && window.safari.self && window.safari.self.addEventListener
+const isSafari = window.safari && window.safari.self && window.safari.self.addEventListener
 
-function sendMessage(
-  data: ContentMessage,
-  cb: (message: BackgroundMessage) => void
-) {
+function sendMessage(data: ContentMessage, cb: (message: BackgroundMessage) => void) {
   if (isSafari) {
     window.OCTOHINT_ON_MESSAGE = cb
     safari.self.tab.dispatchMessage('from page', data)

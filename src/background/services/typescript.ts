@@ -36,10 +36,7 @@ export default class TSService extends Service {
     }
 
     // Create the language service files
-    this._languageService = ts.createLanguageService(
-      servicesHost,
-      ts.createDocumentRegistry()
-    )
+    this._languageService = ts.createLanguageService(servicesHost, ts.createDocumentRegistry())
     const program = this._languageService.getProgram()
     this._sourceFile = program.getSourceFile(this.fileName)
   }
@@ -50,28 +47,20 @@ export default class TSService extends Service {
 
   getOccurrences(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const references = this._languageService.getReferencesAtPosition(
-      this.fileName,
-      position
-    )
+    const references = this._languageService.getReferencesAtPosition(this.fileName, position)
 
     if (!references) return
 
     return references.map(reference => ({
       isWriteAccess: reference.isWriteAccess,
-      range: this._sourceFile.getLineAndCharacterOfPosition(
-        reference.textSpan.start
-      ),
+      range: this._sourceFile.getLineAndCharacterOfPosition(reference.textSpan.start),
       width: reference.textSpan.length,
     }))
   }
 
   getDefinition(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const infos = this._languageService.getDefinitionAtPosition(
-      this.fileName,
-      position
-    )
+    const infos = this._languageService.getDefinitionAtPosition(this.fileName, position)
 
     // Sometime returns undefined
     if (!infos) return
@@ -79,17 +68,12 @@ export default class TSService extends Service {
     const infosOfFile = infos.filter(info => info.fileName === this.fileName)
     if (infosOfFile.length === 0) return
 
-    return this._sourceFile.getLineAndCharacterOfPosition(
-      infosOfFile[0].textSpan.start
-    )
+    return this._sourceFile.getLineAndCharacterOfPosition(infosOfFile[0].textSpan.start)
   }
 
   getQuickInfo(line: number, character: number) {
     const position = this.getPosition(line, character)
-    const quickInfo = this._languageService.getQuickInfoAtPosition(
-      this.fileName,
-      position
-    )
+    const quickInfo = this._languageService.getQuickInfoAtPosition(this.fileName, position)
 
     // Sometime returns undefined
     if (!quickInfo) return
@@ -97,9 +81,7 @@ export default class TSService extends Service {
     // TODO: Colorize display parts
     return {
       info: ts.displayPartsToString(quickInfo.displayParts),
-      range: this._sourceFile.getLineAndCharacterOfPosition(
-        quickInfo.textSpan.start
-      ),
+      range: this._sourceFile.getLineAndCharacterOfPosition(quickInfo.textSpan.start),
       width: quickInfo.textSpan.length,
     }
   }
