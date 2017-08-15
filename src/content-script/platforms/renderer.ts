@@ -102,36 +102,6 @@ abstract class Renderer {
     return data
   }
 
-  getDefinitionStyle(line: number) {
-    return {
-      height: this.line.height,
-      width: this.line.width - 10,
-      top: line * this.line.height,
-    }
-  }
-
-  getOccurrenceStyle(occurrence: Occurrence) {
-    return {
-      height: this.line.height,
-      width: occurrence.width * this.fontWidth,
-      top: occurrence.range.line * this.line.height,
-      left: occurrence.range.character * this.fontWidth,
-      isWriteAccess: occurrence.isWriteAccess,
-    }
-  }
-
-  getQuickInfoStyle(range: Range) {
-    const top = range.line * this.line.height
-    return {
-      top,
-      line: range.line,
-      left: range.character * this.fontWidth,
-      height: this.line.height,
-      fontFamily: this.fontFamily,
-      fontWidth: this.fontWidth,
-    }
-  }
-
   handleClick(e: MouseEvent) {
     const nextState = {
       occurrences: [],
@@ -158,14 +128,22 @@ abstract class Renderer {
           Object.assign(nextState, {
             definition: {
               isVisible: true,
-              ...this.getDefinitionStyle(response.info.line),
+              height: this.line.height,
+              width: this.line.width - 10,
+              top: response.info.line * this.line.height,
             },
           })
           window.scrollTo(0, this.offsetTop + this.padding.top + response.info.line * this.line.height - 80)
         }
 
         // TODO: Fix overflow when length is large
-        const occurrences = response.occurrences.map((occurrence: any) => this.getOccurrenceStyle(occurrence))
+        const occurrences = response.occurrences.map((occurrence: any) => ({
+          height: this.line.height,
+          width: occurrence.width * this.fontWidth,
+          top: occurrence.range.line * this.line.height,
+          left: occurrence.range.character * this.fontWidth,
+          isWriteAccess: occurrence.isWriteAccess,
+        }))
         Object.assign(nextState, { occurrences })
         setState(nextState)
       }
@@ -219,11 +197,18 @@ abstract class Renderer {
       (response: any) => {
         const { data } = response
         if (data) {
+          const { range } = data
+          const top = range.line * this.line.height
           setState({
             quickInfo: {
               isVisible: true,
               info: data.info,
-              ...this.getQuickInfoStyle(data.range),
+              top,
+              line: range.line,
+              left: range.character * this.fontWidth,
+              height: this.line.height,
+              fontFamily: this.fontFamily,
+              fontWidth: this.fontWidth,
               width: data.width * this.fontWidth,
             },
           })
@@ -272,6 +257,8 @@ abstract class Renderer {
 
     const $quickInfo = document.createElement('div')
     $quickInfo.style.position = 'absolute'
+    const containerWidth = this.$container.getBoundingClientRect().width
+    $quickInfo.style.width = `${containerWidth - this.padding.left}px` // Important, make quick info show as wide as possible
     $quickInfo.style.zIndex = '2'
     $quickInfo.style.top = `${this.padding.top}px`
     $quickInfo.style.left = `${this.padding.left}px`

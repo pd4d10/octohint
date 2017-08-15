@@ -77,10 +77,11 @@ export default class TSService extends Service {
 
     // Sometime returns undefined
     if (!quickInfo) return
+    // console.log(quickInfo)
 
     // TODO: Colorize display parts
     return {
-      info: ts.displayPartsToString(quickInfo.displayParts),
+      info: quickInfo.displayParts,
       range: this._sourceFile.getLineAndCharacterOfPosition(quickInfo.textSpan.start),
       width: quickInfo.textSpan.length,
     }

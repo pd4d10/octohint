@@ -1,20 +1,32 @@
 import { h, Component } from 'preact'
+import { SymbolDisplayPart } from 'typescript'
 
 export interface StateType {
   isVisible: boolean
-  info: string
+  info: SymbolDisplayPart[]
   left: number
   fontFamily: string
   line: number
   height: number
 }
 
+function getColorFromKind(kind: string) {
+  switch (kind) {
+    case 'keyword':
+      return '#00f'
+    case 'punctuation':
+      return '#000'
+    default:
+      return '#001080'
+  }
+}
+
 export default class QuickInfo extends Component<{ ref: (ref: any) => any }, StateType> {
   state = {
     isVisible: false,
-    info: '',
+    info: [],
     left: 0,
-    fontFamily: 'monospace',
+    fontFamily: 'monospace', // TODO: Use the same font family
     fontWidth: 0,
     line: 0,
     height: 0,
@@ -24,19 +36,13 @@ export default class QuickInfo extends Component<{ ref: (ref: any) => any }, Sta
     const { state } = this
     const padding = 4
     const border = 1
-    // https://stackoverflow.com/questions/28680940/text-is-breaking-using-absolute-positioning
-    // After applying `position: absolute`, words always break to next line
-    // `white-space: no-wrap` could only handle short case
-    // So we calculate it mannualy
-    let width = state.fontWidth * state.info.length + 2 * padding + 2 * border + 2
-    if (width > 300) {
-      width = 300
-    }
 
+    // TODO: Fix https://github.com/Microsoft/TypeScript/blob/master/Gulpfile.ts
     // TODO: Show info according to height
+    // TODO: Make quick info could be copied
     // For line 0 and 1, show info below
     const positionStyle = {}
-    if (state.line === 0 || state.line === 1) {
+    if (state.line < 2) {
       positionStyle.top = (state.line + 1) * state.height
     } else {
       positionStyle.bottom = 0 - state.line * state.height
@@ -46,18 +52,33 @@ export default class QuickInfo extends Component<{ ref: (ref: any) => any }, Sta
       <div
         style={{
           display: state.isVisible ? 'block' : 'none',
+          whiteSpace: 'pre-wrap',
           position: 'absolute',
-          background: '#eee',
-          border: `${border}px solid #aaa`,
+          background: '#efeff2',
+          border: `${border}px solid #c8c8c8`,
           fontSize: '12px',
           padding: `2px ${padding}px`,
           fontFamily: state.fontFamily,
           left: state.left,
-          width,
+          maxWidth: '500px',
+          maxHeight: '300px',
+          overflow: 'auto',
+          wordBreak: 'break-all',
           ...positionStyle,
         }}
       >
-        {state.info}
+        <div>
+          {state.info.map(part => {
+            if (part.text === '\n') {
+              return <br />
+            }
+            return (
+              <span style={{ color: getColorFromKind(part.kind) }}>
+                {part.text}
+              </span>
+            )
+          })}
+        </div>
       </div>
     )
   }
