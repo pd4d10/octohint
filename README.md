@@ -25,7 +25,7 @@ Make sure your version of Firefox supports web extensions. The installation is t
 
 ### Safari
 
-1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v1.5.0/octohint.safariextension.zip), double click to unpack it in Finder
+1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v1.6.0/octohint.safariextension.zip), double click to unpack it in Finder
 
 2. [Enable Develop tools of Safari](https://developer.apple.com/library/content/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/GettingStarted/GettingStarted.html)
 
@@ -43,12 +43,16 @@ With Octohint installed, when you view code at GitHub (For example [this](https:
 
 ## Supported languages
 
-* Rich IntelliSense hint: TypeScript, JavaScript, CSS and more...
-* Base token matching: All languages
+Rich IntelliSense hint:
+
+* TypeScript and JavaScript
+* CSS, LESS and SCSS
+
+Base token matching: All languages
 
 ## Supported platforms
 
-Support GitHub, GitLab and Bitbucket. Since GitLab CE has many versions, I'm not sure it works correctly on every version. If you could find some bugs you could [submit an issue](https://github.com/pd4d10/octohint/issues/new).
+Support GitHub, GitLab and Bitbucket. Since GitLab CE has many versions, I'm not sure it works correctly on every version. If you find some bugs you could [submit an issue](https://github.com/pd4d10/octohint/issues/new).
 
 ## Get private GitHub/GitLab/Bitbucket works
 
