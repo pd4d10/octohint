@@ -2,16 +2,15 @@ import Renderer from './renderer'
 
 export default class GitHubRenderer extends Renderer {
   getContainer() {
-    return document.querySelector('.blob-wrapper')
+    // $('.blob-wrapper') is not OK because of scroll x
+    return document.querySelector('.blob-wrapper table')
   }
 
   getCode() {
-    // If we use document.querySelector('.blob-wrapper > table').innerText
-    // Empty line in comment is missing
-    // innerText behavior is different at FireFox, so use <td> instead of <tr>
+    // $('.blob-wrapper > table').innerText doesn't work correctly, empty line in comment is missing
+    // Test case: https://github.com/gorhill/uBlock/blob/master/platform/safari/vapi-background.js
 
-    // Test case:
-    // https://github.com/gorhill/uBlock/blob/master/platform/safari/vapi-background.js
+    // innerText behavior is different at FireFox, so use <td> instead of <tr>
     const trs = document.querySelectorAll('.blob-wrapper table td.blob-code')
     return [].map
       .call(trs, (line: Element) => {
