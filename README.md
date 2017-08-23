@@ -64,6 +64,11 @@ If GitHub/GitLab/Bitbucket you are using is hosted on different site, go to chro
 
 Octohint is a pure client thing. All code analysis are performed at your browser, which means your code and actions like click, mousemove will never be sent to any server. So feel free to use it at your private GitHub/GitLab/Bitbucket.
 
+
+## Related
+
+* [Octoview](https://github.com/pd4d10/octoview): The missing preview feature for GitHub
+
 ## License
 
 MIT
