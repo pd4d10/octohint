@@ -55,6 +55,10 @@ module.exports = {
         loader: 'source-map-loader',
         exclude: /node_modules/,
       },
+      {
+        test: /\.json$/,
+        loader: 'json-loader',
+      }
     ],
   },
   resolve: {

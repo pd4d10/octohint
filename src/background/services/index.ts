@@ -1,4 +1,5 @@
 import Service from './service'
+import { isTsFile, getExtension } from '../../utils'
 import TSService from './typescript'
 import HTMLService from './html'
 import { CSSService, LESSService, SCSSService } from './css'
@@ -7,7 +8,8 @@ import SimpleService from './simple'
 
 let tsService: TSService
 
-function getServiceByFileName(ext: string) {
+function getServiceByFileName(fileName: string) {
+  const ext = getExtension(fileName)
   switch (ext) {
     // case 'js':
     // case 'jsx':
@@ -30,18 +32,16 @@ function getServiceByFileName(ext: string) {
 }
 
 export function createService(fileName: string, code: string) {
-  console.log(tsService)
-  const ext = fileName.replace(/.*\.(.*?)$/, '$1')
-
-  if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
+  if (isTsFile(fileName)) {
+    console.log(tsService)
     if (tsService) {
-      tsService.createService(fileName, code)
+      tsService.addFile(fileName, code)
     } else {
       tsService = new TSService(fileName, code)
     }
     return tsService
   }
 
-  const LanguageService = getServiceByFileName(ext)
+  const LanguageService = getServiceByFileName(fileName)
   return new LanguageService(fileName, code)
 }

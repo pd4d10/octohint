@@ -1,4 +1,5 @@
 import * as ts from 'typescript'
+import { isTsFile } from '../utils'
 import Service from './services/service'
 import { createService } from './services'
 import { MessageType, ContentMessage, BackgroundMessage } from '../types'
@@ -64,7 +65,7 @@ function handleMessage(
 ) {
   const fileName = message.file
   let service
-  if (/[tsx?|jsx?]/.test(fileName)) {
+  if (isTsFile(fileName)) {
     service = services['ts']
   } else {
     service = services[fileName]
@@ -80,17 +81,17 @@ function handleMessage(
   switch (message.type) {
     case MessageType.service: {
       sendResponse({}) // Trigger for Safari
-      if (service) return
 
-      if (/[tsx?|jsx?]/.test(fileName)) {
+      if (isTsFile(fileName)) {
         services['ts'] = createService(fileName, message.code)
-      } else {
+      } else if (!service) {
         services[fileName] = createService(fileName, message.code)
-        // Add a timeout to delete service to prevent memory leak
-        setTimeout(() => {
-          delete services[fileName]
-        }, TIMEOUT)
       }
+
+      // Add a timeout to delete service to prevent memory leak
+      // setTimeout(() => {
+      //   delete services[fileName]
+      // }, TIMEOUT)
 
       // chrome.browserAction.setIcon({
       //   path: 'icon.png',

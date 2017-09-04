@@ -1,75 +1,81 @@
 import * as ts from 'typescript'
 import Service from './service'
-
-declare var require: any
+import { getRawUrl, getFullLibName } from '../../utils'
 
 const defaultLibName = '//lib.d.ts'
-const defaultLib = window.TS_LIB
+const defaultLib = ts.ScriptSnapshot.fromString(window.TS_LIB)
 
-const types = ['jquery']
+const defaultLibs = require('../../libs.json').reduce((obj: { [key: string]: null }, name: string) => {
+  obj[getFullLibName(name)] = null
+  return obj
+}, {})
 
 export default class TSService extends Service {
   private _languageService: ts.LanguageService
   private _program: ts.Program
-  // private _sourceFile: ts.SourceFile
-  // private getScriptSnapshot: (fileName: string) => string | undefined
-  private libs: { [file: string]: ts.IScriptSnapshot } = {}
   private files: { [file: string]: ts.IScriptSnapshot } = {}
 
   getLibs(code: string) {
     const reg = /[import|export]\s*?.*?\sfrom\s*?['"](.*?)['"]/g
     const matches = code.match(reg)
-    if (!matches) return []
-    return matches.map(str => str.replace(reg, '$1'))
+    if (!matches) {
+      return []
+    }
+    const libs = matches.map(str => str.replace(reg, '$1'))
+    return libs
+  }
+
+  async fetchFileCode(fileName: string) {
+    const res = await fetch(getRawUrl(fileName))
+    if (res.ok) {
+      return res.text()
+    } else {
+      throw new Error(fileName)
+    }
   }
 
   // Fetch type definitions from DefinitelyTyped repo
-  async fetchCode(libName: string) {
+  async fetchLibCode(libName: string) {
     const res = await fetch(
       `https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/${libName}/index.d.ts`
     )
-    if (res.ok) return res.text()
+    if (res.ok) {
+      return res.text()
+    }
+  }
+
+  addFile(fileName: string, code: string) {
+    return this.createService(code, fileName)
   }
 
   // TODO: Check if line and character are valid
   // Always stop at debugger after upgrade to TS@2.5
-  async createService(code: string, fileName: string) {
-    const libs = this.getLibs(code)
-    const libsCode = await Promise.all(libs.map(lib => this.fetchCode(lib)))
+  async createService(c: string, fileName: string) {
+    const code = await this.fetchFileCode(fileName)
+    this.files[fileName] = ts.ScriptSnapshot.fromString(code)
+
+    const libs = this.getLibs(code).filter(name => {
+      return typeof defaultLibs[name] !== 'undefined'
+    })
+
+    const libsCode = await Promise.all(libs.map(lib => this.fetchLibCode(lib)))
     libs.forEach((name, i) => {
       const code = libsCode[i]
       if (code) {
-        this.libs[name] = ts.ScriptSnapshot.fromString(code)
+        this.files[getFullLibName(name)] = ts.ScriptSnapshot.fromString(code)
       }
     })
 
-    // if (this._languageService) {
-    // }
-
-    this.files[fileName] = ts.ScriptSnapshot.fromString(code)
-
-    const regex = /^\/node_modules\/(.*?)\/index.d.ts$/
-    console.log(this.files)
-
     // https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
     const servicesHost: ts.LanguageServiceHost = {
-      getScriptFileNames: () => {
-        const files = [...Object.keys(this.files), ...types.map(type => `/node_modules/${type}/index.d.ts`)]
-        return files
-      },
+      getScriptFileNames: () => Object.keys(this.files),
       getScriptVersion: () => '0', // Version matters not here since no file change
       getScriptSnapshot: fileName => {
+        console.log(fileName)
         if (fileName === defaultLibName) {
-          return ts.ScriptSnapshot.fromString(defaultLib)
-        }
-
-        if (Object.keys(this.files).includes(fileName)) {
+          return defaultLib
+        } else {
           return this.files[fileName]
-        }
-
-        if (regex.test(fileName)) {
-          const libName = fileName.replace(regex, '$1')
-          return this.libs[libName]
         }
       },
       getCurrentDirectory: () => '/',
@@ -78,8 +84,10 @@ export default class TSService extends Service {
         // diagnostics: true,
         // traceResolution: true,
         allowSyntheticDefaultImports: true,
+        // lib: ['lib.es6.d.ts'],
       }),
       getDefaultLibFileName: () => defaultLibName,
+      // getDefaultLibFileName: options => ts.getDefaultLibFileName(options),
       // getNewLine: ts.sys.newLine,
       log: console.log,
       trace: console.log,
@@ -101,7 +109,7 @@ export default class TSService extends Service {
 
     if (!references) return []
 
-    return references.map(reference => ({
+    return references.filter(r => r.fileName === fileName).map(reference => ({
       isWriteAccess: reference.isWriteAccess,
       range: this._program.getSourceFile(fileName).getLineAndCharacterOfPosition(reference.textSpan.start),
       width: reference.textSpan.length,

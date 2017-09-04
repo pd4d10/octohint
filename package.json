@@ -48,6 +48,8 @@
     "clean-webpack-plugin": "^0.1.16",
     "css-loader": "^0.28.0",
     "html-webpack-plugin": "^2.30.1",
+    "json-loader": "^0.5.7",
+    "node-fetch": "^1.7.2",
     "pre-commit": "^1.2.2",
     "prettier": "^1.6.1",
     "raw-loader": "^0.5.1",
