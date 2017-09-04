@@ -79,19 +79,18 @@ export default class Options extends Component<{}, { origins: string[]; temp: st
                   <button type="submit">Add</button>
                 </td>
               </tr>
-              {this.state.origins.map(origin =>
+              {this.state.origins.map(origin => (
                 <tr key={origin}>
-                  <td style={{ minWidth: '220px' }}>
-                    {origin}
-                  </td>
+                  <td style={{ minWidth: '220px' }}>{origin}</td>
                   <td>
-                    {builtInPermissions.includes(origin) ||
+                    {builtInPermissions.includes(origin) || (
                       <a href="#" onClick={() => this.handleRemove(origin)}>
                         Remove
-                      </a>}
+                      </a>
+                    )}
                   </td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
         </form>

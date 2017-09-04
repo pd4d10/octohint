@@ -6,16 +6,46 @@ declare var require: any
 const defaultLibName = '//lib.d.ts'
 const defaultLib = window.TS_LIB
 
+const types = ['jquery']
+
 export default class TSService extends Service {
   private _languageService: ts.LanguageService
   private _sourceFile: ts.SourceFile
+  // private getScriptSnapshot: (fileName: string) => string | undefined
+  private libs: { [file: string]: ts.IScriptSnapshot } = {}
 
-  createService(code: string) {
+  getLibs(code: string) {
+    const reg = /[import|export]\s*?.*?\sfrom\s*?['"](.*?)['"]/g
+    const matches = code.match(reg)
+    if (!matches) return []
+    return matches.map(str => str.replace(reg, '$1'))
+  }
+
+  async fetchCode(libName: string) {
+    const res = await fetch(
+      `https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/${libName}/index.d.ts`
+    )
+    if (res.ok) return res.text()
+  }
+
+  async createService(code: string) {
+    const libs = this.getLibs(code)
+    const libsCode = await Promise.all(libs.map(lib => this.fetchCode(lib)))
+    libs.forEach((name, i) => {
+      const code = libsCode[i]
+      if (code) {
+        this.libs[name] = ts.ScriptSnapshot.fromString(code)
+      }
+    })
+
+    const regex = /^\/node_modules\/(.*?)\/index.d.ts$/
+
     // https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
     const servicesHost: ts.LanguageServiceHost = {
-      getScriptFileNames: () => [this.fileName],
+      getScriptFileNames: () => [this.fileName, ...types.map(type => `/node_modules/${type}/index.d.ts`)],
       getScriptVersion: () => '0', // Version matters not here since no file change
       getScriptSnapshot: fileName => {
+        console.log(fileName)
         if (fileName === defaultLibName) {
           return ts.ScriptSnapshot.fromString(defaultLib)
         }
@@ -23,16 +53,24 @@ export default class TSService extends Service {
         if (fileName === this.fileName) {
           return ts.ScriptSnapshot.fromString(code)
         }
+
+        if (regex.test(fileName)) {
+          const libName = fileName.replace(regex, '$1')
+          return this.libs[libName]
+        }
       },
       getCurrentDirectory: () => '/',
       getCompilationSettings: () => ({
-        module: ts.ModuleKind.CommonJS,
         allowJs: true,
+        // diagnostics: true,
+        traceResolution: true,
+        allowSyntheticDefaultImports: true,
       }),
       getDefaultLibFileName: () => defaultLibName,
-      // log: console.log,
-      // trace: console.trace,
-      // error: console.error,
+      // getNewLine: ts.sys.newLine,
+      log: console.log,
+      trace: console.log,
+      error: console.error,
     }
 
     // Create the language service files
@@ -49,7 +87,7 @@ export default class TSService extends Service {
     const position = this.getPosition(line, character)
     const references = this._languageService.getReferencesAtPosition(this.fileName, position)
 
-    if (!references) return
+    if (!references) return []
 
     return references.map(reference => ({
       isWriteAccess: reference.isWriteAccess,
@@ -63,10 +101,10 @@ export default class TSService extends Service {
     const infos = this._languageService.getDefinitionAtPosition(this.fileName, position)
 
     // Sometime returns undefined
-    if (!infos) return
+    if (!infos) return []
 
     const infosOfFile = infos.filter(info => info.fileName === this.fileName)
-    if (infosOfFile.length === 0) return
+    if (infosOfFile.length === 0) return []
 
     return this._sourceFile.getLineAndCharacterOfPosition(infosOfFile[0].textSpan.start)
   }
@@ -74,10 +112,7 @@ export default class TSService extends Service {
   getQuickInfo(line: number, character: number) {
     const position = this.getPosition(line, character)
     const quickInfo = this._languageService.getQuickInfoAtPosition(this.fileName, position)
-
-    // Sometime returns undefined
     if (!quickInfo) return
-    // console.log(quickInfo)
 
     // TODO: Colorize display parts
     return {

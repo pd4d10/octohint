@@ -8,7 +8,7 @@ export interface QuickInfoBackgroundProps {
   height: number
 }
 
-const QuickInfoBackground = (props: QuickInfoBackgroundProps) =>
+const QuickInfoBackground = (props: QuickInfoBackgroundProps) => (
   <div
     style={{
       display: props.isVisible ? 'block' : 'none',
@@ -21,5 +21,6 @@ const QuickInfoBackground = (props: QuickInfoBackgroundProps) =>
       height: props.height,
     }}
   />
+)
 
 export default QuickInfoBackground

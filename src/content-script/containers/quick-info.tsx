@@ -72,11 +72,7 @@ export default class QuickInfo extends Component<{ ref: (ref: any) => any }, Sta
             if (part.text === '\n') {
               return <br />
             }
-            return (
-              <span style={{ color: getColorFromKind(part.kind) }}>
-                {part.text}
-              </span>
-            )
+            return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
           })}
         </div>
       </div>

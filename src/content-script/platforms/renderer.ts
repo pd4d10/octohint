@@ -22,7 +22,8 @@ interface Occurrence {
 }
 
 abstract class Renderer {
-  fileName = location.protocol + '//' + location.host + location.pathname // Exclude query and hash
+  // fileName = '/home/z/' + location.pathname // Exclude query and hash
+  fileName = location.href.replace(/^https:\//, '')
   DEBOUNCE_TIMEOUT = 300
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
 

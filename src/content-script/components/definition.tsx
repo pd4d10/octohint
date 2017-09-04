@@ -7,7 +7,7 @@ export interface DefinitionProps {
   top: number
 }
 
-const Definition = (props: DefinitionProps) =>
+const Definition = (props: DefinitionProps) => (
   <div
     style={{
       display: props.isVisible ? 'block' : 'none',
@@ -19,5 +19,6 @@ const Definition = (props: DefinitionProps) =>
       top: props.top,
     }}
   />
+)
 
 export default Definition

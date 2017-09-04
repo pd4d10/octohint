@@ -8,7 +8,7 @@ export interface OccurrenceProps {
   left: number
 }
 
-const Occurrence = (props: OccurrenceProps) =>
+const Occurrence = (props: OccurrenceProps) => (
   <div
     style={{
       position: 'absolute',
@@ -19,5 +19,6 @@ const Occurrence = (props: OccurrenceProps) =>
       left: props.left,
     }}
   />
+)
 
 export default Occurrence
