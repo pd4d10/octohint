@@ -63,7 +63,12 @@ function handleMessage(
   sendResponse: (message: BackgroundMessage) => void
 ) {
   const fileName = message.file
-  const service = services[fileName]
+  let service
+  if (/[tsx?|jsx?]/.test(fileName)) {
+    service = services['ts']
+  } else {
+    service = services[fileName]
+  }
 
   if (!service && !message.code) {
     sendResponse({
@@ -77,7 +82,15 @@ function handleMessage(
       sendResponse({}) // Trigger for Safari
       if (service) return
 
-      services[fileName] = createService(fileName, message.code)
+      if (/[tsx?|jsx?]/.test(fileName)) {
+        services['ts'] = createService(fileName, message.code)
+      } else {
+        services[fileName] = createService(fileName, message.code)
+        // Add a timeout to delete service to prevent memory leak
+        setTimeout(() => {
+          delete services[fileName]
+        }, TIMEOUT)
+      }
 
       // chrome.browserAction.setIcon({
       //   path: 'icon.png',
@@ -86,24 +99,20 @@ function handleMessage(
       //   title: 'Octohint is active.',
       // })
 
-      // Add a timeout to delete service to prevent memory leak
-      setTimeout(() => {
-        delete services[fileName]
-      }, TIMEOUT)
       return
     }
     case MessageType.occurrence: {
       const { x, y } = message.position
 
       sendResponse({
-        occurrences: service.getOccurrences(y, x),
-        info: message.meta ? service.getDefinition(y, x) : undefined,
+        occurrences: service.getOccurrences(y, x, message.file),
+        info: message.meta ? service.getDefinition(y, x, message.file) : undefined,
       })
       return
     }
     case MessageType.quickInfo: {
       const { x, y } = message.position
-      const data = service.getQuickInfo(y, x)
+      const data = service.getQuickInfo(y, x, message.file)
       sendResponse({ data })
       return
     }
