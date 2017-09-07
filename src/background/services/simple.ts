@@ -1,5 +1,5 @@
 import { LineAndCharacter } from 'typescript'
-import Service from './service'
+import OtherService from './service'
 
 const tokenRegex = /[A-Za-z0-9_]/
 
@@ -20,7 +20,7 @@ function findAllPositions(str: string, substr: string, res: number[] = [], offse
   return findAllPositions(str, substr, res, realIdx + substr.length)
 }
 
-export default class SimpleService extends Service {
+export default class SimpleService extends OtherService {
   lines: string[]
 
   createService(code: string) {

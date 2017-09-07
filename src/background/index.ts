@@ -1,7 +1,7 @@
 import * as ts from 'typescript'
 import { isTsFile } from '../utils'
-import Service from './services/service'
-import { createService } from './services'
+import OtherService from './services/service'
+import { createService, createTSService } from './services'
 import { MessageType, ContentMessage, BackgroundMessage } from '../types'
 
 const isChrome = window.chrome && window.chrome.runtime
@@ -34,11 +34,9 @@ if (isChrome) {
   })
 }
 
-interface Services {
-  [key: string]: Service
-}
-
-const services: Services = {}
+const services: {
+  [key: string]: any
+} = {}
 const TIMEOUT = 1000 * 60 * 5 // 5min
 
 function addListener(cb: any) {
@@ -71,12 +69,12 @@ function handleMessage(
     service = services[fileName]
   }
 
-  if (!service && !message.code) {
-    sendResponse({
-      error: 'no-code',
-    })
-    return
-  }
+  // if (!service && !message.code) {
+  //   sendResponse({
+  //     error: 'no-code',
+  //   })
+  //   return
+  // }
 
   switch (message.type) {
     case MessageType.service: {

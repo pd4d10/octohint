@@ -58,7 +58,7 @@ interface BaseContentMessage {
 
 interface ContentMessageOfService extends BaseContentMessage {
   type: MessageType.service
-  code: string
+  // code: string
 }
 
 interface ContentMessageOfOccurrence extends BaseContentMessage {

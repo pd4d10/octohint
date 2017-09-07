@@ -22,8 +22,6 @@ interface Occurrence {
 }
 
 abstract class Renderer {
-  // fileName = '/home/z/' + location.pathname // Exclude query and hash
-  // fileName = location.href.replace(/^https:\//, '')
   fileName = location.href
   DEBOUNCE_TIMEOUT = 300
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
@@ -37,11 +35,9 @@ abstract class Renderer {
   offsetTop: number
 
   abstract getContainer(): Element | null
-  abstract getCode(): string
   abstract getFontDOM(): Element | null
   abstract getLineWidthAndHeight(): Line
   abstract getPadding(): Padding
-  abstract getTabSize(): number
 
   nativeSendMessage: (data: ContentMessage, cb: (message: BackgroundMessage) => void) => void
 
@@ -58,7 +54,6 @@ abstract class Renderer {
 
     this.line = this.getLineWidthAndHeight()
     this.padding = this.getPadding()
-    this.code = this.getCode()
     this.offsetTop = this.getOffsetTop(this.$container)
 
     // Get font width and family
@@ -272,25 +267,23 @@ abstract class Renderer {
 
   sendMessage(data: ContentMessage, cb: any) {
     this.nativeSendMessage(data, response => {
-      if (response && response.error === 'no-code') {
-        this.createService(() => {
-          this.sendMessage(data, cb)
-        })
-        return
-      }
+      // if (response && response.error === 'no-code') {
+      //   this.createService(() => {
+      //     this.sendMessage(data, cb)
+      //   })
+      //   return
+      // }
 
       cb(response)
     })
   }
 
   createService(cb: any) {
-    const tabSize = this.getTabSize()
-
     this.nativeSendMessage(
       {
         file: this.fileName,
         type: MessageType.service,
-        code: this.code.replace(/\t/g, ' '.repeat(tabSize)), // Replace tab with space
+        // code: this.code.replace(/\t/g, ' '.repeat(tabSize)), // Replace tab with space
       },
       cb
     )

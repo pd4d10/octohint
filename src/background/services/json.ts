@@ -1,8 +1,8 @@
 import * as jsonService from 'vscode-json-languageservice'
 import * as ls from 'vscode-languageserver-types'
-import Service from './service'
+import OtherService from './service'
 
-export default class JSONService extends Service {
+export default class JSONService extends OtherService {
   private _languageService = jsonService.getLanguageService({})
   private _document: ls.TextDocument
   private _htmlDocument = this._languageService.parseJSONDocument(this._document)

@@ -6,14 +6,6 @@ export default class GitLabRenderer extends Renderer {
     return document.querySelector('.blob-content .code')
   }
 
-  getCode() {
-    // document.querySelector('.blob-content code').innerText miss empty line
-    // Example: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/app/assets/javascripts/project_avatar.js
-    const codeDOM = document.querySelectorAll('.blob-content .line')
-    const code = [].map.call(codeDOM, (line: Element) => (<HTMLElement>line).innerText).join('\n')
-    return code
-  }
-
   getFontDOM() {
     return this.$container.querySelector('span[class]:not(.line)')
   }

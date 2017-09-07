@@ -1,8 +1,8 @@
 import * as htmlService from 'vscode-html-languageservice'
 import * as ls from 'vscode-languageserver-types'
-import Service from './service'
+import OtherService from './service'
 
-export default class HTMLService extends Service {
+export default class HTMLService extends OtherService {
   private _languageService = htmlService.getLanguageService()
   private _document: ls.TextDocument
   private _htmlDocument = this._languageService.parseHTMLDocument(this._document)
