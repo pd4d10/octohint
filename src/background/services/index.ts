@@ -4,7 +4,6 @@ import TSService from './typescript'
 import HTMLService from './html'
 import { CSSService, LESSService, SCSSService } from './css'
 import SimpleService from './simple'
-// import JSONService from './json'
 
 function getServiceByFileName(fileName: string) {
   const ext = getExtension(fileName)
@@ -17,8 +16,6 @@ function getServiceByFileName(fileName: string) {
       return CSSService
     case 'html':
       return HTMLService
-    // case 'json':
-    //   return new JSONService(fileName, code)
     default:
       return SimpleService
   }

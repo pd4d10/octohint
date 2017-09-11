@@ -1,6 +1,6 @@
 import * as ts from 'typescript'
-import { S } from './service'
-import { getRawUrl, getFullLibName } from '../../utils'
+import { Service } from './service'
+import { getRawUrl, getFullLibName, getEditorConfigUrl, getTabSizeFromEditorConfig } from '../../utils'
 
 const defaultLibName = '//lib.d.ts'
 const defaultLib = ts.ScriptSnapshot.fromString(window.TS_LIB)
@@ -12,13 +12,13 @@ const defaultLibs = require('../../libs.json').reduce((obj: { [key: string]: nul
 
 defaultLibs['typescript'] = require('raw-loader!typescript/lib/typescript.d.ts')
 
-export default class TSService implements S {
+export default class TSService implements Service {
   private service: ts.LanguageService
   private program: ts.Program
   private files: {
     [key: string]: {
       version: number
-      snapshot: ts.IScriptSnapshot
+      content: string
     }
   } = {}
 
@@ -36,12 +36,22 @@ export default class TSService implements S {
     }
   }
 
-  async fetchFileCode(fileName: string) {
-    const res = await fetch(getRawUrl(fileName))
+  async fetchFileCode(name: string) {
+    const res = await fetch(getRawUrl(name))
     if (res.ok) {
       return res.text()
     } else {
-      throw new Error(fileName)
+      throw new Error(name)
+    }
+  }
+
+  async getTabSize(name: string) {
+    const res = await fetch(getEditorConfigUrl(name))
+    if (res.ok) {
+      const config = await res.text()
+      return getTabSizeFromEditorConfig(config) || 8
+    } else {
+      return 8
     }
   }
 
@@ -55,23 +65,32 @@ export default class TSService implements S {
     }
   }
 
-  private updateSnapshot(fileName: string, code: string) {
+  private updateContent(fileName: string, code: string) {
     if (this.files[fileName]) {
-      this.files[fileName].version += 1
-      this.files[fileName].snapshot = ts.ScriptSnapshot.fromString(code)
+      if (this.files[fileName].content !== code) {
+        this.files[fileName].version += 1
+        this.files[fileName].content = code
+      }
     } else {
       this.files[fileName] = {
         version: 0,
-        snapshot: ts.ScriptSnapshot.fromString(code),
+        content: code,
       }
     }
   }
 
   // TODO: Check if line and character are valid
   // Always stop at debugger after upgrade to TS@2.5
-  async createService(fileName: string) {
-    const code = await this.fetchFileCode(fileName)
-    this.updateSnapshot(fileName, code)
+  async createService(name: string) {
+    const code = await this.fetchFileCode(name)
+
+    // If code has tab, try to get .editorconfig's intent_size
+    let tabSize = 8
+    if (code.includes('\t')) {
+      tabSize = await this.getTabSize(name)
+    }
+
+    this.updateContent(name, code.replace(/\t/g, ' '.repeat(tabSize)))
 
     const libs = this.getLibs(code)
     const libsCode = await Promise.all(libs.map(lib => this.fetchLibCode(lib)))
@@ -80,7 +99,7 @@ export default class TSService implements S {
       const code = libsCode[i]
       if (code) {
         const libName = getFullLibName(name)
-        this.updateSnapshot(libName, code)
+        this.updateContent(libName, code)
       }
     })
 
@@ -93,8 +112,8 @@ export default class TSService implements S {
       getScriptSnapshot: fileName => {
         if (fileName === defaultLibName) {
           return defaultLib
-        } else {
-          return this.files[fileName] && this.files[fileName].snapshot
+        } else if (this.files[fileName]) {
+          return ts.ScriptSnapshot.fromString(this.files[fileName].content)
         }
       },
       getCurrentDirectory: () => '/',
@@ -118,46 +137,45 @@ export default class TSService implements S {
     this.program = this.service.getProgram()
   }
 
-  private getPosition(line: number, character: number, fileName: string) {
-    return this.program.getSourceFile(fileName).getPositionOfLineAndCharacter(line, character)
+  private getPosition(name: string, line: number, character: number) {
+    return this.program.getSourceFile(name).getPositionOfLineAndCharacter(line, character)
   }
 
-  getOccurrences(line: number, character: number, fileName: string) {
-    const position = this.getPosition(line, character, fileName)
-    const references = this.service.getReferencesAtPosition(fileName, position)
-
-    if (!references) return []
-
-    return references.filter(r => r.fileName === fileName).map(reference => ({
-      isWriteAccess: reference.isWriteAccess,
-      range: this.program.getSourceFile(fileName).getLineAndCharacterOfPosition(reference.textSpan.start),
-      width: reference.textSpan.length,
-    }))
+  getOccurrences(name: string, line: number, character: number) {
+    const position = this.getPosition(name, line, character)
+    const references = this.service.getReferencesAtPosition(name, position)
+    if (references) {
+      return references.filter(r => r.fileName === name).map(reference => ({
+        isWriteAccess: reference.isWriteAccess,
+        range: this.program.getSourceFile(name).getLineAndCharacterOfPosition(reference.textSpan.start),
+        width: reference.textSpan.length,
+      }))
+    } else {
+      return []
+    }
   }
 
-  getDefinition(line: number, character: number, fileName: string) {
-    const position = this.getPosition(line, character, fileName)
-    const infos = this.service.getDefinitionAtPosition(fileName, position)
-
-    // Sometime returns undefined
-    if (!infos) return []
-
-    const infosOfFile = infos.filter(info => info.fileName === fileName)
-    if (infosOfFile.length === 0) return []
-
-    return this.program.getSourceFile(fileName).getLineAndCharacterOfPosition(infosOfFile[0].textSpan.start)
+  getDefinition(name: string, line: number, character: number) {
+    const position = this.getPosition(name, line, character)
+    const infos = this.service.getDefinitionAtPosition(name, position)
+    if (infos) {
+      const infosOfFile = infos.filter(info => info.fileName === name)
+      if (infosOfFile.length) {
+        return this.program.getSourceFile(name).getLineAndCharacterOfPosition(infosOfFile[0].textSpan.start)
+      }
+    }
   }
 
-  getQuickInfo(line: number, character: number, fileName: string) {
-    const position = this.getPosition(line, character, fileName)
-    const quickInfo = this.service.getQuickInfoAtPosition(fileName, position)
-    if (!quickInfo) return
-
-    // TODO: Colorize display parts
-    return {
-      info: quickInfo.displayParts,
-      range: this.program.getSourceFile(fileName).getLineAndCharacterOfPosition(quickInfo.textSpan.start),
-      width: quickInfo.textSpan.length,
+  getQuickInfo(name: string, line: number, character: number) {
+    const position = this.getPosition(name, line, character)
+    const quickInfo = this.service.getQuickInfoAtPosition(name, position)
+    if (quickInfo) {
+      // TODO: Colorize display parts
+      return {
+        info: quickInfo.displayParts,
+        range: this.program.getSourceFile(name).getLineAndCharacterOfPosition(quickInfo.textSpan.start),
+        width: quickInfo.textSpan.length,
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-import { LineAndCharacter } from 'typescript'
+import { LineAndCharacter, SymbolDisplayPart } from 'typescript'
 
 export type Range = LineAndCharacter
 
@@ -9,7 +9,7 @@ export interface Occurrence {
 }
 
 export interface QuickInfo {
-  info: string
+  info: SymbolDisplayPart[]
   range: Range
   width: number
 }

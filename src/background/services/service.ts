@@ -1,12 +1,12 @@
 import { Occurrence, QuickInfo, Definition } from '../../types'
 
-export interface S {
-  getOccurrences(line: number, character: number, fileName?: string): Occurrence[]
-  getDefinition(line: number, character: number, fileName?: string): Definition
-  getQuickInfo(line: number, character: number, fileName?: string): QuickInfo
+export interface Service {
+  getOccurrences(name: string, line: number, character: number): Occurrence[]
+  getDefinition(name: string, line: number, character: number): Definition | undefined
+  getQuickInfo(name: string, line: number, character: number): QuickInfo | undefined
 }
 
-abstract class OtherService implements S {
+export abstract class OtherService {
   fileName: string
 
   constructor(fileName: string, code: string) {
@@ -15,9 +15,4 @@ abstract class OtherService implements S {
   }
 
   abstract createService(code: string, fileName: string): void
-  abstract getOccurrences(line: number, character: number, fileName?: string): Occurrence[]
-  abstract getDefinition(line: number, character: number, fileName?: string): Definition
-  abstract getQuickInfo(line: number, character: number, fileName?: string): QuickInfo
 }
-
-export default OtherService

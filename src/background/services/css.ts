@@ -1,8 +1,8 @@
 import * as cssService from 'vscode-css-languageservice'
 import * as ls from 'vscode-languageserver-types'
-import OtherService from './service'
+import { Service, OtherService } from './service'
 
-abstract class BaseService extends OtherService {
+abstract class BaseService extends OtherService implements Service {
   private _languageService: cssService.LanguageService
   private _document: ls.TextDocument
   private _stylesheet: cssService.Stylesheet
@@ -15,7 +15,7 @@ abstract class BaseService extends OtherService {
     this._stylesheet = this._languageService.parseStylesheet(this._document)
   }
 
-  getOccurrences(line: number, character: number) {
+  getOccurrences(name: string, line: number, character: number) {
     return this._languageService
       .findDocumentHighlights(this._document, { line, character }, this._stylesheet)
       .map(highlight => ({
@@ -24,37 +24,34 @@ abstract class BaseService extends OtherService {
       }))
   }
 
-  getDefinition(line: number, character: number) {
+  getDefinition(name: string, line: number, character: number) {
     const definition = this._languageService.findDefinition(this._document, { line, character }, this._stylesheet)
     return definition.range.start
   }
 
-  getQuickInfo(line: number, character: number) {
+  getQuickInfo(name: string, line: number, character: number) {
     const hover = this._languageService.doHover(this._document, { line, character }, this._stylesheet)
-
-    if (!hover || !hover.contents || !hover.range) {
-      return
-    }
-
-    // TODO: Show all information
-    let info: string
-    if (typeof hover.contents === 'string') {
-      info = hover.contents
-    } else if (Array.isArray(hover.contents)) {
-      const str = hover.contents[0]
-      if (typeof str === 'string') {
-        info = str
+    if (hover && hover.contents && hover.range) {
+      // TODO: Show all information
+      let info: string
+      if (typeof hover.contents === 'string') {
+        info = hover.contents
+      } else if (Array.isArray(hover.contents)) {
+        const str = hover.contents[0]
+        if (typeof str === 'string') {
+          info = str
+        } else {
+          return
+        }
       } else {
         return
       }
-    } else {
-      return
-    }
 
-    return {
-      info,
-      range: hover.range.start,
-      width: hover.range.end.character - hover.range.start.character,
+      return {
+        info,
+        range: hover.range.start,
+        width: hover.range.end.character - hover.range.start.character,
+      }
     }
   }
 }
