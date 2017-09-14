@@ -45,7 +45,7 @@ interface BackgroundMessageOfError {
   error: string
 }
 
-export type BackgroundMessage =
+export type MessageFromBackground =
   | BackgroundMessageOfService
   | BackgroundMessageOfOccurrence
   | BackgroundMessageOfQuickInfo
@@ -72,4 +72,13 @@ interface ContentMessageOfQuickInfo extends BaseContentMessage {
   position: Position
 }
 
-export type ContentMessage = ContentMessageOfService | ContentMessageOfOccurrence | ContentMessageOfQuickInfo
+export type MessageFromContentScript = ContentMessageOfService | ContentMessageOfOccurrence | ContentMessageOfQuickInfo
+
+export type SendMessageToBackground = (
+  data: MessageFromContentScript,
+  cb: (message: MessageFromBackground) => void
+) => void
+
+export type AddBackgroundListener = (
+  listener: (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => void
+) => void

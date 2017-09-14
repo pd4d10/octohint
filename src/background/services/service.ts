@@ -6,7 +6,7 @@ export interface Service {
   getQuickInfo(name: string, line: number, character: number): QuickInfo | undefined
 }
 
-export abstract class OtherService {
+export abstract class SingleFileService {
   fileName: string
 
   constructor(fileName: string, code: string) {

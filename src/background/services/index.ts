@@ -21,9 +21,9 @@ function getServiceByFileName(fileName: string) {
   }
 }
 
-export function createService(fileName: string, code: string) {
+export function createService(fileName: string) {
   const Service = getServiceByFileName(fileName)
-  return new Service(fileName, code)
+  return new Service(fileName)
 }
 
 let tsService: TSService

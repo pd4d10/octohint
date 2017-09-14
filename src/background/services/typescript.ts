@@ -26,7 +26,7 @@ export default class TSService implements Service {
     this.createService(fileName)
   }
 
-  getLibs(code: string) {
+  getLibsFromCode(code: string) {
     const reg = /[import|export]\s*?.*?\sfrom\s*?['"](.*?)['"]/g
     const matches = code.match(reg)
     if (!matches) {
@@ -92,7 +92,7 @@ export default class TSService implements Service {
 
     this.updateContent(name, code.replace(/\t/g, ' '.repeat(tabSize)))
 
-    const libs = this.getLibs(code)
+    const libs = this.getLibsFromCode(code)
     const libsCode = await Promise.all(libs.map(lib => this.fetchLibCode(lib)))
 
     libs.forEach((name, i) => {

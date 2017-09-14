@@ -1,19 +1,21 @@
 const path = require('path')
 const webpack = require('webpack')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
-var StringReplacePlugin = require('string-replace-webpack-plugin')
+const StringReplacePlugin = require('string-replace-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+const isSafari = process.env.TARGET === 'safari'
 
 module.exports = {
   entry: {
+    background: isSafari ? './src/background/safari' : './src/background',
     sentry: './src/sentry',
+    'content-script': isSafari ? './src/content-script/safari' : './src/content-script',
     'ts-lib': './src/ts-lib',
-    background: './src/background',
-    'content-script': './src/content-script',
     options: './src/options',
   },
   output: {
-    path: path.resolve('./chrome/dist'),
+    path: path.resolve(isSafari ? 'octohint.safariextension/dist' : 'chrome/dist'),
     filename: '[name].js',
   },
   // Enable sourcemaps for debugging webpack's output.
@@ -58,7 +60,7 @@ module.exports = {
       {
         test: /\.json$/,
         loader: 'json-loader',
-      }
+      },
     ],
   },
   resolve: {
@@ -68,7 +70,7 @@ module.exports = {
   // https://github.com/postcss/postcss-js/issues/10#issuecomment-179782081
   node: { fs: 'empty' },
   plugins: [
-    new CleanWebpackPlugin(['chrome/dist', 'octohint.safariextension/dist']),
+    new CleanWebpackPlugin(isSafari ? 'octohint.safariextension/dist' : 'chrome/dist'),
     new StringReplacePlugin(),
     new HtmlWebpackPlugin({
       title: 'Options',

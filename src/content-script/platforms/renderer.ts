@@ -1,7 +1,7 @@
 import * as debounce from 'lodash/debounce'
 import { LineAndCharacter } from 'typescript'
 import { renderToDOM, setState } from '../containers'
-import { MessageType, ContentMessage, BackgroundMessage, Range } from '../../types'
+import { MessageType, MessageFromContentScript, MessageFromBackground, Range } from '../../types'
 
 const BACKGROUND_ID = 'octohint-background'
 
@@ -39,9 +39,11 @@ abstract class Renderer {
   abstract getLineWidthAndHeight(): Line
   abstract getPadding(): Padding
 
-  nativeSendMessage: (data: ContentMessage, cb: (message: BackgroundMessage) => void) => void
+  nativeSendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void
 
-  constructor(nativeSendMessage: any) {
+  constructor(
+    nativeSendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void
+  ) {
     this.nativeSendMessage = nativeSendMessage
 
     // If an instance is already set then quit
@@ -265,7 +267,7 @@ abstract class Renderer {
     renderToDOM($background, $quickInfo)
   }
 
-  sendMessage(data: ContentMessage, cb: any) {
+  sendMessage(data: MessageFromContentScript, cb: any) {
     this.nativeSendMessage(data, response => {
       // if (response && response.error === 'no-code') {
       //   this.createService(() => {
@@ -283,7 +285,6 @@ abstract class Renderer {
       {
         file: this.fileName,
         type: MessageType.service,
-        // code: this.code.replace(/\t/g, ' '.repeat(tabSize)), // Replace tab with space
       },
       cb
     )

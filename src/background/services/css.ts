@@ -1,36 +1,36 @@
 import * as cssService from 'vscode-css-languageservice'
 import * as ls from 'vscode-languageserver-types'
-import { Service, OtherService } from './service'
+import { Service, SingleFileService } from './service'
 
-abstract class BaseService extends OtherService implements Service {
-  private _languageService: cssService.LanguageService
-  private _document: ls.TextDocument
-  private _stylesheet: cssService.Stylesheet
+abstract class BaseService extends SingleFileService implements Service {
+  private service: cssService.LanguageService
+  private document: ls.TextDocument
+  private stylesheet: cssService.Stylesheet
   abstract getService(): cssService.LanguageService
 
   createService(code: string) {
     const languageId = this.fileName.replace(/.*\.(.*?)$/, '$1')
-    this._languageService = this.getService()
-    this._document = ls.TextDocument.create(this.fileName, languageId, 0, code)
-    this._stylesheet = this._languageService.parseStylesheet(this._document)
+    this.service = this.getService()
+    this.document = ls.TextDocument.create(this.fileName, languageId, 0, code)
+    this.stylesheet = this.service.parseStylesheet(this.document)
   }
 
   getOccurrences(name: string, line: number, character: number) {
-    return this._languageService
-      .findDocumentHighlights(this._document, { line, character }, this._stylesheet)
-      .map(highlight => ({
-        range: highlight.range.start,
-        width: highlight.range.end.character - highlight.range.start.character,
-      }))
+    return this.service.findDocumentHighlights(this.document, { line, character }, this.stylesheet).map(highlight => ({
+      range: highlight.range.start,
+      width: highlight.range.end.character - highlight.range.start.character,
+    }))
   }
 
   getDefinition(name: string, line: number, character: number) {
-    const definition = this._languageService.findDefinition(this._document, { line, character }, this._stylesheet)
-    return definition.range.start
+    const definition = this.service.findDefinition(this.document, { line, character }, this.stylesheet)
+    if (definition) {
+      return definition.range.start
+    }
   }
 
   getQuickInfo(name: string, line: number, character: number) {
-    const hover = this._languageService.doHover(this._document, { line, character }, this._stylesheet)
+    const hover = this.service.doHover(this.document, { line, character }, this.stylesheet)
     if (hover && hover.contents && hover.range) {
       // TODO: Show all information
       let info: string
