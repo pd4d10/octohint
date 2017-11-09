@@ -1,6 +1,6 @@
 import * as htmlService from 'vscode-html-languageservice'
 import * as ls from 'vscode-languageserver-types'
-import { SingleFileService, Service } from './service'
+import { SingleFileService, Service } from './base'
 
 export default class HTMLService extends SingleFileService implements Service {
   private _languageService = htmlService.getLanguageService()
@@ -8,10 +8,10 @@ export default class HTMLService extends SingleFileService implements Service {
   private _htmlDocument = this._languageService.parseHTMLDocument(this._document)
 
   createService(code: string) {
-    this._document = ls.TextDocument.create(this.fileName, 'html', 0, code)
+    this._document = ls.TextDocument.create(this.file, 'html', 0, code)
   }
 
-  getOccurrences(name: string, line: number, character: number) {
+  getOccurrences(file: string, line: number, character: number) {
     return this._languageService
       .findDocumentHighlights(this._document, { line, character }, this._htmlDocument)
       .map(highlight => ({

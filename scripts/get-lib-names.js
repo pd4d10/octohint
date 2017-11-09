@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const fetch = require('node-fetch')
+const fetch = require('node-fetch').default
 
 // Get all lib names from DefinitelyTyped repo
 // https://github.com/DefinitelyTyped/DefinitelyTyped
@@ -16,8 +16,9 @@ async function main() {
     const r1 = await fetch(url)
     const { tree: t1 } = await r1.json()
     const libs = t1.map(({ path }) => path)
+    const content = `module.exports = ${JSON.stringify(libs)}`
 
-    fs.writeFileSync(path.resolve(__dirname, '../src/libs.json'), JSON.stringify(libs))
+    fs.writeFileSync(path.resolve(__dirname, '../src/libs.js'), content)
   } catch (err) {
     console.log(err)
   }

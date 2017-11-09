@@ -3,7 +3,7 @@ import { SymbolDisplayPart } from 'typescript'
 
 export interface StateType {
   isVisible: boolean
-  info: SymbolDisplayPart[]
+  info: SymbolDisplayPart[] | string
   left: number
   fontFamily: string
   line: number
@@ -22,12 +22,11 @@ function getColorFromKind(kind: string) {
 }
 
 export default class QuickInfo extends Component<{ ref: (ref: any) => any }, StateType> {
-  state = {
+  state: StateType = {
     isVisible: false,
     info: [],
     left: 0,
     fontFamily: 'monospace', // TODO: Use the same font family
-    fontWidth: 0,
     line: 0,
     height: 0,
   }
@@ -41,7 +40,7 @@ export default class QuickInfo extends Component<{ ref: (ref: any) => any }, Sta
     // TODO: Show info according to height
     // TODO: Make quick info could be copied
     // For line 0 and 1, show info below
-    const positionStyle = {}
+    const positionStyle: { top?: number; bottom?: number } = {}
     if (state.line < 2) {
       positionStyle.top = (state.line + 1) * state.height
     } else {
@@ -68,12 +67,17 @@ export default class QuickInfo extends Component<{ ref: (ref: any) => any }, Sta
         }}
       >
         <div>
-          {state.info.map(part => {
-            if (part.text === '\n') {
-              return <br />
-            }
-            return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
-          })}
+          {Array.isArray(state.info) ? (
+            state.info.map(part => {
+              if (part.text === '\n') {
+                return <br />
+              }
+              return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
+            })
+          ) : (
+            state.info.replace(/\\/g, '')
+            // JSON.parse(`"${state.info}"`)
+          )}
         </div>
       </div>
     )

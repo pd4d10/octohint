@@ -9,7 +9,7 @@ export interface Occurrence {
 }
 
 export interface QuickInfo {
-  info: SymbolDisplayPart[]
+  info: SymbolDisplayPart[] | string
   range: Range
   width: number
 }
@@ -22,9 +22,9 @@ export interface Position {
 }
 
 export enum MessageType {
-  service = 'service',
-  occurrence = 'occurrence',
-  quickInfo = 'quickInfo',
+  service,
+  occurrence,
+  quickInfo,
 }
 
 // Message from background

@@ -8,13 +8,10 @@
     "jsx": "react",
     "jsxFactory": "h",
     "allowJs": true,
-    "lib": ["dom", "esnext"]
+    "lib": ["dom", "esnext"],
+    "types": ["node"]
   },
   "include": [
     "src/**/*"
-  ],
-  "exclude": [
-    "chrome/dist",
-    "node_modules"
   ]
 }

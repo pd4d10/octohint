@@ -1,6 +1,5 @@
-import OtherService from './service'
+// import OtherService from './service'
 import { isTsFile, getExtension } from '../../utils'
-import TSService from './typescript'
 import HTMLService from './html'
 import { CSSService, LESSService, SCSSService } from './css'
 import SimpleService from './simple'
@@ -24,14 +23,4 @@ function getServiceByFileName(fileName: string) {
 export function createService(fileName: string) {
   const Service = getServiceByFileName(fileName)
   return new Service(fileName)
-}
-
-let tsService: TSService
-
-export function createTSService(fileName: string) {
-  if (tsService) {
-    tsService.createService(fileName)
-  } else {
-    tsService = new TSService(fileName)
-  }
 }

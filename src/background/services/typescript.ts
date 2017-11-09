@@ -1,17 +1,20 @@
 import * as ts from 'typescript'
-import { Service } from './service'
-import { getRawUrl, getFullLibName, getEditorConfigUrl, getTabSizeFromEditorConfig } from '../../utils'
+import { Service } from './base'
+import { getRawUrl, getFullLibName, getEditorConfigUrl } from '../../utils'
+import * as libsArr from '../../libs.js'
 
 const defaultLibName = '//lib.d.ts'
 const defaultLib = ts.ScriptSnapshot.fromString(window.TS_LIB)
 
-const defaultLibs = require('../../libs.json').reduce((obj: { [key: string]: null }, name: string) => {
+const defaultLibs: any = libsArr.reduce((obj: { [key: string]: null }, name: string) => {
   obj[getFullLibName(name)] = null
   return obj
 }, {})
 
 defaultLibs['typescript'] = require('raw-loader!typescript/lib/typescript.d.ts')
 
+// FIXME: Very slow when click type `string`
+// TODO: Files timeout
 export default class TSService implements Service {
   private service: ts.LanguageService
   private program: ts.Program
@@ -29,10 +32,10 @@ export default class TSService implements Service {
   getLibsFromCode(code: string) {
     const reg = /[import|export]\s*?.*?\sfrom\s*?['"](.*?)['"]/g
     const matches = code.match(reg)
-    if (!matches) {
-      return []
-    } else {
+    if (matches) {
       return matches.map(str => str.replace(reg, '$1')).filter(name => typeof defaultLibs[name] !== 'undefined')
+    } else {
+      return []
     }
   }
 
@@ -45,21 +48,26 @@ export default class TSService implements Service {
     }
   }
 
+  // TODO: parse
   async getTabSize(name: string) {
     const res = await fetch(getEditorConfigUrl(name))
     if (res.ok) {
       const config = await res.text()
-      return getTabSizeFromEditorConfig(config) || 8
-    } else {
-      return 8
+      const lines = config.split('\n')
+      for (const line of lines) {
+        if (line.includes('indent_size')) {
+          const value = line.split('=')[1].trim()
+          return parseInt(value, 10)
+        }
+      }
     }
+    return 8
   }
 
   // Fetch type definitions from DefinitelyTyped repo
   async fetchLibCode(libName: string) {
-    const res = await fetch(
-      `https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/${libName}/index.d.ts`
-    )
+    const url = `https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/${libName}/index.d.ts`
+    const res = await fetch(url)
     if (res.ok) {
       return res.text()
     }
@@ -77,22 +85,27 @@ export default class TSService implements Service {
         content: code,
       }
     }
+    console.log('Updated, current files:', this.files)
   }
 
   // TODO: Check if line and character are valid
   // Always stop at debugger after upgrade to TS@2.5
-  async createService(name: string) {
-    const code = await this.fetchFileCode(name)
+  async createService(file: string) {
+    if (this.files[file]) {
+      return
+    }
+    const code = await this.fetchFileCode(file)
 
     // If code has tab, try to get .editorconfig's intent_size
     let tabSize = 8
     if (code.includes('\t')) {
-      tabSize = await this.getTabSize(name)
+      tabSize = await this.getTabSize(file)
     }
 
-    this.updateContent(name, code.replace(/\t/g, ' '.repeat(tabSize)))
+    this.updateContent(file, code.replace(/\t/g, ' '.repeat(tabSize)))
 
     const libs = this.getLibsFromCode(code)
+    console.log('Libs:', libs)
     const libsCode = await Promise.all(libs.map(lib => this.fetchLibCode(lib)))
 
     libs.forEach((name, i) => {
@@ -105,21 +118,30 @@ export default class TSService implements Service {
 
     // https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
     const host: ts.LanguageServiceHost = {
-      getScriptFileNames: () => Object.keys(this.files),
+      getScriptFileNames: () => {
+        const fileNames = Object.keys(this.files)
+        console.log('getScriptFileNames:', fileNames)
+        return fileNames
+      },
       getScriptVersion: fileName => {
-        return this.files[fileName] && this.files[fileName].version.toString()
+        const version = (this.files[fileName] && this.files[fileName].version.toString()) || '0'
+        console.log('getScriptVersion:', fileName, version)
+        return version
       },
       getScriptSnapshot: fileName => {
+        let snapshot
         if (fileName === defaultLibName) {
-          return defaultLib
+          snapshot = defaultLib
         } else if (this.files[fileName]) {
-          return ts.ScriptSnapshot.fromString(this.files[fileName].content)
+          snapshot = ts.ScriptSnapshot.fromString(this.files[fileName].content)
         }
+        console.log('getScriptSnapshot', fileName)
+        return snapshot
       },
       getCurrentDirectory: () => '/',
       getCompilationSettings: () => ({
         allowJs: true,
-        // diagnostics: true,
+        diagnostics: true,
         // traceResolution: true,
         allowSyntheticDefaultImports: true,
         // lib: ['lib.es6.d.ts'],
@@ -137,43 +159,38 @@ export default class TSService implements Service {
     this.program = this.service.getProgram()
   }
 
-  private getPosition(name: string, line: number, character: number) {
-    return this.program.getSourceFile(name).getPositionOfLineAndCharacter(line, character)
+  getOccurrences(file: string, line: number, character: number) {
+    const instance = this.program.getSourceFile(file)
+    const position = instance.getPositionOfLineAndCharacter(line, character)
+    const references = this.service.getReferencesAtPosition(file, position) || []
+    return references.filter(({ fileName }) => fileName === file).map(reference => ({
+      isWriteAccess: reference.isWriteAccess,
+      range: instance.getLineAndCharacterOfPosition(reference.textSpan.start),
+      width: reference.textSpan.length,
+    }))
   }
 
-  getOccurrences(name: string, line: number, character: number) {
-    const position = this.getPosition(name, line, character)
-    const references = this.service.getReferencesAtPosition(name, position)
-    if (references) {
-      return references.filter(r => r.fileName === name).map(reference => ({
-        isWriteAccess: reference.isWriteAccess,
-        range: this.program.getSourceFile(name).getLineAndCharacterOfPosition(reference.textSpan.start),
-        width: reference.textSpan.length,
-      }))
-    } else {
-      return []
-    }
-  }
-
-  getDefinition(name: string, line: number, character: number) {
-    const position = this.getPosition(name, line, character)
-    const infos = this.service.getDefinitionAtPosition(name, position)
+  getDefinition(file: string, line: number, character: number) {
+    const instance = this.program.getSourceFile(file)
+    const position = instance.getPositionOfLineAndCharacter(line, character)
+    const infos = this.service.getDefinitionAtPosition(file, position)
     if (infos) {
-      const infosOfFile = infos.filter(info => info.fileName === name)
-      if (infosOfFile.length) {
-        return this.program.getSourceFile(name).getLineAndCharacterOfPosition(infosOfFile[0].textSpan.start)
+      const infosOfCurrentFile = infos.filter(info => info.fileName === file)
+      if (infosOfCurrentFile.length) {
+        return instance.getLineAndCharacterOfPosition(infosOfCurrentFile[0].textSpan.start)
       }
     }
   }
 
-  getQuickInfo(name: string, line: number, character: number) {
-    const position = this.getPosition(name, line, character)
-    const quickInfo = this.service.getQuickInfoAtPosition(name, position)
+  getQuickInfo(file: string, line: number, character: number) {
+    const instance = this.program.getSourceFile(file)
+    const position = instance.getPositionOfLineAndCharacter(line, character)
+    const quickInfo = this.service.getQuickInfoAtPosition(file, position)
     if (quickInfo) {
       // TODO: Colorize display parts
       return {
         info: quickInfo.displayParts,
-        range: this.program.getSourceFile(name).getLineAndCharacterOfPosition(quickInfo.textSpan.start),
+        range: instance.getLineAndCharacterOfPosition(quickInfo.textSpan.start),
         width: quickInfo.textSpan.length,
       }
     }

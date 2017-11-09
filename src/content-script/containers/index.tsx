@@ -10,7 +10,7 @@ export function renderToDOM($background: HTMLElement, $quickInfo: HTMLElement) {
   render(<QuickInfo ref={ref => (quickInfo = ref)} />, $quickInfo)
 }
 
-export function setState(state: object) {
+export function setState(state: BackgroundStateType) {
   background.setState(state)
   quickInfo.setState(state.quickInfo || {})
 }

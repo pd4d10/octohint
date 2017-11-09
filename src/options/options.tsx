@@ -17,13 +17,13 @@ export default class Options extends Component<{}, { origins: string[]; temp: st
     })
   }
 
-  handleChange = e => {
+  handleChange = (e: Event) => {
     this.setState({
-      temp: e.target.value,
+      temp: (e.target as HTMLInputElement).value,
     })
   }
 
-  handleAdd = e => {
+  handleAdd = (e: Event) => {
     e.preventDefault()
     const { origins, temp } = this.state
     if (!temp) {

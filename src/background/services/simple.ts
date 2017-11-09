@@ -1,5 +1,5 @@
 import { LineAndCharacter } from 'typescript'
-import OtherService from './service'
+import { Service, SingleFileService } from './base'
 
 const tokenRegex = /[A-Za-z0-9_]/
 
@@ -20,7 +20,7 @@ function findAllPositions(str: string, substr: string, res: number[] = [], offse
   return findAllPositions(str, substr, res, realIdx + substr.length)
 }
 
-export default class SimpleService extends OtherService {
+export default class SimpleService extends SingleFileService implements Service {
   lines: string[]
 
   createService(code: string) {
@@ -28,7 +28,7 @@ export default class SimpleService extends OtherService {
   }
 
   // TODO: CJK character
-  getOccurrences(line: number, character: number) {
+  getOccurrences(file: string, line: number, character: number) {
     const l = this.lines[line]
     let token = ''
 

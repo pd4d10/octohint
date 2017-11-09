@@ -29,6 +29,7 @@
   "homepage": "https://github.com/pd4d10/octohint",
   "dependencies": {
     "@types/chrome": "^0.0.46",
+    "@types/lodash": "^4.14.82",
     "@types/node": "^7.0.12",
     "@types/safari-extension": "^0.0.27",
     "@types/safari-extension-content": "^0.0.14",

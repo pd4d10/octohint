@@ -1,4 +1,4 @@
-import * as debounce from 'lodash/debounce'
+import { debounce } from 'lodash'
 import { LineAndCharacter } from 'typescript'
 import { renderToDOM, setState } from '../containers'
 import { MessageType, MessageFromContentScript, MessageFromBackground, Range } from '../../types'
@@ -60,16 +60,12 @@ abstract class Renderer {
 
     // Get font width and family
     // TODO: Sometimes there is no fontDOM, better to create it to measure font width
-    const fontDOM = this.getFontDOM()
-
+    const fontDOM = this.getFontDOM() as HTMLElement
     if (!fontDOM) return
 
-    this.fontWidth = fontDOM.getBoundingClientRect().width / (fontDOM as HTMLElement).innerText.length
-
+    this.fontWidth = fontDOM.getBoundingClientRect().width / fontDOM.innerText.length
     this.fontFamily = getComputedStyle(fontDOM).fontFamily
-
     this.render()
-
     this.createService(() => {
       this.$container.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
       this.$container.addEventListener(
@@ -86,8 +82,7 @@ abstract class Renderer {
     if (!e) {
       return 0
     }
-
-    const parent = <HTMLElement>e.offsetParent
+    const parent = e.offsetParent as HTMLElement
     return e.offsetTop + this.getOffsetTop(parent)
   }
 
@@ -109,7 +104,6 @@ abstract class Renderer {
     }
 
     const position = this.getPosition(e)
-
     if (position.x < 0 || position.y < 0) {
       return
     }
@@ -193,6 +187,7 @@ abstract class Renderer {
         position,
       },
       (response: any) => {
+        console.log(response)
         const { data } = response
         if (data) {
           const { range } = data
@@ -275,7 +270,6 @@ abstract class Renderer {
       //   })
       //   return
       // }
-
       cb(response)
     })
   }
