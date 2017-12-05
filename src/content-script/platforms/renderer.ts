@@ -21,7 +21,7 @@ interface Occurrence {
   range: LineAndCharacter
 }
 
-abstract class Renderer {
+export default abstract class Renderer {
   fileName = location.href
   DEBOUNCE_TIMEOUT = 300
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
@@ -50,7 +50,6 @@ abstract class Renderer {
     if (document.getElementById(BACKGROUND_ID)) return
 
     this.$container = <HTMLElement>this.getContainer()
-
     // If code blob DOM not exists then quit
     if (!this.$container) return
 
@@ -66,16 +65,25 @@ abstract class Renderer {
     this.fontWidth = fontDOM.getBoundingClientRect().width / fontDOM.innerText.length
     this.fontFamily = getComputedStyle(fontDOM).fontFamily
     this.render()
-    this.createService(() => {
-      this.$container.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
-      this.$container.addEventListener(
-        'mousemove',
-        debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT)
-      )
-      this.$container.addEventListener('mouseout', () => this.handleMouseOut())
-      document.addEventListener('keydown', e => this.handleKeyDown(e))
-      document.addEventListener('keyup', e => this.handleKeyUp(e))
-    })
+
+    // Create service on page load
+    this.nativeSendMessage(
+      {
+        file: this.fileName,
+        type: MessageType.service,
+      },
+      () => {}
+    )
+
+    // Add event listener
+    this.$container.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
+    this.$container.addEventListener(
+      'mousemove',
+      debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT)
+    )
+    this.$container.addEventListener('mouseout', () => this.handleMouseOut())
+    document.addEventListener('keydown', e => this.handleKeyDown(e))
+    document.addEventListener('keyup', e => this.handleKeyUp(e))
   }
 
   getOffsetTop(e: HTMLElement): number {
@@ -88,11 +96,10 @@ abstract class Renderer {
 
   getPosition(e: MouseEvent) {
     const rect = this.$container.getBoundingClientRect()
-    const data = {
+    return {
       x: Math.floor((e.clientX - rect.left - this.padding.left) / this.fontWidth),
       y: Math.floor((e.clientY - rect.top - this.padding.top) / this.line.height),
     }
-    return data
   }
 
   handleClick(e: MouseEvent) {
@@ -180,40 +187,38 @@ abstract class Renderer {
       return
     }
 
-    this.sendMessage(
-      {
-        file: this.fileName,
-        type: MessageType.quickInfo,
-        position,
-      },
-      (response: any) => {
-        console.log(response)
-        const { data } = response
-        if (data) {
-          const { range } = data
-          const top = range.line * this.line.height
-          setState({
-            quickInfo: {
-              isVisible: true,
-              info: data.info,
-              top,
-              line: range.line,
-              left: range.character * this.fontWidth,
-              height: this.line.height,
-              fontFamily: this.fontFamily,
-              fontWidth: this.fontWidth,
-              width: data.width * this.fontWidth,
-            },
-          })
-        } else {
-          setState({
-            quickInfo: {
-              isVisible: false,
-            },
-          })
-        }
+    const params = {
+      file: this.fileName,
+      type: MessageType.quickInfo,
+      position,
+    }
+
+    this.sendMessage(params, (response: any) => {
+      const { data } = response
+      if (data) {
+        const { range } = data
+        const top = range.line * this.line.height
+        setState({
+          quickInfo: {
+            isVisible: true,
+            info: data.info,
+            top,
+            line: range.line,
+            left: range.character * this.fontWidth,
+            height: this.line.height,
+            fontFamily: this.fontFamily,
+            fontWidth: this.fontWidth,
+            width: data.width * this.fontWidth,
+          },
+        })
+      } else {
+        setState({
+          quickInfo: {
+            isVisible: false,
+          },
+        })
       }
-    )
+    })
   }
 
   /**
@@ -264,6 +269,7 @@ abstract class Renderer {
 
   sendMessage(data: MessageFromContentScript, cb: any) {
     this.nativeSendMessage(data, response => {
+      console.log(data, response)
       // if (response && response.error === 'no-code') {
       //   this.createService(() => {
       //     this.sendMessage(data, cb)
@@ -273,16 +279,4 @@ abstract class Renderer {
       cb(response)
     })
   }
-
-  createService(cb: any) {
-    this.nativeSendMessage(
-      {
-        file: this.fileName,
-        type: MessageType.service,
-      },
-      cb
-    )
-  }
 }
-
-export default Renderer

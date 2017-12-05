@@ -11,18 +11,13 @@ export default class GitHubRenderer extends Renderer {
   }
 
   getLineWidthAndHeight() {
-    const $ = document.querySelector('#LC1') as HTMLElement
-    const rect = $.getBoundingClientRect()
-    return {
-      width: rect.width,
-      height: rect.height,
-    }
+    const { width, height } = (document.querySelector('#LC1') as HTMLElement).getBoundingClientRect()
+    return { width, height }
   }
 
   getPadding() {
-    const gutter = document.querySelector('#L1') as HTMLElement
     return {
-      left: gutter.getBoundingClientRect().width + 10,
+      left: (document.querySelector('#L1') as HTMLElement).getBoundingClientRect().width + 10,
       top: 0,
     }
   }

@@ -1,4 +1,5 @@
 // Seperate this file because Firefox has a JS bundle size limit of 4M
+// TODO: Use Webpack code split instead of global variable
 // TODO: Go to definition
 
 window.TS_LIB = [

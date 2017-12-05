@@ -1,72 +1,57 @@
 import * as ts from 'typescript'
-import { Service } from './base'
-import { getRawUrl, getFullLibName, getEditorConfigUrl } from '../../utils'
+import { MultiFileService } from './base'
 import * as libsArr from '../../libs.js'
+// import TS_LIB from '../../ts-lib'
 
-const defaultLibName = '//lib.d.ts'
-const defaultLib = ts.ScriptSnapshot.fromString(window.TS_LIB)
-
-const defaultLibs: any = libsArr.reduce((obj: { [key: string]: null }, name: string) => {
-  obj[getFullLibName(name)] = null
-  return obj
-}, {})
-
-defaultLibs['typescript'] = require('raw-loader!typescript/lib/typescript.d.ts')
+function getFullLibName(name: string) {
+  return `/node_modules/${name}/index.d.ts`
+}
 
 // FIXME: Very slow when click type `string`
 // TODO: Files timeout
-export default class TSService implements Service {
+export default class TSService extends MultiFileService {
+  static defaultLib = ts.ScriptSnapshot.fromString(window.TS_LIB)
+  static defaultLibName = '//lib.d.ts'
+  static defaultLibs = {
+    ...libsArr.reduce((obj: { [key: string]: null }, name: string) => {
+      obj[getFullLibName(name)] = null
+      return obj
+    }, {}),
+    typescript: require('raw-loader!typescript/lib/typescript.d.ts'),
+  }
+
   private service: ts.LanguageService
-  private program: ts.Program
+  get getSourceFile() {
+    return this.service.getProgram().getSourceFile
+  }
   private files: {
-    [key: string]: {
+    [fileName: string]: {
       version: number
       content: string
     }
   } = {}
 
   constructor(fileName: string) {
+    super()
     this.createService(fileName)
   }
 
-  getLibsFromCode(code: string) {
+  // Use regex to get third party lib names
+  getLibNamesFromCode(code: string) {
     const reg = /[import|export]\s*?.*?\sfrom\s*?['"](.*?)['"]/g
     const matches = code.match(reg)
     if (matches) {
-      return matches.map(str => str.replace(reg, '$1')).filter(name => typeof defaultLibs[name] !== 'undefined')
+      return matches
+        .map(str => str.replace(reg, '$1'))
+        .filter(name => typeof TSService.defaultLibs[name] !== 'undefined')
     } else {
       return []
     }
   }
 
-  async fetchFileCode(name: string) {
-    const res = await fetch(getRawUrl(name))
-    if (res.ok) {
-      return res.text()
-    } else {
-      throw new Error(name)
-    }
-  }
-
-  // TODO: parse
-  async getTabSize(name: string) {
-    const res = await fetch(getEditorConfigUrl(name))
-    if (res.ok) {
-      const config = await res.text()
-      const lines = config.split('\n')
-      for (const line of lines) {
-        if (line.includes('indent_size')) {
-          const value = line.split('=')[1].trim()
-          return parseInt(value, 10)
-        }
-      }
-    }
-    return 8
-  }
-
   // Fetch type definitions from DefinitelyTyped repo
-  async fetchLibCode(libName: string) {
-    const url = `https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/${libName}/index.d.ts`
+  async fetchLibCode(name: string) {
+    const url = `https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/${name}/index.d.ts`
     const res = await fetch(url)
     if (res.ok) {
       return res.text()
@@ -89,27 +74,20 @@ export default class TSService implements Service {
   }
 
   // TODO: Check if line and character are valid
-  // Always stop at debugger after upgrade to TS@2.5
-  async createService(file: string) {
-    if (this.files[file]) {
-      return
-    }
-    const code = await this.fetchFileCode(file)
+  // FIXME: Always stop at debugger after upgrade to TS@2.5
 
-    // If code has tab, try to get .editorconfig's intent_size
-    let tabSize = 8
-    if (code.includes('\t')) {
-      tabSize = await this.getTabSize(file)
-    }
+  // Notice that this method is asynchronous
+  async createService(fileName: string) {
+    if (this.files[fileName]) return
 
-    this.updateContent(file, code.replace(/\t/g, ' '.repeat(tabSize)))
+    const code = await this.fetchCode(fileName)
+    this.updateContent(fileName, code)
 
-    const libs = this.getLibsFromCode(code)
-    console.log('Libs:', libs)
-    const libsCode = await Promise.all(libs.map(lib => this.fetchLibCode(lib)))
-
-    libs.forEach((name, i) => {
-      const code = libsCode[i]
+    const libNames = this.getLibNamesFromCode(code)
+    console.log('Libs:', libNames)
+    const libCodes = await Promise.all(libNames.map(lib => this.fetchLibCode(lib)))
+    libNames.forEach((name, i) => {
+      const code = libCodes[i]
       if (code) {
         const libName = getFullLibName(name)
         this.updateContent(libName, code)
@@ -120,22 +98,22 @@ export default class TSService implements Service {
     const host: ts.LanguageServiceHost = {
       getScriptFileNames: () => {
         const fileNames = Object.keys(this.files)
-        console.log('getScriptFileNames:', fileNames)
+        // console.log('getScriptFileNames:', fileNames)
         return fileNames
       },
       getScriptVersion: fileName => {
         const version = (this.files[fileName] && this.files[fileName].version.toString()) || '0'
-        console.log('getScriptVersion:', fileName, version)
+        // console.log('getScriptVersion:', fileName, version)
         return version
       },
       getScriptSnapshot: fileName => {
         let snapshot
-        if (fileName === defaultLibName) {
-          snapshot = defaultLib
+        if (fileName === TSService.defaultLibName) {
+          snapshot = TSService.defaultLib
         } else if (this.files[fileName]) {
           snapshot = ts.ScriptSnapshot.fromString(this.files[fileName].content)
         }
-        console.log('getScriptSnapshot', fileName)
+        // console.log('getScriptSnapshot', fileName)
         return snapshot
       },
       getCurrentDirectory: () => '/',
@@ -146,7 +124,7 @@ export default class TSService implements Service {
         allowSyntheticDefaultImports: true,
         // lib: ['lib.es6.d.ts'],
       }),
-      getDefaultLibFileName: () => defaultLibName,
+      getDefaultLibFileName: () => TSService.defaultLibName,
       // getDefaultLibFileName: options => ts.getDefaultLibFileName(options),
       // getNewLine: ts.sys.newLine,
       log: console.log,
@@ -156,22 +134,24 @@ export default class TSService implements Service {
 
     // Create the language service files
     this.service = ts.createLanguageService(host, ts.createDocumentRegistry())
-    this.program = this.service.getProgram()
   }
 
   getOccurrences(file: string, line: number, character: number) {
-    const instance = this.program.getSourceFile(file)
+    if (!this.service) return [] // This is necesarry because createService is asynchronous
+    const instance = this.getSourceFile(file)
     const position = instance.getPositionOfLineAndCharacter(line, character)
-    const references = this.service.getReferencesAtPosition(file, position) || []
-    return references.filter(({ fileName }) => fileName === file).map(reference => ({
-      isWriteAccess: reference.isWriteAccess,
-      range: instance.getLineAndCharacterOfPosition(reference.textSpan.start),
-      width: reference.textSpan.length,
-    }))
+    return (this.service.getReferencesAtPosition(file, position) || [])
+      .filter(({ fileName }) => fileName === file)
+      .map(reference => ({
+        isWriteAccess: reference.isWriteAccess,
+        range: instance.getLineAndCharacterOfPosition(reference.textSpan.start),
+        width: reference.textSpan.length,
+      }))
   }
 
   getDefinition(file: string, line: number, character: number) {
-    const instance = this.program.getSourceFile(file)
+    if (!this.service) return
+    const instance = this.getSourceFile(file)
     const position = instance.getPositionOfLineAndCharacter(line, character)
     const infos = this.service.getDefinitionAtPosition(file, position)
     if (infos) {
@@ -183,7 +163,8 @@ export default class TSService implements Service {
   }
 
   getQuickInfo(file: string, line: number, character: number) {
-    const instance = this.program.getSourceFile(file)
+    if (!this.service) return
+    const instance = this.getSourceFile(file)
     const position = instance.getPositionOfLineAndCharacter(line, character)
     const quickInfo = this.service.getQuickInfoAtPosition(file, position)
     if (quickInfo) {

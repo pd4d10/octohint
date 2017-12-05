@@ -4,8 +4,8 @@
   "version": "1.6.0",
   "description": "IntelliSense hint for GitHub",
   "scripts": {
-    "dev": "webpack -w",
-    "dev:safari": "TARGET=safari webpack -w",
+    "dev": "webpack",
+    "dev:safari": "TARGET=safari webpack",
     "build": "webpack --config webpack.config.production.js",
     "build:safari": "TARGET=safari webpack --config webpack.config.production.js",
     "package": "cd chrome; cp ../LICENSE .; zip -r ../chrome.zip .; rm LICENSE; cd ..",

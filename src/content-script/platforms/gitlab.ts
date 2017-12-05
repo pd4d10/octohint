@@ -11,12 +11,8 @@ export default class GitLabRenderer extends Renderer {
   }
 
   getLineWidthAndHeight() {
-    const $ = document.querySelector('#LC1') as HTMLElement
-    const rect = $.getBoundingClientRect()
-    return {
-      width: rect.width,
-      height: rect.height,
-    }
+    const { width, height } = (document.querySelector('#LC1') as HTMLElement).getBoundingClientRect()
+    return { width, height }
   }
 
   getPadding() {

@@ -22,9 +22,9 @@ export interface Position {
 }
 
 export enum MessageType {
-  service,
-  occurrence,
-  quickInfo,
+  service = 'service',
+  occurrence = 'occurrence',
+  quickInfo = 'quickInfo',
 }
 
 // Message from background

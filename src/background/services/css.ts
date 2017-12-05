@@ -1,8 +1,8 @@
 import * as cssService from 'vscode-css-languageservice'
 import * as ls from 'vscode-languageserver-types'
-import { Service, SingleFileService } from './base'
+import { MultiFileService, SingleFileService } from './base'
 
-abstract class BaseService extends SingleFileService implements Service {
+abstract class BaseService extends SingleFileService {
   private service: cssService.LanguageService
   private document: ls.TextDocument
   private stylesheet: cssService.Stylesheet

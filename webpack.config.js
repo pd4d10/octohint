@@ -12,6 +12,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const isSafari = process.env.TARGET === 'safari'
 
 module.exports = {
+  watch: true,
   entry: {
     background: isSafari ? './src/background/safari' : './src/background',
     sentry: './src/sentry',

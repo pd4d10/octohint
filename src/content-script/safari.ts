@@ -1,3 +1,3 @@
-import SafariAdapter from './adapters/safari'
+import Adapter from './adapters/safari'
 
-new SafariAdapter()
+new Adapter()
