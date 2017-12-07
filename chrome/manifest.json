@@ -16,6 +16,7 @@
   },
   "permissions": [
     "https://github.com/*",
+    "https://gist.github.com/*",
     "https://gitlab.com/*",
     "https://bitbucket.org/*"
   ],

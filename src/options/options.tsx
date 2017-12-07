@@ -1,6 +1,11 @@
 import { h, Component } from 'preact'
 
-const builtInPermissions = ['https://bitbucket.org/*', 'https://github.com/*', 'https://gitlab.com/*']
+const builtInPermissions = [
+  'https://bitbucket.org/*',
+  'https://gist.github.com/*',
+  'https://gitlab.com/*',
+  'https://github.com/*',
+]
 
 export default class Options extends Component<{}, { origins: string[]; temp: string }> {
   state = {

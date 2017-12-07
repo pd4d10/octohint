@@ -32,12 +32,12 @@ export enum MessageType {
 
 interface BackgroundMessageOfService {}
 
-interface BackgroundMessageOfOccurrence {
-  occurrences: Occurrence
+export interface BackgroundMessageOfOccurrence {
+  occurrences: Occurrence[]
   info?: Range
 }
 
-interface BackgroundMessageOfQuickInfo {
+export interface BackgroundMessageOfQuickInfo {
   data: QuickInfo
 }
 
@@ -58,17 +58,19 @@ interface BaseContentMessage {
 
 interface ContentMessageOfService extends BaseContentMessage {
   type: MessageType.service
-  // code: string
+  codeUrl: string
 }
 
 interface ContentMessageOfOccurrence extends BaseContentMessage {
   type: MessageType.occurrence
+  codeUrl: string
   position: Position
   meta?: boolean
 }
 
 interface ContentMessageOfQuickInfo extends BaseContentMessage {
   type: MessageType.quickInfo
+  codeUrl: string
   position: Position
 }
 

@@ -5,11 +5,10 @@ abstract class BaseService {
   abstract getDefinition(file: string, line: number, character: number): Definition | void
   abstract getQuickInfo(file: string, line: number, character: number): QuickInfo | void
 
-  async fetchCode(file: string) {
-    const rawUrl = file.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
-    const r0 = await fetch(rawUrl)
+  async fetchCode(codeUrl: string) {
+    const r0 = await fetch(codeUrl, { credentials: 'same-origin' })
     if (!r0.ok) {
-      throw new Error(file)
+      throw new Error(codeUrl)
     }
     let code = await r0.text()
     if (!code.includes('\t')) {
@@ -19,8 +18,8 @@ abstract class BaseService {
     // If code has tab, try to get editorconfig's intent_size
     let tabSize = 8
     // TODO: Use editorconfig parse
-    const editorconfigUrl = rawUrl.replace(/(^.*?\/.*?\/.*?)\/.*/, '$1') + '/.editorconfig'
-    const r1 = await fetch(editorconfigUrl)
+    const editorconfigUrl = codeUrl.replace(/(^.*?\/.*?\/.*?)\/.*/, '$1') + '/.editorconfig'
+    const r1 = await fetch(editorconfigUrl, { credentials: 'same-origin' })
     if (r1.ok) {
       const config = await r1.text()
       const lines = config.split('\n')

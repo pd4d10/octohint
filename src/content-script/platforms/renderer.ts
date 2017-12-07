@@ -1,7 +1,15 @@
 import { debounce } from 'lodash'
 import { LineAndCharacter } from 'typescript'
 import { renderToDOM, setState } from '../containers'
-import { MessageType, MessageFromContentScript, MessageFromBackground, Range } from '../../types'
+import {
+  MessageType,
+  MessageFromContentScript,
+  MessageFromBackground,
+  BackgroundMessageOfOccurrence,
+  BackgroundMessageOfQuickInfo,
+  Range,
+} from '../../types'
+import { RendererParams } from '../adapters/base'
 
 const BACKGROUND_ID = 'octohint-background'
 
@@ -15,14 +23,8 @@ interface Line {
   height: number
 }
 
-interface Occurrence {
-  isWriteAccess: boolean
-  width: number
-  range: LineAndCharacter
-}
-
-export default abstract class Renderer {
-  fileName = location.href
+export default class Renderer {
+  fileName: string
   DEBOUNCE_TIMEOUT = 300
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
@@ -33,34 +35,34 @@ export default abstract class Renderer {
   padding: Padding
   code: string
   offsetTop: number
-
-  abstract getContainer(): Element | null
-  abstract getFontDOM(): Element | null
-  abstract getLineWidthAndHeight(): Line
-  abstract getPadding(): Padding
+  codeUrl: string
 
   nativeSendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void
 
   constructor(
-    nativeSendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void
+    nativeSendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void,
+    renderParams: RendererParams
   ) {
+    this.fileName = renderParams.getFileName()
     this.nativeSendMessage = nativeSendMessage
 
     // If an instance is already set then quit
+    // TODO: Support multi instance in one page
     if (document.getElementById(BACKGROUND_ID)) return
 
-    this.$container = <HTMLElement>this.getContainer()
-    // If code blob DOM not exists then quit
-    if (!this.$container) return
+    this.$container = renderParams.getContainer() as HTMLElement
+    // No need to check if DOM exists, already check it at initialization
 
-    this.line = this.getLineWidthAndHeight()
-    this.padding = this.getPadding()
+    this.line = renderParams.getLineWidthAndHeight()
+    this.padding = renderParams.getPadding()
     this.offsetTop = this.getOffsetTop(this.$container)
 
     // Get font width and family
     // TODO: Sometimes there is no fontDOM, better to create it to measure font width
-    const fontDOM = this.getFontDOM() as HTMLElement
+    const fontDOM = renderParams.getFontDOM() as HTMLElement
     if (!fontDOM) return
+
+    this.codeUrl = renderParams.getCodeUrl()
 
     this.fontWidth = fontDOM.getBoundingClientRect().width / fontDOM.innerText.length
     this.fontFamily = getComputedStyle(fontDOM).fontFamily
@@ -71,6 +73,7 @@ export default abstract class Renderer {
       {
         file: this.fileName,
         type: MessageType.service,
+        codeUrl: this.codeUrl,
       },
       () => {}
     )
@@ -121,22 +124,23 @@ export default abstract class Renderer {
         type: MessageType.occurrence,
         position,
         meta: this.isMacOS ? e.metaKey : e.ctrlKey,
+        codeUrl: this.codeUrl,
       },
-      (response: any) => {
+      (response: BackgroundMessageOfOccurrence) => {
         if (response.info) {
           Object.assign(nextState, {
             definition: {
               isVisible: true,
               height: this.line.height,
-              width: this.line.width - 10,
+              width: this.line.width - 10, // TODO: Magic number
               top: response.info.line * this.line.height,
             },
           })
-          window.scrollTo(0, this.offsetTop + this.padding.top + response.info.line * this.line.height - 80)
+          window.scrollTo(0, this.offsetTop + this.padding.top + response.info.line * this.line.height - 80) // TODO: Magic number
         }
 
         // TODO: Fix overflow when length is large
-        const occurrences = response.occurrences.map((occurrence: any) => ({
+        const occurrences = response.occurrences.map(occurrence => ({
           height: this.line.height,
           width: occurrence.width * this.fontWidth,
           top: occurrence.range.line * this.line.height,
@@ -160,9 +164,7 @@ export default abstract class Renderer {
       // FIXME: Slow when file is large
       this.$container.style.cursor = 'pointer'
       // FIXME: Sometimes keyup can't be triggered, add a long enough timeout to restore
-      setTimeout(() => {
-        this.$container.style.cursor = null
-      }, 10000)
+      setTimeout(() => (this.$container.style.cursor = null), 10000)
     }
   }
 
@@ -193,7 +195,7 @@ export default abstract class Renderer {
       position,
     }
 
-    this.sendMessage(params, (response: any) => {
+    this.sendMessage(params, (response: BackgroundMessageOfQuickInfo) => {
       const { data } = response
       if (data) {
         const { range } = data

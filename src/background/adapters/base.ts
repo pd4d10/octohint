@@ -22,13 +22,13 @@ export default abstract class Adapter {
   }
 
   handleMessage = (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => {
-    const { file } = message
+    const { file, codeUrl } = message
     let service
     if (isTsFile(file)) {
       if (!this.ts) {
-        this.ts = new TsService(file)
+        this.ts = new TsService(file, codeUrl)
       } else {
-        this.ts.createService(file)
+        this.ts.createService(file, codeUrl)
       }
       service = this.ts
     } else {
