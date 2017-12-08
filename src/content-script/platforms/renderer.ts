@@ -1,6 +1,6 @@
 import { debounce } from 'lodash'
 import { LineAndCharacter } from 'typescript'
-import { renderToDOM, setState } from '../containers'
+import { renderToDOM } from '../containers'
 import {
   MessageType,
   MessageFromContentScript,
@@ -10,8 +10,6 @@ import {
   Range,
 } from '../../types'
 import { RendererParams } from '../adapters/base'
-
-const BACKGROUND_ID = 'octohint-background'
 
 interface Padding {
   left: number
@@ -36,20 +34,16 @@ export default class Renderer {
   code: string
   offsetTop: number
   codeUrl: string
+  setState = () => {}
 
-  nativeSendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void
+  sendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void
 
   constructor(
-    nativeSendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void,
+    sendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void,
     renderParams: RendererParams
   ) {
+    this.sendMessage = sendMessage
     this.fileName = renderParams.getFileName()
-    this.nativeSendMessage = nativeSendMessage
-
-    // If an instance is already set then quit
-    // TODO: Support multi instance in one page
-    if (document.getElementById(BACKGROUND_ID)) return
-
     this.$container = renderParams.getContainer() as HTMLElement
     // No need to check if DOM exists, already check it at initialization
 
@@ -64,12 +58,19 @@ export default class Renderer {
 
     this.codeUrl = renderParams.getCodeUrl()
 
+    // https://github.com/Automattic/cli-table/pull/67/files
+    // .replace(/[\u3007\u3400-\u4DB5\u4E00-\u9FCB\uE815-\uE864]|[\uD840-\uD87F][\uDC00-\uDFFF]/g, 'xx')
+    // TODO: Seems not work because GitLab doesn't show CJK characters precisely 2 times of latin
     this.fontWidth = fontDOM.getBoundingClientRect().width / fontDOM.innerText.length
+
     this.fontFamily = getComputedStyle(fontDOM).fontFamily
-    this.render()
+    this.render(this.$container)
+    this.addEventListener(this.$container)
+    document.addEventListener('keydown', e => this.handleKeyDown(e))
+    document.addEventListener('keyup', e => this.handleKeyUp(e))
 
     // Create service on page load
-    this.nativeSendMessage(
+    this.sendMessage(
       {
         file: this.fileName,
         type: MessageType.service,
@@ -77,16 +78,15 @@ export default class Renderer {
       },
       () => {}
     )
+  }
 
-    // Add event listener
-    this.$container.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
-    this.$container.addEventListener(
+  addEventListener($container: HTMLElement) {
+    $container.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
+    $container.addEventListener(
       'mousemove',
       debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT)
     )
-    this.$container.addEventListener('mouseout', () => this.handleMouseOut())
-    document.addEventListener('keydown', e => this.handleKeyDown(e))
-    document.addEventListener('keyup', e => this.handleKeyUp(e))
+    $container.addEventListener('mouseout', () => this.handleMouseOut())
   }
 
   getOffsetTop(e: HTMLElement): number {
@@ -148,7 +148,7 @@ export default class Renderer {
           isWriteAccess: occurrence.isWriteAccess,
         }))
         Object.assign(nextState, { occurrences })
-        setState(nextState)
+        this.setState(nextState)
       }
     )
 
@@ -175,7 +175,7 @@ export default class Renderer {
   }
 
   handleMouseOut() {
-    setState({
+    this.setState({
       quickInfo: {
         isVisible: false,
       },
@@ -200,7 +200,7 @@ export default class Renderer {
       if (data) {
         const { range } = data
         const top = range.line * this.line.height
-        setState({
+        this.setState({
           quickInfo: {
             isVisible: true,
             info: data.info,
@@ -214,7 +214,7 @@ export default class Renderer {
           },
         })
       } else {
-        setState({
+        this.setState({
           quickInfo: {
             isVisible: false,
           },
@@ -241,15 +241,14 @@ export default class Renderer {
    * <container> and its childrens should not set background-color
    * Order: background -> other childrens(including code) -> quickInfo
    */
-  render() {
-    this.$container.style.position = 'relative'
-    ;[].forEach.call(this.$container.children, ($child: HTMLElement) => {
+  render($container: HTMLElement) {
+    $container.style.position = 'relative'
+    ;[].forEach.call($container.children, ($child: HTMLElement) => {
       $child.style.position = 'relative'
       $child.style.zIndex = '1'
     })
 
     const $background = document.createElement('div')
-    $background.id = BACKGROUND_ID // This is a signature for initialized
     $background.style.position = 'absolute'
     $background.style.zIndex = '0'
     $background.style.top = `${this.padding.top}px`
@@ -257,28 +256,15 @@ export default class Renderer {
 
     const $quickInfo = document.createElement('div')
     $quickInfo.style.position = 'absolute'
-    const containerWidth = this.$container.getBoundingClientRect().width
+    const containerWidth = $container.getBoundingClientRect().width
     $quickInfo.style.width = `${containerWidth - this.padding.left}px` // Important, make quick info show as wide as possible
     $quickInfo.style.zIndex = '2'
     $quickInfo.style.top = `${this.padding.top}px`
     $quickInfo.style.left = `${this.padding.left}px`
 
-    this.$container.insertBefore($background, this.$container.firstChild)
-    this.$container.appendChild($quickInfo)
+    $container.insertBefore($background, $container.firstChild)
+    $container.appendChild($quickInfo)
 
-    renderToDOM($background, $quickInfo)
-  }
-
-  sendMessage(data: MessageFromContentScript, cb: any) {
-    this.nativeSendMessage(data, response => {
-      console.log(data, response)
-      // if (response && response.error === 'no-code') {
-      //   this.createService(() => {
-      //     this.sendMessage(data, cb)
-      //   })
-      //   return
-      // }
-      cb(response)
-    })
+    this.setState = renderToDOM($background, $quickInfo)
   }
 }

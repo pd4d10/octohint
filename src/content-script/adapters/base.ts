@@ -29,7 +29,7 @@ const GitHubRenderer: RendererParams = {
   getFontDOM: () => $('.blob-wrapper span[class]'),
   getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
   getPadding: () => ({
-    left: ($('#L1') as HTMLElement).getBoundingClientRect().width + 10,
+    left: 60,
     top: 0,
   }),
   getCodeUrl: () => getLocationPath().replace('/blob/', '/raw/'),
@@ -42,7 +42,7 @@ function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
     getFontDOM: () => wrapper.querySelector('.blob-wrapper span[class]'),
     getLineWidthAndHeight: () => ({ width: 918, height: 20 }),
     getPadding: () => ({
-      left: 50,
+      left: 60,
       top: 0,
     }),
     getCodeUrl: () => (wrapper.querySelector('.file-actions a') as HTMLAnchorElement).href,
@@ -65,6 +65,8 @@ const BitbucketRenderer: RendererParams = {
   getFileName: getLocationPath,
 }
 
+// This GitLab is for old version
+// TODO: New version use dynamic loading
 const GitLabRenderer: RendererParams = {
   getContainer: () => $('.blob-content .code'),
   getFontDOM: () => $('.blob-content .code span[class]:not(.line)'),
@@ -83,11 +85,13 @@ export default abstract class Adapter {
   constructor() {
     const sendMessage = this.getSendMessage()
 
+    // GitHub Gist
     if (/gist\.github\.com/.test(location.href)) {
       const list = $$('.file-actions a')
       ;[].forEach.call($$('.js-task-list-container'), (wrapper: HTMLElement) => {
         new Renderer(sendMessage, GithubGistRendererFactory(wrapper))
       })
+      return
     }
 
     // TODO: Dynamic import
@@ -98,9 +102,15 @@ export default abstract class Adapter {
         if (err) throw err
         new Renderer(sendMessage, GitHubRenderer)
       })
-    } else if (GitLabRenderer.getContainer()) {
+      return
+    }
+
+    if (GitLabRenderer.getContainer()) {
       new Renderer(sendMessage, GitLabRenderer)
-    } else if (BitbucketRenderer.getContainer()) {
+      return
+    }
+
+    if (BitbucketRenderer.getContainer()) {
       new Renderer(sendMessage, BitbucketRenderer)
 
       const $DOM = $('#source-container')
@@ -119,6 +129,7 @@ export default abstract class Adapter {
           characterData: true,
         })
       }
+      return
     }
   }
 }
