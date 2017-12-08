@@ -34,6 +34,7 @@ export default class Renderer {
   code: string
   offsetTop: number
   codeUrl: string
+  editorConfigUrl?: string
   setState = () => {}
 
   sendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void
@@ -50,6 +51,9 @@ export default class Renderer {
     this.line = renderParams.getLineWidthAndHeight()
     this.padding = renderParams.getPadding()
     this.offsetTop = this.getOffsetTop(this.$container)
+    if (renderParams.getEditorConfigUrl) {
+      this.editorConfigUrl = renderParams.getEditorConfigUrl()
+    }
 
     // Get font width and family
     // TODO: Sometimes there is no fontDOM, better to create it to measure font width
@@ -75,6 +79,7 @@ export default class Renderer {
         file: this.fileName,
         type: MessageType.service,
         codeUrl: this.codeUrl,
+        editorConfigUrl: this.editorConfigUrl,
       },
       () => {}
     )
@@ -125,6 +130,7 @@ export default class Renderer {
         position,
         meta: this.isMacOS ? e.metaKey : e.ctrlKey,
         codeUrl: this.codeUrl,
+        editorConfigUrl: this.editorConfigUrl,
       },
       (response: BackgroundMessageOfOccurrence) => {
         if (response.info) {

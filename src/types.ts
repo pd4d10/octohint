@@ -54,23 +54,22 @@ export type MessageFromBackground =
 // Message from Content Script
 interface BaseContentMessage {
   file: string
+  codeUrl: string
+  editorConfigUrl?: string
 }
 
 interface ContentMessageOfService extends BaseContentMessage {
   type: MessageType.service
-  codeUrl: string
 }
 
 interface ContentMessageOfOccurrence extends BaseContentMessage {
   type: MessageType.occurrence
-  codeUrl: string
   position: Position
   meta?: boolean
 }
 
 interface ContentMessageOfQuickInfo extends BaseContentMessage {
   type: MessageType.quickInfo
-  codeUrl: string
   position: Position
 }
 

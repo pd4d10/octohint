@@ -5,7 +5,7 @@ abstract class BaseService {
   abstract getDefinition(file: string, line: number, character: number): Definition | void
   abstract getQuickInfo(file: string, line: number, character: number): QuickInfo | void
 
-  async fetchCode(codeUrl: string) {
+  async fetchCode(codeUrl: string, editorConfigUrl?: string) {
     const r0 = await fetch(codeUrl, { credentials: 'same-origin' })
     if (!r0.ok) {
       throw new Error(codeUrl)
@@ -18,16 +18,17 @@ abstract class BaseService {
     // If code has tab, try to get editorconfig's intent_size
     let tabSize = 8
     // TODO: Use editorconfig parse
-    const editorconfigUrl = codeUrl.replace(/(^.*?\/.*?\/.*?)\/.*/, '$1') + '/.editorconfig'
-    const r1 = await fetch(editorconfigUrl, { credentials: 'same-origin' })
-    if (r1.ok) {
-      const config = await r1.text()
-      const lines = config.split('\n')
-      for (const line of lines) {
-        if (line.includes('indent_size')) {
-          const value = line.split('=')[1].trim()
-          tabSize = parseInt(value, 10)
-          break
+    if (editorConfigUrl) {
+      const r1 = await fetch(editorConfigUrl, { credentials: 'same-origin' })
+      if (r1.ok) {
+        const config = await r1.text()
+        const lines = config.split('\n')
+        for (const line of lines) {
+          if (line.includes('indent_size')) {
+            const value = line.split('=')[1].trim()
+            tabSize = parseInt(value, 10)
+            break
+          }
         }
       }
     }
@@ -39,16 +40,20 @@ export abstract class MultiFileService extends BaseService {}
 
 export abstract class SingleFileService extends BaseService {
   file: string
+  codeUrl: string
+  editorConfigUrl?: string
   abstract createService(code: string): void
 
-  constructor(file: string) {
+  constructor(file: string, codeUrl: string, editorConfigUrl?: string) {
     super()
     this.file = file
+    this.codeUrl = codeUrl
+    this.editorConfigUrl = editorConfigUrl
     this.fetchCodeAndCreateService()
   }
 
   async fetchCodeAndCreateService() {
-    const code = await this.fetchCode(this.file)
+    const code = await this.fetchCode(this.codeUrl, this.editorConfigUrl)
     this.createService(code)
   }
 }

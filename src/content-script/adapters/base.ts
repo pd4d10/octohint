@@ -22,6 +22,7 @@ export interface RendererParams {
   }
   getCodeUrl: () => string
   getFileName: () => string
+  getEditorConfigUrl?: () => string
 }
 
 const GitHubRenderer: RendererParams = {
@@ -34,6 +35,9 @@ const GitHubRenderer: RendererParams = {
   }),
   getCodeUrl: () => getLocationPath().replace('/blob/', '/raw/'),
   getFileName: getLocationPath,
+  getEditorConfigUrl() {
+    return this.getCodeUrl().replace(/(^.*?\/raw\/.*?\/).*$/, '$1') + '.editorconfig'
+  },
 }
 
 function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {

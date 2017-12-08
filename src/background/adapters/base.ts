@@ -22,18 +22,18 @@ export default abstract class Adapter {
   }
 
   handleMessage = (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => {
-    const { file, codeUrl } = message
+    const { file, codeUrl, editorConfigUrl } = message
     let service
     if (isTsFile(file)) {
       if (!this.ts) {
-        this.ts = new TsService(file, codeUrl)
+        this.ts = new TsService(file, codeUrl, editorConfigUrl)
       } else {
-        this.ts.createService(file, codeUrl)
+        this.ts.createService(file, codeUrl, editorConfigUrl)
       }
       service = this.ts
     } else {
       if (!this.services[file]) {
-        this.services[file] = createService(file)
+        this.services[file] = createService(file, codeUrl, editorConfigUrl)
 
         // Add a timeout to delete service to prevent memory leak
         setTimeout(() => {

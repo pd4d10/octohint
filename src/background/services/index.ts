@@ -20,7 +20,7 @@ function getServiceByFileName(fileName: string) {
   }
 }
 
-export function createService(fileName: string) {
+export function createService(fileName: string, codeUrl: string, editorConfigUrl?: string) {
   const Service = getServiceByFileName(fileName)
-  return new Service(fileName)
+  return new Service(fileName, codeUrl, editorConfigUrl)
 }
