@@ -5,6 +5,10 @@ const gitHubInjection = require('github-injection')
 const $ = (selector: string) => document.querySelector(selector)
 const $$ = (selector: string) => document.querySelectorAll(selector)
 
+function getLocationPath() {
+  return location.protocol + '//' + location.host + location.pathname
+}
+
 export interface RendererParams {
   getContainer: () => Element | null
   getFontDOM: () => Element | null
@@ -28,8 +32,8 @@ const GitHubRenderer: RendererParams = {
     left: ($('#L1') as HTMLElement).getBoundingClientRect().width + 10,
     top: 0,
   }),
-  getCodeUrl: () => location.href.replace('/blob/', '/raw/'),
-  getFileName: () => location.href,
+  getCodeUrl: () => getLocationPath().replace('/blob/', '/raw/'),
+  getFileName: getLocationPath,
 }
 
 function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
@@ -57,8 +61,8 @@ const BitbucketRenderer: RendererParams = {
     left: 10,
     top: 8,
   }),
-  getCodeUrl: () => '', // TODO:
-  getFileName: () => location.href,
+  getCodeUrl: () => getLocationPath().replace('/src/', '/raw/'),
+  getFileName: getLocationPath,
 }
 
 const GitLabRenderer: RendererParams = {
@@ -69,8 +73,8 @@ const GitLabRenderer: RendererParams = {
     left: 10,
     top: 10,
   }),
-  getCodeUrl: () => location.href.replace('/blob/', '/raw/'),
-  getFileName: () => location.href,
+  getCodeUrl: () => getLocationPath().replace('/blob/', '/raw/'),
+  getFileName: getLocationPath,
 }
 
 export default abstract class Adapter {
@@ -104,7 +108,9 @@ export default abstract class Adapter {
         new MutationObserver(mutations => {
           mutations.forEach(mutation => {
             if (mutation.type === 'childList' && mutation.addedNodes.length) {
-              new Renderer(sendMessage, BitbucketRenderer)
+              if (BitbucketRenderer.getContainer()) {
+                new Renderer(sendMessage, BitbucketRenderer)
+              }
             }
           })
         }).observe($DOM, {
