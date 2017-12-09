@@ -65,18 +65,18 @@ export default class Renderer {
       this.editorConfigUrl = renderParams.getEditorConfigUrl()
     }
 
+    this.codeUrl = renderParams.getCodeUrl()
+
     // Get font width and family
-    // TODO: Sometimes there is no fontDOM, better to create it to measure font width
     const fontDOM = renderParams.getFontDOM() as HTMLElement
     if (!fontDOM) return
 
-    this.codeUrl = renderParams.getCodeUrl()
-
-    // https://github.com/Automattic/cli-table/pull/67/files
-    // .replace(/[\u3007\u3400-\u4DB5\u4E00-\u9FCB\uE815-\uE864]|[\uD840-\uD87F][\uDC00-\uDFFF]/g, 'xx')
-    // TODO: Seems not work because GitLab doesn't show CJK characters precisely 2 times of latin
-    this.fontWidth = fontDOM.getBoundingClientRect().width / fontDOM.innerText.length
-    ;({ fontFamily: this.fontFamily, fontSize: this.fontSize } = getComputedStyle(fontDOM))
+    const testDOM = document.createElement('span')
+    testDOM.innerText = '0'
+    fontDOM.appendChild(testDOM)
+    this.fontWidth = testDOM.getBoundingClientRect().width
+    ;({ fontFamily: this.fontFamily, fontSize: this.fontSize } = getComputedStyle(testDOM))
+    testDOM.remove()
 
     this.render(this.$container)
     this.addEventListener(this.$container)

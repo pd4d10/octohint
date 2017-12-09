@@ -21,7 +21,6 @@ export interface RendererParams {
   getPadding: () => {
     left: number
     top: number
-    // bottom: number
   }
   getCodeUrl: () => string
   getFileName: () => string
@@ -35,7 +34,7 @@ const GitHubRenderer: RendererParams = {
   // getContainer: () => $('.file'),
   // getScrollLeft: () => ($('.blob-wrapper') as HTMLElement).scrollLeft,
   // getHighlightColor: () => '#fffbdd',
-  getFontDOM: () => $('.blob-wrapper span[class]'),
+  getFontDOM: () => $('#LC1'),
   getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
   getPadding: () => ({
     left: 60,
@@ -64,7 +63,7 @@ function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
 
 const BitbucketRenderer: RendererParams = {
   getContainer: () => $('.file-source .code'),
-  getFontDOM: () => $('.file-source .code span[class]'),
+  getFontDOM: () => $('.file-source .code pre'),
   getLineWidthAndHeight: () => ({
     width: (<HTMLElement>$('.file-source')).offsetWidth - 43,
     height: 16,
@@ -82,7 +81,7 @@ const BitbucketRenderer: RendererParams = {
 // TODO: New version use dynamic loading
 const GitLabRenderer: RendererParams = {
   getContainer: () => $('.blob-content .code'),
-  getFontDOM: () => $('.blob-content .code span[class]:not(.line)'),
+  getFontDOM: () => $('#LC1'),
   getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
   getPadding: () => ({
     left: 10,
