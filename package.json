@@ -34,7 +34,6 @@
     "@types/node": "^7.0.12",
     "@types/safari-extension": "^0.0.27",
     "@types/safari-extension-content": "^0.0.14",
-    "github-injection": "^0.3.0",
     "localforage": "^1.5.0",
     "lodash": "^4.17.4",
     "preact": "^8.1.0",

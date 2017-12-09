@@ -1,7 +1,6 @@
 import { SendMessageToBackground } from '../../types'
 import Renderer from '../platforms/renderer'
 
-const gitHubInjection = require('github-injection')
 const $ = (selector: string) => document.querySelector(selector)
 const $$ = (selector: string) => document.querySelectorAll(selector)
 
@@ -112,11 +111,26 @@ export default abstract class Adapter {
     // TODO: Dynamic import
     // May be deployed at private domain, URL
     // So use DOM selector
-    if (GitHubRenderer.getContainer()) {
-      gitHubInjection(window, (err: Error) => {
-        if (err) throw err
-        new Renderer(sendMessage, GitHubRenderer)
+    const githubPjaxContainer = $('#js-repo-pjax-container')
+    if (githubPjaxContainer) {
+      new MutationObserver(mutations => {
+        // console.log(mutations)
+        mutations.forEach(mutation => {
+          if (mutation.type === 'childList' && mutation.addedNodes.length) {
+            if (GitHubRenderer.getContainer()) {
+              new Renderer(sendMessage, GitHubRenderer)
+            }
+          }
+        })
+      }).observe(githubPjaxContainer, {
+        attributes: true,
+        childList: true,
+        characterData: true,
       })
+    }
+
+    if (GitHubRenderer.getContainer()) {
+      new Renderer(sendMessage, GitHubRenderer)
       return
     }
 
@@ -125,25 +139,25 @@ export default abstract class Adapter {
       return
     }
 
+    const bitbucketPjaxContainer = $('#source-container')
+    if (bitbucketPjaxContainer) {
+      new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          if (mutation.type === 'childList' && mutation.addedNodes.length) {
+            if (BitbucketRenderer.getContainer()) {
+              new Renderer(sendMessage, BitbucketRenderer)
+            }
+          }
+        })
+      }).observe(bitbucketPjaxContainer, {
+        attributes: true,
+        childList: true,
+        characterData: true,
+      })
+    }
+
     if (BitbucketRenderer.getContainer()) {
       new Renderer(sendMessage, BitbucketRenderer)
-
-      const $DOM = $('#source-container')
-      if ($DOM) {
-        new MutationObserver(mutations => {
-          mutations.forEach(mutation => {
-            if (mutation.type === 'childList' && mutation.addedNodes.length) {
-              if (BitbucketRenderer.getContainer()) {
-                new Renderer(sendMessage, BitbucketRenderer)
-              }
-            }
-          })
-        }).observe($DOM, {
-          attributes: true,
-          childList: true,
-          characterData: true,
-        })
-      }
       return
     }
   }
