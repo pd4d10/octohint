@@ -22,7 +22,11 @@ export default abstract class Adapter {
   }
 
   handleMessage = (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => {
-    console.log(message)
+    const send = (...args) => {
+      console.log(message, ...args)
+      sendResponse(...args)
+    }
+
     const { file, codeUrl, editorConfigUrl } = message
     let service
     if (isTsFile(file)) {
@@ -53,7 +57,7 @@ export default abstract class Adapter {
 
     switch (message.type) {
       case MessageType.service: {
-        sendResponse({}) // Trigger for Safari
+        send({}) // Trigger for Safari
 
         // chrome.browserAction.setIcon({
         //   path: 'icon.png',
@@ -66,7 +70,7 @@ export default abstract class Adapter {
       }
       case MessageType.occurrence: {
         const { x, y } = message.position
-        sendResponse({
+        send({
           occurrences: service.getOccurrences(message.file, y, x),
           info: message.meta ? service.getDefinition(message.file, y, x) : undefined,
         })
@@ -74,7 +78,7 @@ export default abstract class Adapter {
       }
       case MessageType.quickInfo: {
         const { x, y } = message.position
-        sendResponse({ data: service.getQuickInfo(message.file, y, x) })
+        send({ data: service.getQuickInfo(message.file, y, x) })
         return
       }
       default:

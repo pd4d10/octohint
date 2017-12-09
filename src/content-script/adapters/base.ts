@@ -12,6 +12,7 @@ function getLocationPath() {
 export interface RendererParams {
   getContainer: () => Element | null
   // getPositionContainer?: () => Element | null
+  // getScrollLeft: () => number
   getFontDOM: () => Element | null
   // getHighlightColor: () => string
   getLineWidthAndHeight: () => {
@@ -21,6 +22,7 @@ export interface RendererParams {
   getPadding: () => {
     left: number
     top: number
+    // bottom: number
   }
   getCodeUrl: () => string
   getFileName: () => string
@@ -28,14 +30,15 @@ export interface RendererParams {
 }
 
 const GitHubRenderer: RendererParams = {
-  // getContainer: () => $('.blob-wrapper table'), // $('.blob-wrapper') is not OK because of scroll x
-  getContainer: () => $('.file'),
+  getContainer: () => $('.blob-wrapper'), // $('.blob-wrapper') is not OK because of scroll x
+  // getContainer: () => $('.file'),
+  // getScrollLeft: () => ($('.blob-wrapper') as HTMLElement).scrollLeft,
   // getHighlightColor: () => '#fffbdd',
   getFontDOM: () => $('.blob-wrapper span[class]'),
   getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
   getPadding: () => ({
     left: 60,
-    top: 43,
+    top: 0,
   }),
   getCodeUrl: () => getLocationPath().replace('/blob/', '/raw/'),
   getFileName: getLocationPath,
@@ -67,7 +70,7 @@ const BitbucketRenderer: RendererParams = {
   }),
   getPadding: () => ({
     left: 10,
-    top: 8,
+    top: 10,
   }),
   getCodeUrl: () => getLocationPath().replace('/src/', '/raw/'),
   getFileName: getLocationPath,
@@ -81,7 +84,7 @@ const GitLabRenderer: RendererParams = {
   getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
   getPadding: () => ({
     left: 10,
-    top: 10,
+    top: 0,
   }),
   getCodeUrl: () => getLocationPath().replace('/blob/', '/raw/'),
   getFileName: getLocationPath,

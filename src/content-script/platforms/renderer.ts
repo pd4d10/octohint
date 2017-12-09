@@ -22,6 +22,9 @@ interface Line {
 }
 
 export default class Renderer {
+  renderParams: RendererParams
+
+  $background: Element
   fileName: string
   DEBOUNCE_TIMEOUT = 300
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
@@ -46,6 +49,7 @@ export default class Renderer {
     renderParams: RendererParams
   ) {
     this.sendMessage = sendMessage
+    this.renderParams = renderParams
     this.fileName = renderParams.getFileName()
     this.$container = renderParams.getContainer() as HTMLElement
     // this.$positionContainer = renderParams.getPositionContainer
@@ -109,10 +113,11 @@ export default class Renderer {
   }
 
   getPosition(e: MouseEvent) {
-    const rect = this.$container.getBoundingClientRect()
+    const rect = this.$background.getBoundingClientRect()
     return {
-      x: Math.floor((e.clientX - rect.left - this.padding.left) / this.fontWidth),
-      y: Math.floor((e.clientY - rect.top - this.padding.top) / this.line.height),
+      // Must be integers, so use Math.floor
+      x: Math.floor((e.clientX - rect.left) / this.fontWidth),
+      y: Math.floor((e.clientY - rect.top) / this.line.height),
     }
   }
 
@@ -187,11 +192,11 @@ export default class Renderer {
   }
 
   handleMouseOut() {
-    // this.setState({
-    //   quickInfo: {
-    //     isVisible: false,
-    //   },
-    // })
+    this.setState({
+      quickInfo: {
+        isVisible: false,
+      },
+    })
   }
 
   handleMouseMove(e: MouseEvent) {
@@ -236,7 +241,36 @@ export default class Renderer {
     })
   }
 
+  // '20px' => 20
+  px2num(px: string | null) {
+    if (px) {
+      return parseInt(px.replace('px', ''), 10)
+    } else {
+      return 0
+    }
+  }
+
   /**
+   * Principles:
+   * Do not break DOM position as mush as possible
+   * Like set `position` property to existing DOM
+   *
+   * <container>           +--------------------+
+   *   - container padding top + border top
+   *              +--------------------+
+   *   <background />
+   *  +-----------------------------
+   *  |                padding top
+   *  |              +-----------
+   *  | padding left | Code area
+   *  |              +----------
+   *  |                padding bottom
+   *  +-------------------------------
+   *   <quickInfo />
+   *               ---------------
+   *   - container padding bottom + border bottom
+   * </container>  +--------------------+
+   *
    * Problems:
    * 1. Masks should not cover code
    * 2. Masks should not be selected
@@ -255,7 +289,7 @@ export default class Renderer {
    * Order: background -> other childrens(including code) -> quickInfo
    */
   render($container: HTMLElement) {
-    this.$container.style.position = 'relative'
+    // this.$container.style.position = 'relative'
     // this.$positionContainer.style.position = 'relative'
     // ;[].forEach.call($container.children, ($child: HTMLElement) => {
     //   $child.style.position = 'relative'
@@ -263,17 +297,26 @@ export default class Renderer {
     // })
 
     const $background = document.createElement('div')
-    $background.style.position = 'absolute'
+    $background.style.position = 'relative'
     // $background.style.zIndex = '0'
     $background.style.top = `${this.padding.top}px`
     $background.style.left = `${this.padding.left}px`
 
+    this.$background = $background
+
     const $quickInfo = document.createElement('div')
-    $quickInfo.style.position = 'absolute'
-    const containerWidth = $container.getBoundingClientRect().width
-    $quickInfo.style.width = `${containerWidth - this.padding.left}px` // Important, make quick info show as wide as possible
+    $quickInfo.style.position = 'relative'
+    const { width, height } = $container.getBoundingClientRect()
+    const style = getComputedStyle($container)
+    const paddingAndBorderOfContainer =
+      this.px2num(style.paddingTop) +
+      this.px2num(style.paddingBottom) +
+      this.px2num(style.borderTopWidth) +
+      this.px2num(style.borderBottomWidth)
+
+    $quickInfo.style.width = `${width - this.padding.left}px` // Important, make quick info show as wide as possible
     // $quickInfo.style.zIndex = '2'
-    $quickInfo.style.top = `${this.padding.top}px`
+    $quickInfo.style.bottom = `${height - paddingAndBorderOfContainer - this.padding.top}px`
     $quickInfo.style.left = `${this.padding.left}px`
 
     $container.insertBefore($background, $container.firstChild)
