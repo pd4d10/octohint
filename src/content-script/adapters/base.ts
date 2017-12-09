@@ -1,5 +1,5 @@
 import { SendMessageToBackground } from '../../types'
-import Renderer from '../platforms/renderer'
+import Renderer from './renderer'
 
 const $ = (selector: string) => document.querySelector(selector)
 const $$ = (selector: string) => document.querySelectorAll(selector)

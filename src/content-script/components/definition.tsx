@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import { colors } from '../../utils'
+import { colors } from '../constants'
 
 export interface DefinitionProps {
   isVisible: boolean

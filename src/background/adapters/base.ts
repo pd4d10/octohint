@@ -1,5 +1,4 @@
 import * as ts from 'typescript'
-import { isTsFile } from '../../utils'
 import { createService } from '../services'
 import TsService from '../services/typescript'
 import { MessageType, MessageFromContentScript, MessageFromBackground, AddBackgroundListener } from '../../types'
@@ -21,6 +20,10 @@ export default abstract class Adapter {
     this.addTabUpdateListener()
   }
 
+  getExtension(path: string) {
+    return path.replace(/.*\.(.*?)$/, '$1')
+  }
+
   handleMessage = (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => {
     const send = (...args) => {
       console.log(message, ...args)
@@ -29,7 +32,8 @@ export default abstract class Adapter {
 
     const { file, codeUrl, editorConfigUrl } = message
     let service
-    if (isTsFile(file)) {
+    const ext = this.getExtension(file)
+    if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
       if (!this.ts) {
         this.ts = new TsService(file, codeUrl, editorConfigUrl)
       } else {
@@ -38,7 +42,7 @@ export default abstract class Adapter {
       service = this.ts
     } else {
       if (!this.services[file]) {
-        this.services[file] = createService(file, codeUrl, editorConfigUrl)
+        this.services[file] = createService(ext, file, codeUrl, editorConfigUrl)
 
         // Add a timeout to delete service to prevent memory leak
         setTimeout(() => {

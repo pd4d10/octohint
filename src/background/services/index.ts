@@ -1,10 +1,7 @@
-// import OtherService from './service'
-import { isTsFile, getExtension } from '../../utils'
 import { CSSService, LESSService, SCSSService } from './css'
 import SimpleService from './simple'
 
-function getServiceByFileName(fileName: string) {
-  const ext = getExtension(fileName)
+function getServiceByFileName(ext: string) {
   switch (ext) {
     case 'less':
       return LESSService
@@ -17,7 +14,7 @@ function getServiceByFileName(fileName: string) {
   }
 }
 
-export function createService(fileName: string, codeUrl: string, editorConfigUrl?: string) {
-  const Service = getServiceByFileName(fileName)
+export function createService(ext: string, fileName: string, codeUrl: string, editorConfigUrl?: string) {
+  const Service = getServiceByFileName(ext)
   return new Service(fileName, codeUrl, editorConfigUrl)
 }
