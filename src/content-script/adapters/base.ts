@@ -10,8 +10,6 @@ function getLocationPath() {
 
 export interface RendererParams {
   getContainer: () => Element | null
-  // getPositionContainer?: () => Element | null
-  // getScrollLeft: () => number
   getFontDOM: () => Element | null
   // getHighlightColor: () => string
   getLineWidthAndHeight: () => {
@@ -31,8 +29,6 @@ export interface RendererParams {
 
 const GitHubRenderer: RendererParams = {
   getContainer: () => $('.blob-wrapper'), // $('.blob-wrapper') is not OK because of scroll x
-  // getContainer: () => $('.file'),
-  // getScrollLeft: () => ($('.blob-wrapper') as HTMLElement).scrollLeft,
   // getHighlightColor: () => '#fffbdd',
   getFontDOM: () => $('#LC1'),
   getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),

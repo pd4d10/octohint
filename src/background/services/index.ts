@@ -1,6 +1,5 @@
 // import OtherService from './service'
 import { isTsFile, getExtension } from '../../utils'
-import HTMLService from './html'
 import { CSSService, LESSService, SCSSService } from './css'
 import SimpleService from './simple'
 
@@ -13,8 +12,6 @@ function getServiceByFileName(fileName: string) {
       return SCSSService
     case 'css':
       return CSSService
-    case 'html':
-      return HTMLService
     default:
       return SimpleService
   }
