@@ -26,10 +26,8 @@ window.TS_LIB = [
   require('raw-loader!typescript/lib/lib.es5.d.ts'),
   require('raw-loader!typescript/lib/lib.es6.d.ts'),
   require('raw-loader!typescript/lib/lib.webworker.d.ts'),
-  // Node.js
-  require('raw-loader!@types/node/index.d.ts'),
   // Brower extensions
-  require('raw-loader!@types/chrome/index.d.ts'),
-  require('raw-loader!@types/safari-extension/index.d.ts'),
-  require('raw-loader!@types/safari-extension-content/index.d.ts'),
+  // require('raw-loader!@types/chrome/index.d.ts'),
+  // require('raw-loader!@types/safari-extension/index.d.ts'),
+  // require('raw-loader!@types/safari-extension-content/index.d.ts'),
 ].join('\n')

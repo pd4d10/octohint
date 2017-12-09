@@ -208,6 +208,8 @@ export default class Renderer {
 
     const params = {
       file: this.fileName,
+      codeUrl: this.codeUrl,
+      editorConfigUrl: this.editorConfigUrl,
       type: MessageType.quickInfo,
       position,
     }

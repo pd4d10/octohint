@@ -4,7 +4,7 @@ import * as libsArr from '../../libs.js'
 // import TS_LIB from '../../ts-lib'
 
 function getFullLibName(name: string) {
-  return `/node_modules/${name}/index.d.ts`
+  return `/node_modules/@types/${name}/index.d.ts`
 }
 
 // FIXME: Very slow when click type `string`
@@ -14,11 +14,15 @@ export default class TSService extends MultiFileService {
   static defaultLibName = '//lib.d.ts'
   static defaultLibs = {
     ...libsArr.reduce((obj: { [key: string]: null }, name: string) => {
-      obj[getFullLibName(name)] = null
+      obj[name] = null
       return obj
     }, {}),
-    typescript: require('raw-loader!typescript/lib/typescript.d.ts'),
   }
+
+  static preloadedTypes = [
+    // { name: 'jquery', content: require('raw-loader!@types/jquery/index.d.ts') },
+    { name: 'node', content: require('raw-loader!@types/node/index.d.ts') },
+  ]
 
   private service: ts.LanguageService
   get getSourceFile() {
@@ -29,7 +33,17 @@ export default class TSService extends MultiFileService {
       version: number
       content: string
     }
-  } = {}
+  } = TSService.preloadedTypes.reduce(
+    (result, { name, content }) => ({
+      ...result,
+      [getFullLibName(name)]: { version: 0, content },
+    }),
+    {}
+  )
+  // typescript: {
+  //   version: 0,
+  //   content: require('raw-loader!typescript/lib/typescript.d.ts'),
+  // },
 
   constructor(fileName: string, codeUrl: string, editorConfigUrl?: string) {
     super()
@@ -38,15 +52,19 @@ export default class TSService extends MultiFileService {
 
   // Use regex to get third party lib names
   getLibNamesFromCode(code: string) {
-    const reg = /[import|export]\s*?.*?\sfrom\s*?['"](.*?)['"]/g
-    const matches = code.match(reg)
-    if (matches) {
-      return matches
-        .map(str => str.replace(reg, '$1'))
-        .filter(name => typeof TSService.defaultLibs[name] !== 'undefined')
-    } else {
-      return []
+    const regs = [/[import|export].*?from\s*?['"](.*?)['"]/g, /require\(['"](.*?)['"]\)/g]
+    let result: string[] = []
+    for (const reg of regs) {
+      const matches = code.match(reg) || []
+      console.log(reg, matches)
+      result = [
+        ...result,
+        ...matches
+          .map(str => str.replace(reg, '$1'))
+          .filter(name => typeof TSService.defaultLibs[name] !== 'undefined'),
+      ]
     }
+    return result
   }
 
   // Fetch type definitions from DefinitelyTyped repo
