@@ -1,4 +1,5 @@
 import { h } from 'preact'
+import { colors } from '../../utils'
 
 export interface DefinitionProps {
   isVisible: boolean
@@ -12,7 +13,7 @@ const Definition = (props: DefinitionProps) => (
     style={{
       display: props.isVisible ? 'block' : 'none',
       position: 'absolute',
-      background: 'rgb(248, 238, 199)',
+      background: colors.definitionHighlight,
       left: 0,
       width: props.width,
       height: props.height,

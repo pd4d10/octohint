@@ -13,6 +13,7 @@ export interface RendererParams {
   getContainer: () => Element | null
   // getPositionContainer?: () => Element | null
   getFontDOM: () => Element | null
+  // getHighlightColor: () => string
   getLineWidthAndHeight: () => {
     width: number
     height: number
@@ -29,6 +30,7 @@ export interface RendererParams {
 const GitHubRenderer: RendererParams = {
   // getContainer: () => $('.blob-wrapper table'), // $('.blob-wrapper') is not OK because of scroll x
   getContainer: () => $('.file'),
+  // getHighlightColor: () => '#fffbdd',
   getFontDOM: () => $('.blob-wrapper span[class]'),
   getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
   getPadding: () => ({

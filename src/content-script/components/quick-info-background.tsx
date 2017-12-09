@@ -1,4 +1,5 @@
 import { h } from 'preact'
+import { colors } from '../../utils'
 
 export interface QuickInfoBackgroundProps {
   isVisible: boolean
@@ -13,7 +14,7 @@ const QuickInfoBackground = (props: QuickInfoBackgroundProps) => (
     style={{
       display: props.isVisible ? 'block' : 'none',
       position: 'absolute',
-      background: 'rgba(173,214,255,.3)',
+      background: colors.quickInfoBackground,
       // lineHeight: '20px',
       top: props.top,
       left: props.left,
