@@ -27,6 +27,7 @@ export default class Renderer {
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
   $container: HTMLElement
+  // $positionContainer: HTMLElement
   fontWidth: number
   fontFamily: string | null
   fontSize: string | null
@@ -47,7 +48,11 @@ export default class Renderer {
     this.sendMessage = sendMessage
     this.fileName = renderParams.getFileName()
     this.$container = renderParams.getContainer() as HTMLElement
+    // this.$positionContainer = renderParams.getPositionContainer
+    //   ? renderParams.getPositionContainer() as HTMLElement
+    //   : this.$container
     // No need to check if DOM exists, already check it at initialization
+    // this.$container = this.$positionContainer
 
     this.line = renderParams.getLineWidthAndHeight()
     this.padding = renderParams.getPadding()
@@ -182,11 +187,11 @@ export default class Renderer {
   }
 
   handleMouseOut() {
-    this.setState({
-      quickInfo: {
-        isVisible: false,
-      },
-    })
+    // this.setState({
+    //   quickInfo: {
+    //     isVisible: false,
+    //   },
+    // })
   }
 
   handleMouseMove(e: MouseEvent) {
@@ -250,15 +255,16 @@ export default class Renderer {
    * Order: background -> other childrens(including code) -> quickInfo
    */
   render($container: HTMLElement) {
-    $container.style.position = 'relative'
-    ;[].forEach.call($container.children, ($child: HTMLElement) => {
-      $child.style.position = 'relative'
-      $child.style.zIndex = '1'
-    })
+    this.$container.style.position = 'relative'
+    // this.$positionContainer.style.position = 'relative'
+    // ;[].forEach.call($container.children, ($child: HTMLElement) => {
+    //   $child.style.position = 'relative'
+    //   $child.style.zIndex = '1'
+    // })
 
     const $background = document.createElement('div')
     $background.style.position = 'absolute'
-    $background.style.zIndex = '0'
+    // $background.style.zIndex = '0'
     $background.style.top = `${this.padding.top}px`
     $background.style.left = `${this.padding.left}px`
 
@@ -266,7 +272,7 @@ export default class Renderer {
     $quickInfo.style.position = 'absolute'
     const containerWidth = $container.getBoundingClientRect().width
     $quickInfo.style.width = `${containerWidth - this.padding.left}px` // Important, make quick info show as wide as possible
-    $quickInfo.style.zIndex = '2'
+    // $quickInfo.style.zIndex = '2'
     $quickInfo.style.top = `${this.padding.top}px`
     $quickInfo.style.left = `${this.padding.left}px`
 

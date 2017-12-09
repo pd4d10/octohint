@@ -11,6 +11,7 @@ function getLocationPath() {
 
 export interface RendererParams {
   getContainer: () => Element | null
+  // getPositionContainer?: () => Element | null
   getFontDOM: () => Element | null
   getLineWidthAndHeight: () => {
     width: number
@@ -26,12 +27,13 @@ export interface RendererParams {
 }
 
 const GitHubRenderer: RendererParams = {
-  getContainer: () => $('.blob-wrapper table'), // $('.blob-wrapper') is not OK because of scroll x
+  // getContainer: () => $('.blob-wrapper table'), // $('.blob-wrapper') is not OK because of scroll x
+  getContainer: () => $('.file'),
   getFontDOM: () => $('.blob-wrapper span[class]'),
   getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
   getPadding: () => ({
     left: 60,
-    top: 0,
+    top: 43,
   }),
   getCodeUrl: () => getLocationPath().replace('/blob/', '/raw/'),
   getFileName: getLocationPath,
