@@ -22,6 +22,7 @@ export default abstract class Adapter {
   }
 
   handleMessage = (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => {
+    console.log(message)
     const { file, codeUrl, editorConfigUrl } = message
     let service
     if (isTsFile(file)) {

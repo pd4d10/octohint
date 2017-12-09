@@ -6,6 +6,7 @@ export interface StateType {
   info: SymbolDisplayPart[] | string
   left: number
   fontFamily: string
+  fontSize: string
   line: number
   height: number
 }
@@ -26,7 +27,8 @@ export default class QuickInfo extends Component<{ ref: (ref: any) => any }, Sta
     isVisible: false,
     info: [],
     left: 0,
-    fontFamily: 'monospace', // TODO: Use the same font family
+    fontFamily: 'monospace',
+    fontSize: '12px',
     line: 0,
     height: 0,
   }
@@ -55,7 +57,7 @@ export default class QuickInfo extends Component<{ ref: (ref: any) => any }, Sta
           position: 'absolute',
           background: '#efeff2',
           border: `${border}px solid #c8c8c8`,
-          fontSize: '12px',
+          fontSize: state.fontSize,
           padding: `2px ${padding}px`,
           fontFamily: state.fontFamily,
           left: state.left,

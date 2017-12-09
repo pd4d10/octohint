@@ -29,6 +29,7 @@ export default class Renderer {
   $container: HTMLElement
   fontWidth: number
   fontFamily: string | null
+  fontSize: string | null
   line: Line
   padding: Padding
   code: string
@@ -66,8 +67,8 @@ export default class Renderer {
     // .replace(/[\u3007\u3400-\u4DB5\u4E00-\u9FCB\uE815-\uE864]|[\uD840-\uD87F][\uDC00-\uDFFF]/g, 'xx')
     // TODO: Seems not work because GitLab doesn't show CJK characters precisely 2 times of latin
     this.fontWidth = fontDOM.getBoundingClientRect().width / fontDOM.innerText.length
+    ;({ fontFamily: this.fontFamily, fontSize: this.fontSize } = getComputedStyle(fontDOM))
 
-    this.fontFamily = getComputedStyle(fontDOM).fontFamily
     this.render(this.$container)
     this.addEventListener(this.$container)
     document.addEventListener('keydown', e => this.handleKeyDown(e))
@@ -216,6 +217,7 @@ export default class Renderer {
             height: this.line.height,
             fontFamily: this.fontFamily,
             fontWidth: this.fontWidth,
+            fontSize: this.fontSize,
             width: data.width * this.fontWidth,
           },
         })
