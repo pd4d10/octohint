@@ -27,6 +27,8 @@ export interface RendererParams {
   getCodeUrl: () => string
   getFileName: () => string
   getEditorConfigUrl?: () => string
+  // TODO: This is pretty tricky for making GitLab and Bitbucket work
+  extraBeforeRender?: () => void
 }
 
 const GitHubRenderer: RendererParams = {
@@ -69,11 +71,12 @@ const BitbucketRenderer: RendererParams = {
     height: 16,
   }),
   getPadding: () => ({
-    left: 10,
-    top: 10,
+    left: 0,
+    top: 0,
   }),
   getCodeUrl: () => getLocationPath().replace('/src/', '/raw/'),
   getFileName: getLocationPath,
+  extraBeforeRender: () => (($('.file-source .code pre') as HTMLElement).style.position = 'relative'),
 }
 
 // This GitLab is for old version
@@ -88,6 +91,7 @@ const GitLabRenderer: RendererParams = {
   }),
   getCodeUrl: () => getLocationPath().replace('/blob/', '/raw/'),
   getFileName: getLocationPath,
+  extraBeforeRender: () => (($('.blob-content .code code') as HTMLElement).style.position = 'relative'),
 }
 
 export default abstract class Adapter {

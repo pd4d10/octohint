@@ -41,7 +41,9 @@ export default class QuickInfo extends Component<{ ref: (ref: any) => any }, Sta
     // TODO: Fix https://github.com/Microsoft/TypeScript/blob/master/Gulpfile.ts
     // TODO: Show info according to height
     // TODO: Make quick info could be copied
-    // For line 0 and 1, show info below
+    // For line 0 and 1, show info below, this is tricky
+    // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
+    // So quick info can't show outside $('.blob-wrapper')
     const positionStyle: { top?: number; bottom?: number } = {}
     if (state.line < 2) {
       positionStyle.top = (state.line + 1) * state.height

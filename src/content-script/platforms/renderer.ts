@@ -289,6 +289,11 @@ export default class Renderer {
    * Order: background -> other childrens(including code) -> quickInfo
    */
   render($container: HTMLElement) {
+    // TODO: This is pretty tricky for making GitLab and Bitbucket work
+    if (this.renderParams.extraBeforeRender) {
+      this.renderParams.extraBeforeRender()
+    }
+
     // this.$container.style.position = 'relative'
     // this.$positionContainer.style.position = 'relative'
     // ;[].forEach.call($container.children, ($child: HTMLElement) => {
