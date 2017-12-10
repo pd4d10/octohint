@@ -14,7 +14,7 @@ function getFilePath(loc: { host: string; pathname: string } = location) {
 }
 
 export interface RendererParams {
-  getContainer: () => Element | null
+  getContainer: () => Element | null // Considering scroll-x, container must be inside the wrapper
   getFontDOM: () => Element | null
   // getHighlightColor: () => string
   getLineWidthAndHeight: () => {
@@ -33,7 +33,7 @@ export interface RendererParams {
 }
 
 const GitHubRenderer: RendererParams = {
-  getContainer: () => $('.blob-wrapper'), // $('.blob-wrapper') is not OK because of scroll x
+  getContainer: () => $('.blob-wrapper'),
   // getHighlightColor: () => '#fffbdd',
   getFontDOM: () => $('#LC1'),
   getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
@@ -50,8 +50,8 @@ const GitHubRenderer: RendererParams = {
 
 function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
   return {
-    getContainer: () => wrapper.querySelector('.blob-wrapper table'), // $('.blob-wrapper') is not OK because of scroll x
-    getFontDOM: () => wrapper.querySelector('.blob-wrapper span[class]'),
+    getContainer: () => wrapper.querySelector('.blob-wrapper'),
+    getFontDOM: () => wrapper.querySelector('.blob-wrapper .blob-code'),
     getLineWidthAndHeight: () => ({ width: 918, height: 20 }),
     getPadding: () => ({
       left: 60,
