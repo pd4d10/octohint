@@ -71,17 +71,16 @@ export default class QuickInfo extends Component<{ ref: (ref: any) => any }, Sta
         }}
       >
         <div>
-          {Array.isArray(state.info) ? (
-            state.info.map(part => {
-              if (part.text === '\n') {
-                return <br />
-              }
-              return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
-            })
-          ) : (
-            state.info.replace(/\\/g, '')
-            // JSON.parse(`"${state.info}"`)
-          )}
+          {Array.isArray(state.info)
+            ? state.info.map(part => {
+                if (part.text === '\n') {
+                  return <br />
+                }
+                return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
+              })
+            : state.info.replace(/\\/g, '')
+          // JSON.parse(`"${state.info}"`)
+          }
         </div>
       </div>
     )
