@@ -103,7 +103,6 @@ export default class TSService extends MultiFileService {
   }
 
   // TODO: Check if line and character are valid
-  // FIXME: Always stop at debugger after upgrade to TS@2.5
 
   // Notice that this method is asynchronous
   async createService(fileName: string, codeUrl: string, editorConfigUrl?: string) {
@@ -166,10 +165,24 @@ export default class TSService extends MultiFileService {
     this.service = ts.createLanguageService(host, ts.createDocumentRegistry())
   }
 
+  // getPosition(sourceFile: ts.SourceFile, line: number, character: number) {
+  //   return sourceFile.getPositionOfLineAndCharacter(line, character)
+  // }
+
   getOccurrences(file: string, line: number, character: number) {
     if (!this.service) return [] // This is necesarry because createService is asynchronous
     const instance = this.getSourceFile(file)
-    const position = instance.getPositionOfLineAndCharacter(line, character)
+
+    // After upgrading to typescript@2.5
+    // When mouse position is invalid (outside the code area), always break on a debugger expression
+    // https://github.com/Microsoft/TypeScript/blob/9e51882d9cb1efdd164e27e98f3de2d5294b8257/src/compiler/scanner.ts#L341
+    // Deactivate breakpoint to prevent annoying break, and catch this error
+    let position: number
+    try {
+      position = instance.getPositionOfLineAndCharacter(line, character)
+    } catch (err) {
+      return []
+    }
     return (this.service.getReferencesAtPosition(file, position) || [])
       .filter(({ fileName }) => fileName === file)
       .map(reference => ({
@@ -182,7 +195,12 @@ export default class TSService extends MultiFileService {
   getDefinition(file: string, line: number, character: number) {
     if (!this.service) return
     const instance = this.getSourceFile(file)
-    const position = instance.getPositionOfLineAndCharacter(line, character)
+    let position: number
+    try {
+      position = instance.getPositionOfLineAndCharacter(line, character)
+    } catch (err) {
+      return
+    }
     const infos = this.service.getDefinitionAtPosition(file, position)
     if (infos) {
       const infosOfCurrentFile = infos.filter(info => info.fileName === file)
@@ -195,7 +213,13 @@ export default class TSService extends MultiFileService {
   getQuickInfo(file: string, line: number, character: number) {
     if (!this.service) return
     const instance = this.getSourceFile(file)
-    const position = instance.getPositionOfLineAndCharacter(line, character)
+    let position: number
+    try {
+      position = instance.getPositionOfLineAndCharacter(line, character)
+    } catch (err) {
+      // console.error(err)
+      return
+    }
     const quickInfo = this.service.getQuickInfoAtPosition(file, position)
     if (quickInfo) {
       // TODO: Colorize display parts

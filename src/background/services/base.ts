@@ -40,20 +40,16 @@ export abstract class MultiFileService extends BaseService {}
 
 export abstract class SingleFileService extends BaseService {
   file: string
-  codeUrl: string
-  editorConfigUrl?: string
   abstract createService(code: string): void
 
   constructor(file: string, codeUrl: string, editorConfigUrl?: string) {
     super()
     this.file = file
-    this.codeUrl = codeUrl
-    this.editorConfigUrl = editorConfigUrl
-    this.fetchCodeAndCreateService()
+    this.fetchCodeAndCreateService(codeUrl, editorConfigUrl)
   }
 
-  async fetchCodeAndCreateService() {
-    const code = await this.fetchCode(this.codeUrl, this.editorConfigUrl)
+  async fetchCodeAndCreateService(codeUrl: string, editorConfigUrl?: string) {
+    const code = await this.fetchCode(codeUrl, editorConfigUrl)
     this.createService(code)
   }
 }

@@ -40,7 +40,7 @@
     "path-browserify": "^0.0.0",
     "preact": "^8.1.0",
     "raven-js": "^3.14.0",
-    "typescript": "2.4.2",
+    "typescript": "^2.4.2",
     "vscode-css-languageservice": "^2.0.0",
     "vscode-html-languageservice": "^2.0.1",
     "vscode-languageserver-types": "^3.2.0"
