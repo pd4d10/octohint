@@ -1,6 +1,6 @@
 import * as ts from 'typescript'
 import { MultiFileService } from './base'
-import * as libsArr from '../../libs.js'
+import * as path from 'path-browserify'
 // import TS_LIB from '../../ts-lib'
 
 function getFullLibName(name: string) {
@@ -12,12 +12,6 @@ function getFullLibName(name: string) {
 export default class TSService extends MultiFileService {
   static defaultLib = ts.ScriptSnapshot.fromString(window.TS_LIB)
   static defaultLibName = '//lib.d.ts'
-  static defaultLibs = {
-    ...libsArr.reduce((obj: { [key: string]: null }, name: string) => {
-      obj[name] = null
-      return obj
-    }, {}),
-  }
 
   static preloadedTypes = [
     // { name: 'jquery', content: require('raw-loader!@types/jquery/index.d.ts') },
@@ -40,10 +34,6 @@ export default class TSService extends MultiFileService {
     }),
     {}
   )
-  // typescript: {
-  //   version: 0,
-  //   content: require('raw-loader!typescript/lib/typescript.d.ts'),
-  // },
 
   constructor(fileName: string, codeUrl: string, editorConfigUrl?: string) {
     super()
@@ -57,22 +47,29 @@ export default class TSService extends MultiFileService {
     for (const reg of regs) {
       const matches = code.match(reg) || []
       console.log(reg, matches)
-      result = [
-        ...result,
-        ...matches
-          .map(str => str.replace(reg, '$1'))
-          .filter(name => typeof TSService.defaultLibs[name] !== 'undefined'),
-      ]
+      result = [...result, ...matches.map(str => str.replace(reg, '$1'))]
     }
     return result
   }
 
-  // Fetch type definitions from DefinitelyTyped repo
+  // Try to get type definition
   async fetchLibCode(name: string) {
-    const url = `https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/types/${name}/index.d.ts`
-    const res = await fetch(url)
-    if (res.ok) {
-      return res.text()
+    const prefix = path.join('https://unpkg.com', name)
+    try {
+      // Find typings file path
+      const res = await fetch(path.join(prefix, 'package.json'))
+      const { typings } = await res.json()
+      if (typings) {
+        const res = await fetch(path.join(prefix, typings))
+        return await res.text()
+      } else {
+        // If typings not specified, try DefinitelyTyped
+        const res = await fetch(path.join(prefix, '@types', name, 'index.d.ts'))
+        return await res.text()
+      }
+    } catch (err) {
+      console.error(err)
+      return
     }
   }
 
