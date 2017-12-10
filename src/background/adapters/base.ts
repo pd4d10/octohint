@@ -86,7 +86,7 @@ export default abstract class Adapter {
         return
       }
       default:
-        return
+        send({})
     }
   }
 }

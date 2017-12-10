@@ -51,7 +51,8 @@ export default class TSService extends MultiFileService {
       const matches = code.match(reg) || []
       // console.log(reg, matches)
       // Exclude node standard libs
-      const libs = without(matches.map(str => str.replace(reg, '$1')), ...stdLibs)
+      // Exclude relative path, like `./xxx`
+      const libs = without(matches.map(str => str.replace(reg, '$1')).filter(item => item[0] !== '.'), ...stdLibs)
       result = [...result, ...libs]
     }
     return result

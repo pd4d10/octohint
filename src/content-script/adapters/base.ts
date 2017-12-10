@@ -1,3 +1,4 @@
+import * as path from 'path-browserify'
 import { SendMessageToBackground } from '../../types'
 import Renderer from './renderer'
 
@@ -59,7 +60,8 @@ function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
     }),
     getCodeUrl: () => (wrapper.querySelector('.file-actions a') as HTMLAnchorElement).href,
     getFileName: () => {
-      return getFilePath(wrapper.querySelector('.file-actions a') as HTMLAnchorElement)
+      const fileName = (wrapper.querySelector('.file-info') as HTMLElement).innerText.trim()
+      return path.join(getCurrentUrl(), fileName)
     },
   }
 }
