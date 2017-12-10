@@ -4,7 +4,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 const StringReplacePlugin = require('string-replace-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 // const ChromeExtensionReloader  = require('webpack-chrome-extension-reloader');
-
+// TODO: Live reload
 // plugins: [
 //     new ChromeExtensionReloader() // ONLY USE IT IN DEVELOPMENT BUILD!
 // ]

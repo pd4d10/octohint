@@ -1,4 +1,4 @@
-import 'safari-extension-content'
+/// <reference types="safari-extension-content" />
 import Adapter from './base'
 import { MessageFromBackground, SendMessageToBackground } from '../../types'
 

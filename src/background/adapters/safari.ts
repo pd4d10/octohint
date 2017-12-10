@@ -1,4 +1,4 @@
-import 'safari-extension'
+/// <reference types="safari-extension" />
 import BaseAdapter from './base'
 // import { AddBackgroundListener } from '../../types'
 
@@ -9,7 +9,7 @@ export default class SafariAdapter extends BaseAdapter {
       (e: SafariExtensionMessageEvent) => {
         cb(e.message, message => {
           const tab = e.target as SafariBrowserTab
-          tab.page.dispatchMessage('', message)
+          tab.page.dispatchMessage('message', message)
         })
       },
       false
