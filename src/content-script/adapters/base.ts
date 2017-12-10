@@ -61,7 +61,7 @@ function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
     getCodeUrl: () => (wrapper.querySelector('.file-actions a') as HTMLAnchorElement).href,
     getFileName: () => {
       const fileName = (wrapper.querySelector('.file-info') as HTMLElement).innerText.trim()
-      return path.join(getCurrentUrl(), fileName)
+      return path.join(getFilePath(), fileName)
     },
   }
 }

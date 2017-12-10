@@ -9,34 +9,34 @@ function getFullLibName(name: string) {
   return `/node_modules/@types/${name}/index.d.ts`
 }
 
+interface Files {
+  [fileName: string]: {
+    version: number
+    content: string
+    // dependencies: string[]
+    expireAt: number
+  }
+}
+
 // FIXME: Very slow when click type `string`
-// TODO: Files timeout
 // TODO: Go to definition for third party libs
 export default class TSService extends MultiFileService {
   static defaultLib = ts.ScriptSnapshot.fromString(window.TS_LIB)
   static defaultLibName = '//lib.d.ts'
 
-  static preloadedTypes = [
-    // { name: 'jquery', content: require('raw-loader!@types/jquery/index.d.ts') },
-    { name: 'node', content: require('raw-loader!@types/node/index.d.ts') },
-  ]
-
   private service: ts.LanguageService
   get getSourceFile() {
     return this.service.getProgram().getSourceFile
   }
-  private files: {
-    [fileName: string]: {
-      version: number
-      content: string
-    }
-  } = TSService.preloadedTypes.reduce(
-    (result, { name, content }) => ({
-      ...result,
-      [getFullLibName(name)]: { version: 0, content },
-    }),
-    {}
-  )
+  private files: Files = {
+    [getFullLibName('node')]: {
+      content: require('raw-loader!@types/node/index.d.ts'),
+      version: 0,
+      // dependencies: [],
+      expireAt: Infinity,
+    },
+  }
+  // private libs: Files = {}
 
   constructor(fileName: string, codeUrl: string, editorConfigUrl?: string) {
     super()
@@ -60,7 +60,11 @@ export default class TSService extends MultiFileService {
 
   // Try to get type definition
   async fetchLibCode(name: string) {
-    if (this.files[getFullLibName(name)]) return
+    const fullname = getFullLibName(name)
+    if (this.files[fullname]) {
+      this.files[fullname].expireAt = this.getExpireTime()
+      return
+    }
 
     const prefix = 'https://unpkg.com'
     try {
@@ -87,26 +91,38 @@ export default class TSService extends MultiFileService {
     }
   }
 
-  private updateContent(fileName: string, code: string) {
-    if (this.files[fileName]) {
-      if (this.files[fileName].content !== code) {
-        this.files[fileName].version += 1
-        this.files[fileName].content = code
-      }
+  private updateContent(name: string, code: string) {
+    if (this.files[name]) {
+      // TODO: Make version work
+      // Fetch code every time is too expensive
+
+      // if (this.files[fileName].content !== code) {
+      //   this.files[fileName].version += 1
+      //   this.files[fileName].content = code
+      // }
+      return
     } else {
-      this.files[fileName] = {
+      this.files[name] = {
         version: 0,
         content: code,
+        // dependencies: [],
+        expireAt: this.getExpireTime(),
       }
     }
     console.log('Updated, current files:', this.files)
-  }
 
-  // TODO: Check if line and character are valid
+    // Clear all expired files
+    const now = Date.now()
+    for (const name in this.files) {
+      if (this.files[name].expireAt < now) {
+        console.log('Clear: ', name)
+        delete this.files[name]
+      }
+    }
+  }
 
   // Notice that this method is asynchronous
   async createService(fileName: string, codeUrl: string, editorConfigUrl?: string) {
-    // TODO: Make version works
     if (this.files[fileName]) return
 
     const code = await this.fetchCode(codeUrl, editorConfigUrl)
@@ -118,8 +134,8 @@ export default class TSService extends MultiFileService {
     libNames.forEach((name, i) => {
       const code = libCodes[i]
       if (code) {
-        const libName = getFullLibName(name)
-        this.updateContent(libName, code)
+        // this.files[fileName].dependencies.push(name)
+        this.updateContent(getFullLibName(name), code)
       }
     })
 
@@ -169,8 +185,21 @@ export default class TSService extends MultiFileService {
   //   return sourceFile.getPositionOfLineAndCharacter(line, character)
   // }
 
+  getExpireTime() {
+    return Date.now() + 1000 * 60 * 5 // 5min
+    // return Date.now() + 1000 * 5 // 5min
+  }
+
+  updateExpireTime(file: string) {
+    // Sometimes file is clear yet
+    if (this.files[file]) {
+      this.files[file].expireAt = this.getExpireTime()
+    }
+  }
+
   getOccurrences(file: string, line: number, character: number) {
     if (!this.service) return [] // This is necesarry because createService is asynchronous
+    this.updateExpireTime(file)
     const instance = this.getSourceFile(file)
 
     // After upgrading to typescript@2.5
@@ -194,6 +223,7 @@ export default class TSService extends MultiFileService {
 
   getDefinition(file: string, line: number, character: number) {
     if (!this.service) return
+    this.updateExpireTime(file)
     const instance = this.getSourceFile(file)
     let position: number
     try {
@@ -212,6 +242,7 @@ export default class TSService extends MultiFileService {
 
   getQuickInfo(file: string, line: number, character: number) {
     if (!this.service) return
+    this.updateExpireTime(file)
     const instance = this.getSourceFile(file)
     let position: number
     try {
