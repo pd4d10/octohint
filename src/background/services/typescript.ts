@@ -2,6 +2,8 @@ import * as ts from 'typescript'
 import { MultiFileService } from './base'
 import * as path from 'path-browserify'
 // import TS_LIB from '../../ts-lib'
+import stdLibs from './node-libs'
+import { without } from 'lodash'
 
 function getFullLibName(name: string) {
   return `/node_modules/@types/${name}/index.d.ts`
@@ -9,6 +11,7 @@ function getFullLibName(name: string) {
 
 // FIXME: Very slow when click type `string`
 // TODO: Files timeout
+// TODO: Go to definition for third party libs
 export default class TSService extends MultiFileService {
   static defaultLib = ts.ScriptSnapshot.fromString(window.TS_LIB)
   static defaultLibName = '//lib.d.ts'
@@ -46,26 +49,36 @@ export default class TSService extends MultiFileService {
     let result: string[] = []
     for (const reg of regs) {
       const matches = code.match(reg) || []
-      console.log(reg, matches)
-      result = [...result, ...matches.map(str => str.replace(reg, '$1'))]
+      // console.log(reg, matches)
+      // Exclude node standard libs
+      const libs = without(matches.map(str => str.replace(reg, '$1')), ...stdLibs)
+      result = [...result, ...libs]
     }
     return result
   }
 
   // Try to get type definition
   async fetchLibCode(name: string) {
-    const prefix = path.join('https://unpkg.com', name)
+    if (this.files[getFullLibName(name)]) return
+
+    const prefix = 'https://unpkg.com'
     try {
       // Find typings file path
-      const res = await fetch(path.join(prefix, 'package.json'))
-      const { typings } = await res.json()
-      if (typings) {
-        const res = await fetch(path.join(prefix, typings))
-        return await res.text()
-      } else {
-        // If typings not specified, try DefinitelyTyped
-        const res = await fetch(path.join(prefix, '@types', name, 'index.d.ts'))
-        return await res.text()
+      const r0 = await fetch(path.join(prefix, name, 'package.json'))
+      if (r0.ok) {
+        const { typings } = await r0.json()
+        if (typings) {
+          const r1 = await fetch(path.join(prefix, name, typings))
+          if (r1.ok) {
+            return r1.text()
+          }
+        }
+      }
+
+      // If typings not specified, try DefinitelyTyped
+      const r2 = await fetch(path.join(prefix, '@types', name, 'index.d.ts'))
+      if (r2.ok) {
+        return r2.text()
       }
     } catch (err) {
       console.error(err)
@@ -93,6 +106,7 @@ export default class TSService extends MultiFileService {
 
   // Notice that this method is asynchronous
   async createService(fileName: string, codeUrl: string, editorConfigUrl?: string) {
+    // TODO: Make version works
     if (this.files[fileName]) return
 
     const code = await this.fetchCode(codeUrl, editorConfigUrl)

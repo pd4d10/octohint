@@ -11,7 +11,8 @@
     "package": "cd chrome; cp ../LICENSE .; zip -r ../chrome.zip .; rm LICENSE; cd ..",
     "package:safari": "cd octohint.safariextension; cp ../LICENSE .; zip -r ../octohint.safariextension.zip .; rm LICENSE; cd ..",
     "fix": "tslint --fix 'src/**/*.{ts,tsx}'",
-    "test": "tslint src/**/*.ts"
+    "test": "tslint src/**/*.ts",
+    "get-node-libs": "node scripts/get-node-libs"
   },
   "pre-commit": [
     "fix"

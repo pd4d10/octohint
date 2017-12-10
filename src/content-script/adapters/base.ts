@@ -4,8 +4,13 @@ import Renderer from './renderer'
 const $ = (selector: string) => document.querySelector(selector)
 const $$ = (selector: string) => document.querySelectorAll(selector)
 
-function getLocationPath() {
+function getCurrentUrl() {
   return location.protocol + '//' + location.host + location.pathname
+}
+
+// Replace `//` with `/` to simulate file system path
+function getFilePath(loc: { host: string; pathname: string } = location) {
+  return '/' + loc.host + loc.pathname
 }
 
 export interface RendererParams {
@@ -36,8 +41,8 @@ const GitHubRenderer: RendererParams = {
     left: 60,
     top: 0,
   }),
-  getCodeUrl: () => getLocationPath().replace('/blob/', '/raw/'),
-  getFileName: getLocationPath,
+  getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
+  getFileName: getFilePath,
   getEditorConfigUrl() {
     return this.getCodeUrl().replace(/(^.*?\/raw\/.*?\/).*$/, '$1') + '.editorconfig'
   },
@@ -53,7 +58,9 @@ function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
       top: 0,
     }),
     getCodeUrl: () => (wrapper.querySelector('.file-actions a') as HTMLAnchorElement).href,
-    getFileName: () => (wrapper.querySelector('.file-actions a') as HTMLAnchorElement).href,
+    getFileName: () => {
+      return getFilePath(wrapper.querySelector('.file-actions a') as HTMLAnchorElement)
+    },
   }
 }
 
@@ -68,8 +75,8 @@ const BitbucketRenderer: RendererParams = {
     left: 0,
     top: 0,
   }),
-  getCodeUrl: () => getLocationPath().replace('/src/', '/raw/'),
-  getFileName: getLocationPath,
+  getCodeUrl: () => getCurrentUrl().replace('/src/', '/raw/'),
+  getFileName: getFilePath,
   extraBeforeRender: () => (($('.file-source .code pre') as HTMLElement).style.position = 'relative'),
 }
 
@@ -83,8 +90,8 @@ const GitLabRenderer: RendererParams = {
     left: 10,
     top: 0,
   }),
-  getCodeUrl: () => getLocationPath().replace('/blob/', '/raw/'),
-  getFileName: getLocationPath,
+  getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
+  getFileName: getFilePath,
   extraBeforeRender: () => (($('.blob-content .code code') as HTMLElement).style.position = 'relative'),
 }
 
