@@ -43,6 +43,7 @@ const GitHubRenderer: RendererParams = {
     top: 0,
   }),
   getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
+  // .replace('github.com', 'raw.githubusercontent.com'),
   getFileName: getFilePath,
   getEditorConfigUrl() {
     return this.getCodeUrl().replace(/(^.*?\/raw\/.*?\/).*$/, '$1') + '.editorconfig'

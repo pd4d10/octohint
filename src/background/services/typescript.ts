@@ -45,7 +45,7 @@ export default class TSService extends MultiFileService {
 
   // Use regex to get third party lib names
   getLibNamesFromCode(code: string) {
-    const regs = [/[import|export].*?from\s*?['"](.*?)['"]/g, /require\(['"](.*?)['"]\)/g]
+    const regs = [/[import|export].*?from\s*?['"](.*?)['"]/g, /require\(['"](.*?)['"]\)/g] // TODO: Exclude comment
     let result: string[] = []
     for (const reg of regs) {
       const matches = code.match(reg) || []
@@ -87,6 +87,9 @@ export default class TSService extends MultiFileService {
       }
     } catch (err) {
       console.error(err)
+      // TODO: Report errors
+      // https://docs.sentry.io/clients/javascript/#manually-reporting-errors
+      // Raven.captureException(err)
       return
     }
   }

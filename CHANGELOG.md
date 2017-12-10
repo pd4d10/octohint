@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.0] - 2017-12-11
+
+* Auto import types of third party libraries for TS and JS files
+* Support GitHub Gist
+* Fix #10: Position of GitHub line toolbar
+* Huge refactor(rewrite): New strategies of view and TS service
+* Other Bug fix
+
 ## [1.6.0] - 2017-08-16
 
 * Make quick info of TypeScript and JavaScript colorful
