@@ -9,23 +9,29 @@
 
 ## Introduction
 
-Octohint is a browser extension which brings VSCode's IntelliSense hint to GitHub. Used to be named as Intelli-octo.
+Octohint is a browser extension which adds IntelliSense hint feature to GitHub.
+
+[Introduction at Medium](https://medium.com/@pd4d10/introducing-octohint-e1a3e4b80c47)
 
 ## Installation
 
 ### Chrome
 
-Install it from [Chrome Web Store](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
+Install it from Chrome Web Store:
 
-Manual install is also available: Go to [release page](https://github.com/pd4d10/octohint/releases), find `chrome.zip` file and download it.
+https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk
+
+Manual installation:
+
+Go to [release page](https://github.com/pd4d10/octohint/releases), find `chrome.zip` file, download and unpack it.
 
 ### Firefox
 
-Make sure your version of Firefox supports web extensions. The installation is the same as Manual install of Chrome.
+Make sure your version of Firefox supports web extensions. The installation is the same as Manual installation of Chrome.
 
 ### Safari
 
-1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v1.6.0/octohint.safariextension.zip), double click to unpack it in Finder
+1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v2.0.0/octohint.safariextension.zip), double click to unpack it in Finder
 
 2. [Enable Develop tools of Safari](https://developer.apple.com/library/content/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/GettingStarted/GettingStarted.html)
 
@@ -35,35 +41,36 @@ Make sure your version of Firefox supports web extensions. The installation is t
 
 ## Features
 
-With Octohint installed, when you view code at GitHub (For example [this](https://github.com/pd4d10/octohint/blob/master/assets/demo.ts)), you'll get features as follows:
+With Octohint installed, when you view code at GitHub (For example [this demo](https://github.com/pd4d10/octohint/blob/master/assets/demo.ts)), you'll get features as follows:
 
-* Hover to see quick information
-* Click to show all occurrences
-* [⌘] + Click to go to definition (For Windows and Linux user, use [Ctrl])
+* Mouse Hover: Show information of current token
+* Left Click: Show all references of current token
+* [⌘] + Click: Go to definition of current token (For Windows and Linux user, use [Ctrl] instead)
 
 ## Supported languages
 
-Rich IntelliSense hint:
+Octohint supports all languages. There are two strategies:
 
-* TypeScript and JavaScript
-* CSS, LESS and SCSS
+* IntelliSense hint: TypeScript, JavaScript, CSS, LESS, SCSS
+* Simple token matching: All other languages
 
-Base token matching: All languages
+It is because browser only runs JavaScript. But with help of WebAssembly, maybe we could bring other languages(like Go/Rust)' IntelliSense analysis to browser! It's still in research
 
 ## Supported platforms
 
 Support GitHub, GitLab and Bitbucket. Since GitLab CE has many versions, I'm not sure it works correctly on every version. If you find some bugs you could [submit an issue](https://github.com/pd4d10/octohint/issues/new).
 
-## Get private GitHub/GitLab/Bitbucket works
+## Get your private site works
 
 If GitHub/GitLab/Bitbucket you are using is hosted on different site, go to chrome://extensions, click options of Octohint, then add [match patterns](https://developer.chrome.com/extensions/match_patterns) of your site, like `https://www.example.com/*`.
 
 <img src="assets/options.png" alt="options" width="422">
 
-## Privacy
+## Privacy policy
 
-Octohint is a pure client thing. All code analysis are performed at your browser, which means your code and actions like click, mousemove will never be sent to any server. So feel free to use it at your private GitHub/GitLab/Bitbucket.
+Octohint is a pure client thing. All code analysis are performed at your browser, which means your code and actions log like click, mousemove will never be sent to any server.
 
+Feel free to use it at your private GitHub/GitLab/Bitbucket.
 
 ## Related
 
