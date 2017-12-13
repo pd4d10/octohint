@@ -100,6 +100,7 @@ const GitLabRenderer: RendererParams = {
 
 export default abstract class Adapter {
   abstract getSendMessage(): SendMessageToBackground
+  sendMessage = this.getSendMessage()
 
   constructor() {
     const sendMessage = this.getSendMessage()
@@ -116,54 +117,44 @@ export default abstract class Adapter {
     // TODO: Dynamic import
     // May be deployed at private domain, URL
     // So use DOM selector
-    const githubPjaxContainer = $('#js-repo-pjax-container')
-    if (githubPjaxContainer) {
-      new MutationObserver(mutations => {
-        // console.log(mutations)
-        mutations.forEach(mutation => {
-          if (mutation.type === 'childList' && mutation.addedNodes.length) {
-            if (GitHubRenderer.getContainer()) {
-              new Renderer(sendMessage, GitHubRenderer)
-            }
-          }
-        })
-      }).observe(githubPjaxContainer, {
-        attributes: true,
-        childList: true,
-        characterData: true,
-      })
-    }
+    this.addMutationObserver($('#js-repo-pjax-container'), GitHubRenderer)
 
     if (GitHubRenderer.getContainer()) {
       new Renderer(sendMessage, GitHubRenderer)
       return
     }
 
+    this.addMutationObserver(document.documentElement, GitLabRenderer)
+
     if (GitLabRenderer.getContainer()) {
       new Renderer(sendMessage, GitLabRenderer)
       return
     }
 
-    const bitbucketPjaxContainer = $('#source-container')
-    if (bitbucketPjaxContainer) {
-      new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-          if (mutation.type === 'childList' && mutation.addedNodes.length) {
-            if (BitbucketRenderer.getContainer()) {
-              new Renderer(sendMessage, BitbucketRenderer)
-            }
-          }
-        })
-      }).observe(bitbucketPjaxContainer, {
-        attributes: true,
-        childList: true,
-        characterData: true,
-      })
-    }
+    this.addMutationObserver($('#source-container'), BitbucketRenderer)
 
     if (BitbucketRenderer.getContainer()) {
       new Renderer(sendMessage, BitbucketRenderer)
       return
+    }
+  }
+
+  addMutationObserver(container: Element | null, params: RendererParams) {
+    if (container) {
+      new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          console.log(mutation)
+          if (mutation.type === 'childList' && mutation.addedNodes.length) {
+            if (params.getContainer()) {
+              new Renderer(this.getSendMessage(), params)
+            }
+          }
+        })
+      }).observe(container, {
+        attributes: true,
+        childList: true,
+        characterData: true,
+      })
     }
   }
 }
