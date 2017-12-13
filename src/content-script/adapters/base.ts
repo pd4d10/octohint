@@ -124,7 +124,10 @@ export default abstract class Adapter {
       return
     }
 
-    this.addMutationObserver(document.documentElement, GitLabRenderer)
+    this.addMutationObserver($('.blob-viewer'), GitLabRenderer)
+
+    // FIXME: Use `document.documentElement` may cause problems when DOM added by other extensions
+    this.addMutationObserver(document.documentElement, GitLabRenderer, GitLabRenderer.getContainer() !== null)
 
     if (GitLabRenderer.getContainer()) {
       new Renderer(sendMessage, GitLabRenderer)
@@ -139,8 +142,8 @@ export default abstract class Adapter {
     }
   }
 
-  addMutationObserver(container: Element | null, params: RendererParams) {
-    if (container) {
+  addMutationObserver(container: Element | null, params: RendererParams, extraCondition = true) {
+    if (container && extraCondition) {
       new MutationObserver(mutations => {
         mutations.forEach(mutation => {
           console.log(mutation)
