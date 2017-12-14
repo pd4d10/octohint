@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.0.1] - 2017-12-14
+
+* Fix GitLab dynamic loading
+
 ## [2.0.0] - 2017-12-11
 
 * Auto import types of third party libraries for TS and JS files

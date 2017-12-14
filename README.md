@@ -31,7 +31,7 @@ Make sure your version of Firefox supports web extensions. The installation is t
 
 ### Safari
 
-1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v2.0.0/octohint.safariextension.zip), double click to unpack it in Finder
+1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v2.0.1/octohint.safariextension.zip), double click to unpack it in Finder
 
 2. [Enable Develop tools of Safari](https://developer.apple.com/library/content/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/GettingStarted/GettingStarted.html)
 
