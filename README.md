@@ -29,6 +29,10 @@ Go to [release page](https://github.com/pd4d10/octohint/releases), find `chrome.
 
 Make sure your version of Firefox supports web extensions. The installation is the same as Manual installation of Chrome.
 
+### Opera
+
+Use this extension: [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/download-chrome-extension-9/) to install Octohint from [Chrome Web Store](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
+
 ### Safari
 
 1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v2.0.1/octohint.safariextension.zip), double click to unpack it in Finder
