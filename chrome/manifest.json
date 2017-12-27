@@ -5,27 +5,25 @@
   "description": "IntelliSense hint for GitHub",
   "homepage_url": "https://github.com/pd4d10/octohint",
   "icons": {
-    "128": "icon.png"
+    "128": "icons/logo.png"
   },
   "background": {
-    "scripts": [
-      "dist/sentry.js",
-      "dist/ts-lib.js",
-      "dist/background.js"
-    ]
+    "scripts": ["dist/sentry.js", "dist/ts-lib.js", "dist/background.js"]
   },
   "permissions": [
     "https://github.com/*",
     "https://gist.github.com/*",
     "https://gitlab.com/*",
-    "https://bitbucket.org/*"
+    "https://bitbucket.org/*",
+    "storage"
   ],
-  "optional_permissions": [
-    "<all_urls>"
-  ],
+  "optional_permissions": ["<all_urls>"],
   "options_page": "dist/options.html",
   "options_ui": {
     "page": "dist/options.html",
     "chrome_style": true
+  },
+  "browser_action": {
+    "default_icon": "icons/inactive.png"
   }
 }
