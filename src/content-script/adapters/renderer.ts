@@ -58,7 +58,6 @@ export default class Renderer {
     // No need to check if DOM exists, already check it at initialization
     // this.$container = this.$positionContainer
 
-    this.line = renderParams.getLineWidthAndHeight()
     this.padding = renderParams.getPadding()
     this.offsetTop = this.getOffsetTop(this.$container)
     if (renderParams.getEditorConfigUrl) {
@@ -70,6 +69,7 @@ export default class Renderer {
     // Get font width and family
     const fontDOM = renderParams.getFontDOM() as HTMLElement
     if (!fontDOM) return
+    this.line = renderParams.getLineWidthAndHeight()
 
     const testDOM = document.createElement('span')
     testDOM.innerText = '0'
