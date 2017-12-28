@@ -1,4 +1,6 @@
+import { parseString } from 'editorconfig/lib/ini'
 import { Occurrence, QuickInfo, Definition } from '../../types'
+import * as path from 'path'
 
 abstract class BaseService {
   abstract getOccurrences(file: string, line: number, character: number): Occurrence[]
@@ -17,22 +19,31 @@ abstract class BaseService {
 
     // If code has tab, try to get editorconfig's intent_size
     let tabSize = 8
-    // TODO: Use editorconfig parse
     if (editorConfigUrl) {
       const r1 = await fetch(editorConfigUrl, { credentials: 'same-origin' })
       if (r1.ok) {
         const config = await r1.text()
-        const lines = config.split('\n')
-        for (const line of lines) {
-          if (line.includes('indent_size')) {
-            const value = line.split('=')[1].trim()
-            tabSize = parseInt(value, 10)
+        const ext = path.extname(codeUrl)
+        const parsed = parseString(config)
+        for (const item of parsed) {
+          // *.js or *.js,*.ts
+          if (item[0] && (item[0].includes('*.' + ext) || item[0].includes('*.' + ext + ',')) && item[1].indent_size) {
+            tabSize = parseInt(item[1].indent_size, 10)
+            break
+          }
+          if (item[0] === '*' && item[1].indent_size) {
+            tabSize = parseInt(item[1].indent_size, 10)
+            break
+          }
+          if (item[0] === null && item[1].indent_size) {
+            tabSize = parseInt(item[1].indent_size, 10)
             break
           }
         }
+        console.log('Final tab size: ', tabSize)
       }
     }
-    return code.replace(/\t/g, ' '.repeat(tabSize))
+    return code.replace(/\t/g, ' '.repeat(tabSize || 8)) // Case NaN
   }
 }
 

@@ -1,6 +1,6 @@
 import * as ts from 'typescript'
 import { MultiFileService } from './base'
-import * as path from 'path-browserify'
+import * as path from 'path'
 // import TS_LIB from '../../ts-lib'
 import stdLibs from './node-libs'
 import { without } from 'lodash'

@@ -1,4 +1,4 @@
-import * as path from 'path-browserify'
+import * as path from 'path'
 import { SendMessageToBackground } from '../../types'
 import Renderer from './renderer'
 

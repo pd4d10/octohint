@@ -71,6 +71,9 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.json'],
+    alias: {
+      path: 'path-browserify',
+    },
   },
 
   // https://github.com/postcss/postcss-js/issues/10#issuecomment-179782081

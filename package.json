@@ -35,6 +35,7 @@
     "@types/node": "^8.0.57",
     "@types/safari-extension": "^0.0.27",
     "@types/safari-extension-content": "^0.0.14",
+    "editorconfig": "^0.15.0",
     "lodash": "^4.17.4",
     "path-browserify": "^0.0.0",
     "preact": "^8.2.6",
