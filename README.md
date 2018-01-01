@@ -17,9 +17,7 @@ Octohint is a browser extension which adds IntelliSense hint feature to GitHub.
 
 ### Chrome
 
-Install it from Chrome Web Store:
-
-https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk
+Install it from [Chrome Web Store](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
 
 Manual installation:
 
@@ -27,7 +25,9 @@ Go to [release page](https://github.com/pd4d10/octohint/releases), find `chrome.
 
 ### Firefox
 
-Make sure your version of Firefox supports web extensions. The installation is the same as Manual installation of Chrome.
+Follow [this guide](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox). The file is the same as manual installation of Chrome.
+
+Make sure your version of Firefox supports web extensions. 
 
 ### Opera
 
