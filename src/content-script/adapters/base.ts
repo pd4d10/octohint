@@ -108,7 +108,7 @@ export default abstract class Adapter {
     // GitHub Gist
     if (/gist\.github\.com/.test(location.href)) {
       // const list = $$('.file-actions a')
-      ;[].forEach.call($$('.js-task-list-container'), (wrapper: HTMLElement) => {
+      ;[].forEach.call($$('.js-gist-file-update-container'), (wrapper: HTMLElement) => {
         new Renderer(sendMessage, GithubGistRendererFactory(wrapper))
       })
       return
