@@ -3,7 +3,7 @@ import { MultiFileService } from './base'
 import * as path from 'path'
 // import TS_LIB from '../../ts-lib'
 import stdLibs from './node-libs'
-import { without } from 'lodash'
+import { without, uniq } from 'lodash'
 
 function getFullLibName(name: string) {
   return `/node_modules/@types/${name}/index.d.ts`
@@ -51,11 +51,16 @@ export default class TSService extends MultiFileService {
       const matches = code.match(reg) || []
       // console.log(reg, matches)
       // Exclude node standard libs
-      // Exclude relative path, like `./xxx`
-      const libs = without(matches.map(str => str.replace(reg, '$1')).filter(item => item[0] !== '.'), ...stdLibs)
+      const libs = without(
+        matches
+          .map(str => str.replace(reg, '$1'))
+          .map(str => str.split('/')[0]) // Extract correct lib of `lodash/throttle`
+          .filter(item => item[0] !== '.'), // Exclude relative path, like `./xxx`
+        ...stdLibs
+      )
       result = [...result, ...libs]
     }
-    return result
+    return uniq(result)
   }
 
   // Try to get type definition
