@@ -27,7 +27,7 @@ Go to [release page](https://github.com/pd4d10/octohint/releases), find `chrome.
 
 Follow [this guide](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox). The file is the same as manual installation of Chrome.
 
-Make sure your version of Firefox supports web extensions. 
+Make sure your version of Firefox supports web extensions.
 
 ### Opera
 
@@ -35,7 +35,7 @@ Use this extension: [Install Chrome Extensions](https://addons.opera.com/en/exte
 
 ### Safari
 
-1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v2.0.1/octohint.safariextension.zip), double click to unpack it in Finder
+1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v2.0.2/octohint.safariextension.zip), double click to unpack it in Finder
 
 2. [Enable Develop tools of Safari](https://developer.apple.com/library/content/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/GettingStarted/GettingStarted.html)
 
