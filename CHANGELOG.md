@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.2] - 2018-01-16
+
+* Fix #17
+* Parse `editorconfig` correctly for GitHub tab size (#19)
+* Fix type import of packages includes slash like `lodash/throttle`
+
 ## [2.0.1] - 2017-12-14
 
 * Fix GitLab dynamic loading
