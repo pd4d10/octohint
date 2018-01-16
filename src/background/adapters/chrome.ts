@@ -6,8 +6,9 @@ export default class SafariAdapter extends BaseAdapter {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (!sender.tab || !sender.tab.id) return
 
-      chrome.browserAction.setIcon({ tabId: sender.tab.id, path: 'icons/active.png' })
-      chrome.browserAction.setTitle({ title: 'Octohint works' })
+      // TODO: Do not set it every time
+      // chrome.browserAction.setIcon({ tabId: sender.tab.id, path: 'icons/active.png' })
+      // chrome.browserAction.setTitle({ title: 'Octohint works' })
       cb(message, sendResponse)
     })
   }
