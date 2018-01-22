@@ -10,14 +10,10 @@
     "build:safari": "TARGET=safari webpack --config webpack.config.production.js",
     "package": "cd chrome; cp ../LICENSE .; zip -r ../chrome.zip .; rm LICENSE; cd ..",
     "package:safari": "cd octohint.safariextension; cp ../LICENSE .; zip -r ../octohint.safariextension.zip .; rm LICENSE; cd ..",
-    "fix": "tslint --fix 'src/**/*.{ts,tsx}'",
-    "test": "tslint src/**/*.ts",
+    "test": "echo test",
     "get-node-libs": "node scripts/get-node-libs",
     "icon": "rm -rf chrome/icons/*; node scripts/generate-icons"
   },
-  "pre-commit": [
-    "fix"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pd4d10/octohint.git"
@@ -50,16 +46,11 @@
     "css-loader": "^0.28.7",
     "html-webpack-plugin": "^2.30.1",
     "json-loader": "^0.5.7",
-    "pre-commit": "^1.2.2",
-    "prettier": "^1.9.1",
     "raw-loader": "^0.5.1",
     "source-map-loader": "^0.2.3",
     "string-replace-webpack-plugin": "^0.1.3",
     "style-loader": "^0.19.0",
     "svg2png": "^4.1.1",
-    "tslint": "^5.8.0",
-    "tslint-config-prettier": "^1.6.0",
-    "tslint-plugin-prettier": "^1.3.0",
     "uglifyjs-webpack-plugin": "^1.1.2",
     "webpack": "^3.10.0",
     "webpack-bundle-analyzer": "^2.9.1",
