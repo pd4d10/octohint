@@ -18,7 +18,6 @@
     "storage"
   ],
   "optional_permissions": ["<all_urls>"],
-  "options_page": "dist/options.html",
   "options_ui": {
     "page": "dist/options.html",
     "chrome_style": true
