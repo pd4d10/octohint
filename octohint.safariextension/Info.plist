@@ -5,7 +5,7 @@
 	<key>Author</key>
 	<string>pd4d10</string>
 	<key>Builder Version</key>
-	<string>13604.3.5</string>
+	<string>13605.1.18.2</string>
 	<key>CFBundleDisplayName</key>
 	<string>Octohint</string>
 	<key>CFBundleIdentifier</key>
@@ -27,7 +27,6 @@
 		<dict>
 			<key>End</key>
 			<array>
-				<string>dist/sentry.js</string>
 				<string>dist/content-script.js</string>
 			</array>
 		</dict>
