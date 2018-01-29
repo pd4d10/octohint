@@ -46,6 +46,7 @@
 				<string>github.com</string>
 				<string>gitlab.com</string>
 				<string>bitbucket.org</string>
+				<string>gist.github.com</string>
 			</array>
 			<key>Include Secure Pages</key>
 			<true/>
