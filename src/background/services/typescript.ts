@@ -92,10 +92,6 @@ export default class TSService extends MultiFileService {
       }
     } catch (err) {
       console.error(err)
-      // TODO: Report errors
-      // https://docs.sentry.io/clients/javascript/#manually-reporting-errors
-      // Raven.captureException(err)
-      return
     }
   }
 

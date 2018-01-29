@@ -3,11 +3,7 @@ const webpack = require('webpack')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const StringReplacePlugin = require('string-replace-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-// const ChromeExtensionReloader  = require('webpack-chrome-extension-reloader');
 // TODO: Live reload
-// plugins: [
-//     new ChromeExtensionReloader() // ONLY USE IT IN DEVELOPMENT BUILD!
-// ]
 
 const isSafari = process.env.TARGET === 'safari'
 
@@ -15,7 +11,6 @@ module.exports = {
   watch: true,
   entry: {
     background: isSafari ? './src/background/safari' : './src/background',
-    sentry: './src/sentry',
     'content-script': isSafari ? './src/content-script/safari' : './src/content-script',
     'ts-lib': './src/ts-lib',
     options: './src/options',

@@ -8,7 +8,7 @@
     "128": "icons/logo.png"
   },
   "background": {
-    "scripts": ["dist/sentry.js", "dist/ts-lib.js", "dist/background.js"]
+    "scripts": ["dist/ts-lib.js", "dist/background.js"]
   },
   "permissions": [
     "https://github.com/*",

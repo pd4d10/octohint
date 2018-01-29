@@ -19,9 +19,7 @@ export default class SafariAdapter extends BaseAdapter {
       const code = 'var injected = window.octohintInjected; window.octohintInjected = true; injected;'
       chrome.tabs.executeScript(tabId, { code }, res => {
         if (chrome.runtime.lastError || res[0]) return
-        chrome.tabs.executeScript(tabId, { file: 'dist/sentry.js' }, () => {
-          chrome.tabs.executeScript(tabId, { file: 'dist/content-script.js' })
-        })
+        chrome.tabs.executeScript(tabId, { file: 'dist/content-script.js' })
       })
     })
   }
