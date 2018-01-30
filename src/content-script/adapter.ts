@@ -1,5 +1,5 @@
 import * as path from 'path'
-import { SendMessageToBackground } from '../../types'
+import { SendMessageToBackground } from '../types'
 import Renderer from './renderer'
 
 const $ = (selector: string) => document.querySelector(selector)

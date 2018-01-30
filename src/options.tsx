@@ -1,4 +1,4 @@
-import { h, Component } from 'preact'
+import { h, Component, render } from 'preact'
 
 const builtInPermissions = [
   'https://bitbucket.org/*',
@@ -7,7 +7,7 @@ const builtInPermissions = [
   'https://github.com/*',
 ]
 
-export default class Options extends Component<{}, { origins: string[]; temp: string }> {
+class Options extends Component<{}, { origins: string[]; temp: string }> {
   state = {
     origins: [],
     temp: '',
@@ -64,8 +64,11 @@ export default class Options extends Component<{}, { origins: string[]; temp: st
       <div style={{ lineHeight: '1.8' }}>
         <form onSubmit={this.handleAdd}>
           <p>
-            Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a different site. If it doesn't work, see{' '}
-            <a href="https://developer.chrome.com/extensions/match_patterns">Match Patterns</a>
+            Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a
+            different site. If it doesn't work, see{' '}
+            <a href="https://developer.chrome.com/extensions/match_patterns">
+              Match Patterns
+            </a>
           </p>
           <table>
             <thead />
@@ -103,9 +106,15 @@ export default class Options extends Component<{}, { origins: string[]; temp: st
         <footer>
           <a href="https://github.com/pd4d10/octohint">Source code</a>
           <br />
-          <a href="https://github.com/pd4d10/octohint/issues/new">Submit an issue</a>
+          <a href="https://github.com/pd4d10/octohint/issues/new">
+            Submit an issue
+          </a>
         </footer>
       </div>
     )
   }
 }
+
+const container = document.createElement('div')
+document.body.appendChild(container)
+render(<Options />, container)

@@ -1,8 +1,8 @@
 import * as ts from 'typescript'
-import { createService } from '../services'
-import TsService from '../services/typescript'
-import { MessageType, MessageFromContentScript, MessageFromBackground, AddBackgroundListener } from '../../types'
-import { MultiFileService } from '../services/base'
+import { createService } from './services'
+import TsService from './services/typescript'
+import { MessageType, MessageFromContentScript, MessageFromBackground, AddBackgroundListener } from '../types'
+import { MultiFileService } from './services/base'
 
 const TIMEOUT = 1000 * 60 * 5 // 5min
 

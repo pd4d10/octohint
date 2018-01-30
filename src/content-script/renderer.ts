@@ -1,6 +1,6 @@
 import { debounce } from 'lodash'
 import { LineAndCharacter } from 'typescript'
-import { renderToDOM } from '../containers'
+import { renderToDOM } from './containers'
 import {
   MessageType,
   MessageFromContentScript,
@@ -8,8 +8,8 @@ import {
   BackgroundMessageOfOccurrence,
   BackgroundMessageOfQuickInfo,
   Range,
-} from '../../types'
-import { RendererParams } from '../adapters/base'
+} from '../types'
+import { RendererParams } from './adapter'
 
 interface Padding {
   left: number

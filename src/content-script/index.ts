@@ -1,3 +1,9 @@
-import Adapter from './adapters/chrome'
+import Adapter from './adapter'
 
-new Adapter()
+class ChromeAdapter extends Adapter {
+  getSendMessage() {
+    return chrome.runtime.sendMessage
+  }
+}
+
+new ChromeAdapter()
