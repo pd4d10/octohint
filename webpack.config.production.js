@@ -16,6 +16,11 @@ module.exports = merge(config, {
         compress: {
           drop_console: true,
         },
+        output: {
+          // Fix Safari error:
+          // SyntaxError: Invalid regular expression: missing terminating ] for character class
+          ascii_only: process.env.TARGET === 'safari',
+        },
       },
     }),
     new BundleAnalyzerPlugin(),
