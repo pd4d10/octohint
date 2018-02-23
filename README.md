@@ -35,7 +35,7 @@ Use this extension: [Install Chrome Extensions](https://addons.opera.com/en/exte
 
 ### Safari
 
-1. Download [this zip file](https://github.com/pd4d10/octohint/releases/download/v2.0.3/octohint.safariextension.zip), double click to unpack it in Finder
+1. Go to [release page](https://github.com/pd4d10/octohint/releases), find `octohint.safariextension.zip` file and download it, then double click to unpack it in Finder
 
 2. [Enable Develop tools of Safari](https://developer.apple.com/library/content/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/GettingStarted/GettingStarted.html)
 
