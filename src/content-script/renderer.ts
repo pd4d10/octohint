@@ -80,8 +80,8 @@ export default class Renderer {
 
     this.render(this.$container)
     this.addEventListener(this.$container)
-    document.addEventListener('keydown', e => this.handleKeyDown(e))
-    document.addEventListener('keyup', e => this.handleKeyUp(e))
+    document.addEventListener('keydown', this.handleKeyDown)
+    document.addEventListener('keyup', this.handleKeyUp)
 
     // Create service on page load
     this.sendMessage(
@@ -96,12 +96,9 @@ export default class Renderer {
   }
 
   addEventListener($container: HTMLElement) {
-    $container.addEventListener('click', (e: MouseEvent) => this.handleClick(e))
-    $container.addEventListener(
-      'mousemove',
-      debounce((e: MouseEvent) => this.handleMouseMove(e), this.DEBOUNCE_TIMEOUT)
-    )
-    $container.addEventListener('mouseout', () => this.handleMouseOut())
+    $container.addEventListener('click', this.handleClick)
+    $container.addEventListener('mousemove', this.handleMouseMove)
+    $container.addEventListener('mouseout', this.handleMouseOut)
   }
 
   getOffsetTop(e: HTMLElement): number {
@@ -121,7 +118,8 @@ export default class Renderer {
     }
   }
 
-  handleClick(e: MouseEvent) {
+  handleClick = (e: MouseEvent) => {
+    console.log('click', e)
     const nextState = {
       occurrences: [],
       definition: {
@@ -176,7 +174,8 @@ export default class Renderer {
     // }
   }
 
-  handleKeyDown(e: KeyboardEvent) {
+  handleKeyDown = (e: KeyboardEvent) => {
+    console.log('keydown', e)
     if (this.isMacOS ? e.key === 'Meta' : e.key === 'Control') {
       // FIXME: Slow when file is large
       this.$container.style.cursor = 'pointer'
@@ -185,13 +184,15 @@ export default class Renderer {
     }
   }
 
-  handleKeyUp(e: KeyboardEvent) {
+  handleKeyUp = (e: KeyboardEvent) => {
+    console.log('keyup', e)
     if (this.isMacOS ? e.key === 'Meta' : e.key === 'Control') {
       this.$container.style.cursor = null
     }
   }
 
-  handleMouseOut() {
+  handleMouseOut = (e: MouseEvent) => {
+    console.log('mouseout', e)
     this.setState({
       quickInfo: {
         isVisible: false,
@@ -199,7 +200,8 @@ export default class Renderer {
     })
   }
 
-  handleMouseMove(e: MouseEvent) {
+  handleMouseMove = debounce((e: MouseEvent) => {
+    console.log('mousemove', e)
     const position = this.getPosition(e)
 
     if (position.x < 0 || position.y < 0) {
@@ -241,7 +243,7 @@ export default class Renderer {
         })
       }
     })
-  }
+  }, this.DEBOUNCE_TIMEOUT)
 
   // '20px' => 20
   px2num(px: string | null) {
