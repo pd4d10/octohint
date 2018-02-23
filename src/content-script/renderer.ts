@@ -307,7 +307,7 @@ export default class Renderer {
 
     const $background = document.createElement('div')
     $background.style.position = 'relative'
-    // $background.style.zIndex = '0'
+    $background.style.zIndex = '-1'
     $background.style.top = `${this.padding.top}px`
     $background.style.left = `${this.padding.left}px`
 
