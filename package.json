@@ -12,6 +12,7 @@
     "package:safari": "cd octohint.safariextension; cp ../LICENSE .; zip -r ../octohint.safariextension.zip .; rm LICENSE; cd ..",
     "test": "echo test",
     "get-node-libs": "node scripts/get-node-libs",
+    "change-version": "node scripts/change-version",
     "icon": "rm -rf chrome/icons/*; node scripts/generate-icons"
   },
   "repository": {
