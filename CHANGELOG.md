@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.0.4] - 2018-02-23
+
+* Fix new version GitHub
+
 ## [2.0.3] - 2018-01-30
 
 * Fix Safari JS error after uglify
