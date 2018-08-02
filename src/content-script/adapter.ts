@@ -57,8 +57,8 @@ function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
     getContainer: () => wrapper.querySelector('.blob-wrapper'),
     getFontDOM: () => wrapper.querySelector('.blob-wrapper .blob-code'),
     getLineWidthAndHeight: () => ({ width: 918, height: 20 }),
-    getPadding: () => ({
-      left: 60,
+    getPadding: fontWidth => ({
+      left: 60 + fontWidth,
       top: 0,
     }),
     getCodeUrl: () => (wrapper.querySelector('.file-actions a') as HTMLAnchorElement).href,
