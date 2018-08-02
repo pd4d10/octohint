@@ -22,7 +22,9 @@ export interface RendererParams {
     width: number
     height: number
   }
-  getPadding: () => {
+  getPadding(
+    fontWidth: number
+  ): {
     left: number
     top: number
   }
@@ -38,8 +40,8 @@ const GitHubRenderer: RendererParams = {
   // getHighlightColor: () => '#fffbdd',
   getFontDOM: () => $('#LC1'),
   getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
-  getPadding: () => ({
-    left: 60,
+  getPadding: fontWidth => ({
+    left: 60 + fontWidth,
     top: 0,
   }),
   getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),

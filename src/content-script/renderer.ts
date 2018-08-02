@@ -58,7 +58,6 @@ export default class Renderer {
     // No need to check if DOM exists, already check it at initialization
     // this.$container = this.$positionContainer
 
-    this.padding = renderParams.getPadding()
     this.offsetTop = this.getOffsetTop(this.$container)
     if (renderParams.getEditorConfigUrl) {
       this.editorConfigUrl = renderParams.getEditorConfigUrl()
@@ -77,6 +76,8 @@ export default class Renderer {
     this.fontWidth = testDOM.getBoundingClientRect().width
     ;({ fontFamily: this.fontFamily, fontSize: this.fontSize } = getComputedStyle(testDOM))
     testDOM.remove()
+
+    this.padding = renderParams.getPadding(this.fontWidth)
 
     this.render(this.$container)
     this.addEventListener(this.$container)
