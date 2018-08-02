@@ -308,7 +308,7 @@ export default class Renderer {
 
     const $background = document.createElement('div')
     $background.style.position = 'relative'
-    $background.style.zIndex = '-1'
+    // $background.style.zIndex = '-1' // Set z-index to -1 makes GitLab occurrence not show
     $background.style.top = `${this.padding.top}px`
     $background.style.left = `${this.padding.left}px`
 

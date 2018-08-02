@@ -97,7 +97,11 @@ const GitLabRenderer: RendererParams = {
   }),
   getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
   getFileName: getFilePath,
-  extraBeforeRender: () => (($('.blob-content .code code') as HTMLElement).style.position = 'relative'),
+  extraBeforeRender: () => {
+    const $code = $('.blob-content .code code') as HTMLElement
+    $code.style.position = 'relative'
+    $code.style.background = 'transparent'
+  },
 }
 
 export default abstract class Adapter {
