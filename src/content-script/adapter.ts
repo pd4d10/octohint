@@ -105,6 +105,8 @@ const GitLabRenderer: RendererParams = {
 }
 
 export default abstract class Adapter {
+  prevContainer?: Element | null
+
   abstract getSendMessage(): SendMessageToBackground
   sendMessage = this.getSendMessage()
 
@@ -155,8 +157,12 @@ export default abstract class Adapter {
         mutations.forEach(mutation => {
           console.log(mutation)
           if (mutation.type === 'childList' && mutation.addedNodes.length) {
-            if (params.getContainer()) {
+            // This fix GitHub trigger multi mutations sometimes while dynamic loading
+            // Check if current container equals to previous, if same then ignore
+            const container = params.getContainer()
+            if (container && this.prevContainer !== container) {
               new Renderer(this.getSendMessage(), params)
+              this.prevContainer = container
             }
           }
         })
