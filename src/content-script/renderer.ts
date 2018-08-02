@@ -1,4 +1,4 @@
-import { debounce } from 'lodash'
+import * as debounce from 'lodash/debounce'
 import { LineAndCharacter } from 'typescript'
 import { renderToDOM } from './containers'
 import {
@@ -150,7 +150,7 @@ export default class Renderer {
             definition: {
               isVisible: true,
               height: this.line.height,
-              width: this.line.width - 10, // TODO: Magic number
+              width: this.line.width - 20, // TODO: Magic number
               top: response.info.line * this.line.height,
             },
           })
