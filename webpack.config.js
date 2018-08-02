@@ -1,5 +1,4 @@
 const path = require('path')
-const webpack = require('webpack')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const StringReplacePlugin = require('string-replace-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -8,6 +7,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const isSafari = process.env.TARGET === 'safari'
 
 module.exports = {
+  mode: 'development',
   watch: true,
   entry: {
     background: isSafari ? './src/background/safari' : './src/background',
@@ -58,14 +58,10 @@ module.exports = {
         loader: 'source-map-loader',
         exclude: /node_modules/,
       },
-      {
-        test: /\.json$/,
-        loader: 'json-loader',
-      },
     ],
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json'],
+    extensions: ['.ts', '.tsx', '.js'],
     alias: {
       path: 'path-browserify',
     },
