@@ -52,6 +52,8 @@ export default class Renderer {
     this.renderParams = renderParams
     this.fileName = renderParams.getFileName()
     this.$container = renderParams.getContainer() as HTMLElement
+    console.log('container:', this.$container)
+
     // this.$positionContainer = renderParams.getPositionContainer
     //   ? renderParams.getPositionContainer() as HTMLElement
     //   : this.$container

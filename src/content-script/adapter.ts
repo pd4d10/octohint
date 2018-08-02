@@ -70,11 +70,11 @@ function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
 }
 
 const BitbucketRenderer: RendererParams = {
-  getContainer: () => $('.file-source .code'),
-  getFontDOM: () => $('.file-source .code pre'),
+  getContainer: () => $('.view-lines'),
+  getFontDOM: () => $('.view-lines span'),
   getLineWidthAndHeight: () => ({
-    width: (<HTMLElement>$('.file-source')).offsetWidth - 43,
-    height: 16,
+    width: (<HTMLElement>$('.view-lines .view-line')).offsetWidth - 43,
+    height: 18,
   }),
   getPadding: () => ({
     left: 0,
@@ -82,7 +82,7 @@ const BitbucketRenderer: RendererParams = {
   }),
   getCodeUrl: () => getCurrentUrl().replace('/src/', '/raw/'),
   getFileName: getFilePath,
-  extraBeforeRender: () => (($('.file-source .code pre') as HTMLElement).style.position = 'relative'),
+  // extraBeforeRender: () => (($('.file-source .code pre') as HTMLElement).style.position = 'relative'),
 }
 
 // This GitLab is for old version
@@ -120,32 +120,33 @@ export default abstract class Adapter {
       return
     }
 
+    // GitHub
     // TODO: Dynamic import
     // May be deployed at private domain, URL
     // So use DOM selector
     this.addMutationObserver($('#js-repo-pjax-container'), GitHubRenderer)
-
     if (GitHubRenderer.getContainer()) {
       new Renderer(sendMessage, GitHubRenderer)
       return
     }
 
-    this.addMutationObserver($('.blob-viewer'), GitLabRenderer)
-
+    // GitLab
+    this.addMutationObserver($('.blob-viewer'), GitLabRenderer) // Dynamic loading
     // FIXME: Use `document.documentElement` may cause problems when DOM added by other extensions
-    this.addMutationObserver(document.documentElement, GitLabRenderer, GitLabRenderer.getContainer() !== null)
-
+    // this.addMutationObserver(document.documentElement, GitLabRenderer, GitLabRenderer.getContainer() !== null)
     if (GitLabRenderer.getContainer()) {
+      // Direct loading, like browser go back
       new Renderer(sendMessage, GitLabRenderer)
       return
     }
 
-    this.addMutationObserver($('#source-container'), BitbucketRenderer)
-
-    if (BitbucketRenderer.getContainer()) {
-      new Renderer(sendMessage, BitbucketRenderer)
-      return
-    }
+    // Bitbucket
+    // Seems Bitbucket already use monaco-editor to show code
+    // this.addMutationObserver($('.react-monaco-editor-container'), BitbucketRenderer)
+    // if (BitbucketRenderer.getContainer()) {
+    //   new Renderer(sendMessage, BitbucketRenderer)
+    //   return
+    // }
   }
 
   addMutationObserver(container: Element | null, params: RendererParams, extraCondition = true) {
