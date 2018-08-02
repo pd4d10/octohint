@@ -306,17 +306,20 @@ export default class Renderer {
     //   $child.style.zIndex = '1'
     // })
 
+    const { width, height } = $container.getBoundingClientRect()
+    const wrapperWidth = `${width - this.padding.left - 10}px`
+
     const $background = document.createElement('div')
     $background.style.position = 'relative'
     // $background.style.zIndex = '-1' // Set z-index to -1 makes GitLab occurrence not show
     $background.style.top = `${this.padding.top}px`
     $background.style.left = `${this.padding.left}px`
+    $background.style.width = wrapperWidth // Important, fix Y scrollbar
 
     this.$background = $background
 
     const $quickInfo = document.createElement('div')
     $quickInfo.style.position = 'relative'
-    const { width, height } = $container.getBoundingClientRect()
     const style = getComputedStyle($container)
     const paddingAndBorderOfContainer =
       this.px2num(style.paddingTop) +
@@ -324,7 +327,7 @@ export default class Renderer {
       this.px2num(style.borderTopWidth) +
       this.px2num(style.borderBottomWidth)
 
-    $quickInfo.style.width = `${width - this.padding.left}px` // Important, make quick info show as wide as possible
+    $quickInfo.style.width = wrapperWidth // Important, make quick info show as wide as possible
     // $quickInfo.style.zIndex = '2'
     $quickInfo.style.bottom = `${height - paddingAndBorderOfContainer - this.padding.top}px`
     $quickInfo.style.left = `${this.padding.left}px`
