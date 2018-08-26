@@ -20,7 +20,7 @@ class SafariAdapter extends Adapter {
       (res: { message: MessageFromBackground }) => {
         window.OCTOHINT_ON_MESSAGE(res.message)
       },
-      false
+      false,
     )
     super()
   }

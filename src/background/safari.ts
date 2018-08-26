@@ -12,7 +12,7 @@ class SafariAdapter extends Adapter {
           tab.page.dispatchMessage('message', message)
         })
       },
-      false
+      false,
     )
   }
 

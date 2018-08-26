@@ -64,11 +64,8 @@ class Options extends Component<{}, { origins: string[]; temp: string }> {
       <div style={{ lineHeight: '1.8' }}>
         <form onSubmit={this.handleAdd}>
           <p>
-            Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a
-            different site. If it doesn't work, see{' '}
-            <a href="https://developer.chrome.com/extensions/match_patterns">
-              Match Patterns
-            </a>
+            Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a different site. If it doesn't work, see{' '}
+            <a href="https://developer.chrome.com/extensions/match_patterns">Match Patterns</a>
           </p>
           <table>
             <thead />
@@ -106,9 +103,7 @@ class Options extends Component<{}, { origins: string[]; temp: string }> {
         <footer>
           <a href="https://github.com/pd4d10/octohint">Source code</a>
           <br />
-          <a href="https://github.com/pd4d10/octohint/issues/new">
-            Submit an issue
-          </a>
+          <a href="https://github.com/pd4d10/octohint/issues/new">Submit an issue</a>
         </footer>
       </div>
     )

@@ -77,9 +77,9 @@ export type MessageFromContentScript = ContentMessageOfService | ContentMessageO
 
 export type SendMessageToBackground = (
   data: MessageFromContentScript,
-  cb: (message: MessageFromBackground) => void
+  cb: (message: MessageFromBackground) => void,
 ) => void
 
 export type AddBackgroundListener = (
-  listener: (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => void
+  listener: (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => void,
 ) => void

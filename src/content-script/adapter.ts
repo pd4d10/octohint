@@ -23,7 +23,7 @@ export interface RendererParams {
     height: number
   }
   getPadding(
-    fontWidth: number
+    fontWidth: number,
   ): {
     left: number
     top: number

@@ -56,7 +56,7 @@ export default class TSService extends MultiFileService {
           .map(str => str.replace(reg, '$1'))
           .map(str => str.split('/')[0]) // Extract correct lib of `lodash/throttle`
           .filter(item => item[0] !== '.'), // Exclude relative path, like `./xxx`
-        ...stdLibs
+        ...stdLibs,
       )
       result = [...result, ...libs]
     }

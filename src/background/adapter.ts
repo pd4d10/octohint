@@ -11,7 +11,7 @@ export default abstract class Adapter {
   ts: TsService
 
   abstract addListener(
-    cb: (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => void
+    cb: (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => void,
   ): void
   abstract addTabUpdateListener(): void
 

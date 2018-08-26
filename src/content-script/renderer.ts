@@ -46,7 +46,7 @@ export default class Renderer {
 
   constructor(
     sendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void,
-    renderParams: RendererParams
+    renderParams: RendererParams,
   ) {
     this.sendMessage = sendMessage
     this.renderParams = renderParams
@@ -94,7 +94,7 @@ export default class Renderer {
         codeUrl: this.codeUrl,
         editorConfigUrl: this.editorConfigUrl,
       },
-      () => {}
+      () => {},
     )
   }
 
@@ -167,7 +167,7 @@ export default class Renderer {
         }))
         Object.assign(nextState, { occurrences })
         this.setState(nextState)
-      }
+      },
     )
 
     // TODO: Exclude click event triggered by selecting text

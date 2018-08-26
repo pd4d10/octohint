@@ -32,7 +32,9 @@ export default class Background extends Component<{ ref: (ref: any) => any }, St
     return (
       <div>
         <Definition {...state.definition} />
-        {state.occurrences.map(occurrence => <Occurrence {...occurrence} />)}
+        {state.occurrences.map(occurrence => (
+          <Occurrence {...occurrence} />
+        ))}
         <QuickInfoBackground {...state.quickInfo} />
       </div>
     )
