@@ -36,9 +36,9 @@ export default class TSService extends MultiFileService {
   }
   // private libs: Files = {}
 
-  constructor(fileName: string, codeUrl: string, editorConfigUrl?: string) {
+  constructor(fileName: string, codeUrl: string) {
     super()
-    this.createService(fileName, codeUrl, editorConfigUrl)
+    this.createService(fileName, codeUrl)
   }
 
   // Use regex to get third party lib names
@@ -113,10 +113,10 @@ export default class TSService extends MultiFileService {
   }
 
   // Notice that this method is asynchronous
-  async createService(fileName: string, codeUrl: string, editorConfigUrl?: string) {
+  async createService(fileName: string, codeUrl: string) {
     if (this.files[fileName]) return
 
-    const code = await this.fetchCode(codeUrl, editorConfigUrl)
+    const code = await this.fetchCode(codeUrl)
     this.updateContent(fileName, code)
 
     const libNames = this.getLibNamesFromCode(code)

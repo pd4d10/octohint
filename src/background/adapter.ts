@@ -30,19 +30,19 @@ export default abstract class Adapter {
       sendResponse(...args)
     }
 
-    const { file, codeUrl, editorConfigUrl } = message
+    const { file, codeUrl } = message
     let service
     const ext = this.getExtension(file)
     if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
       if (!this.ts) {
-        this.ts = new TsService(file, codeUrl, editorConfigUrl)
+        this.ts = new TsService(file, codeUrl)
       } else {
-        this.ts.createService(file, codeUrl, editorConfigUrl)
+        this.ts.createService(file, codeUrl)
       }
       service = this.ts
     } else {
       if (!this.services[file]) {
-        this.services[file] = createService(ext, file, codeUrl, editorConfigUrl)
+        this.services[file] = createService(ext, file, codeUrl)
 
         // Add a timeout to delete service to prevent memory leak
         setTimeout(() => {

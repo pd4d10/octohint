@@ -30,7 +30,6 @@ export interface RendererParams {
   }
   getCodeUrl: () => string
   getFileName: () => string
-  getEditorConfigUrl?: () => string
   // TODO: This is pretty tricky for making GitLab and Bitbucket work
   extraBeforeRender?: () => void
 }
@@ -47,9 +46,6 @@ const GitHubRenderer: RendererParams = {
   getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
   // .replace('github.com', 'raw.githubusercontent.com'),
   getFileName: getFilePath,
-  getEditorConfigUrl() {
-    return this.getCodeUrl().replace(/(^.*?\/raw\/.*?\/).*$/, '$1') + '.editorconfig'
-  },
 }
 
 function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {

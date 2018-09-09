@@ -39,7 +39,6 @@ export default class Renderer {
   code: string
   offsetTop: number
   codeUrl: string
-  editorConfigUrl?: string
   setState = () => {}
 
   sendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void
@@ -61,9 +60,6 @@ export default class Renderer {
     // this.$container = this.$positionContainer
 
     this.offsetTop = this.getOffsetTop(this.$container)
-    if (renderParams.getEditorConfigUrl) {
-      this.editorConfigUrl = renderParams.getEditorConfigUrl()
-    }
 
     this.codeUrl = renderParams.getCodeUrl()
 
@@ -92,7 +88,6 @@ export default class Renderer {
         file: this.fileName,
         type: MessageType.service,
         codeUrl: this.codeUrl,
-        editorConfigUrl: this.editorConfigUrl,
       },
       () => {},
     )
@@ -142,7 +137,6 @@ export default class Renderer {
         position,
         meta: this.isMacOS ? e.metaKey : e.ctrlKey,
         codeUrl: this.codeUrl,
-        editorConfigUrl: this.editorConfigUrl,
       },
       (response: BackgroundMessageOfOccurrence) => {
         if (response.info) {
@@ -214,7 +208,6 @@ export default class Renderer {
     const params = {
       file: this.fileName,
       codeUrl: this.codeUrl,
-      editorConfigUrl: this.editorConfigUrl,
       type: MessageType.quickInfo,
       position,
     }
