@@ -14,7 +14,6 @@ interface Files {
     version: number
     content: string
     // dependencies: string[]
-    expireAt: number
   }
 }
 
@@ -33,7 +32,6 @@ export default class TSService extends MultiFileService {
       content: require('raw-loader!@types/node/index.d.ts'),
       version: 0,
       // dependencies: [],
-      expireAt: Infinity,
     },
   }
   // private libs: Files = {}
@@ -67,7 +65,6 @@ export default class TSService extends MultiFileService {
   async fetchLibCode(name: string) {
     const fullname = getFullLibName(name)
     if (this.files[fullname]) {
-      this.files[fullname].expireAt = this.getExpireTime()
       return
     }
 
@@ -110,19 +107,9 @@ export default class TSService extends MultiFileService {
         version: 0,
         content: code,
         // dependencies: [],
-        expireAt: this.getExpireTime(),
       }
     }
     console.log('Updated, current files:', this.files)
-
-    // Clear all expired files
-    const now = Date.now()
-    for (const name in this.files) {
-      if (this.files[name].expireAt < now) {
-        console.log('Clear: ', name)
-        delete this.files[name]
-      }
-    }
   }
 
   // Notice that this method is asynchronous
@@ -189,21 +176,8 @@ export default class TSService extends MultiFileService {
   //   return sourceFile.getPositionOfLineAndCharacter(line, character)
   // }
 
-  getExpireTime() {
-    return Date.now() + 1000 * 60 * 5 // 5min
-    // return Date.now() + 1000 * 5 // 5min
-  }
-
-  updateExpireTime(file: string) {
-    // Sometimes file is clear yet
-    if (this.files[file]) {
-      this.files[file].expireAt = this.getExpireTime()
-    }
-  }
-
   getOccurrences(file: string, line: number, character: number) {
     if (!this.service) return [] // This is necesarry because createService is asynchronous
-    this.updateExpireTime(file)
     const instance = this.getSourceFile(file)
 
     // After upgrading to typescript@2.5
@@ -227,7 +201,6 @@ export default class TSService extends MultiFileService {
 
   getDefinition(file: string, line: number, character: number) {
     if (!this.service) return
-    this.updateExpireTime(file)
     const instance = this.getSourceFile(file)
     let position: number
     try {
@@ -246,7 +219,6 @@ export default class TSService extends MultiFileService {
 
   getQuickInfo(file: string, line: number, character: number) {
     if (!this.service) return
-    this.updateExpireTime(file)
     const instance = this.getSourceFile(file)
     let position: number
     try {
