@@ -30,26 +30,26 @@ export default abstract class Adapter {
       sendResponse(...args)
     }
 
-    const { file, codeUrl } = message
+    // const { file, codeUrl, tabSize } = message
     let service
-    const ext = this.getExtension(file)
+    const ext = this.getExtension(message.file)
     if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
       if (!this.ts) {
-        this.ts = new TsService(file, codeUrl)
+        this.ts = new TsService(message)
       } else {
-        this.ts.createService(file, codeUrl)
+        this.ts.createService(message)
       }
       service = this.ts
     } else {
-      if (!this.services[file]) {
-        this.services[file] = createService(ext, file, codeUrl)
+      if (!this.services[message.file]) {
+        this.services[message.file] = createService(ext, message)
 
         // Add a timeout to delete service to prevent memory leak
         setTimeout(() => {
-          delete this.services[file]
+          delete this.services[message.file]
         }, TIMEOUT)
       }
-      service = this.services[file]
+      service = this.services[message.file]
     }
 
     // if (!service && !message.code) {

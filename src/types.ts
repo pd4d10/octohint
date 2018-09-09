@@ -55,6 +55,7 @@ export type MessageFromBackground =
 interface BaseContentMessage {
   file: string
   codeUrl: string
+  tabSize: number
 }
 
 interface ContentMessageOfService extends BaseContentMessage {

@@ -4,6 +4,7 @@ import * as path from 'path'
 // import TS_LIB from '../../ts-lib'
 import stdLibs from './node-libs'
 import { without, uniq } from 'lodash'
+import { MessageFromContentScript } from '../../types'
 
 function getFullLibName(name: string) {
   return `/node_modules/@types/${name}/index.d.ts`
@@ -36,9 +37,9 @@ export default class TSService extends MultiFileService {
   }
   // private libs: Files = {}
 
-  constructor(fileName: string, codeUrl: string) {
+  constructor(message: MessageFromContentScript) {
     super()
-    this.createService(fileName, codeUrl)
+    this.createService(message)
   }
 
   // Use regex to get third party lib names
@@ -113,11 +114,11 @@ export default class TSService extends MultiFileService {
   }
 
   // Notice that this method is asynchronous
-  async createService(fileName: string, codeUrl: string) {
-    if (this.files[fileName]) return
+  async createService(message: MessageFromContentScript) {
+    if (this.files[message.file]) return
 
-    const code = await this.fetchCode(codeUrl)
-    this.updateContent(fileName, code)
+    const code = await this.fetchCode(message)
+    this.updateContent(message.file, code)
 
     const libNames = this.getLibNamesFromCode(code)
     console.log('Libs:', libNames)

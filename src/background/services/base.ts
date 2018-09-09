@@ -1,5 +1,5 @@
 import { parseString } from 'editorconfig/lib/ini'
-import { Occurrence, QuickInfo, Definition } from '../../types'
+import { Occurrence, QuickInfo, Definition, MessageFromContentScript } from '../../types'
 import * as path from 'path'
 
 abstract class BaseService {
@@ -7,17 +7,17 @@ abstract class BaseService {
   abstract getDefinition(file: string, line: number, character: number): Definition | void
   abstract getQuickInfo(file: string, line: number, character: number): QuickInfo | void
 
-  async fetchCode(codeUrl: string) {
-    const r0 = await fetch(codeUrl, { credentials: 'same-origin' })
+  async fetchCode(message: MessageFromContentScript) {
+    const r0 = await fetch(message.codeUrl, { credentials: 'same-origin' })
     if (!r0.ok) {
-      throw new Error(codeUrl)
+      throw new Error(message.codeUrl)
     }
     let code = await r0.text()
     if (!code.includes('\t')) {
       return code
     }
 
-    return code.replace(/\t/g, ' '.repeat(8)) // Case NaN
+    return code.replace(/\t/g, ' '.repeat(message.tabSize))
   }
 }
 
@@ -27,14 +27,14 @@ export abstract class SingleFileService extends BaseService {
   file: string
   abstract createService(code: string): void
 
-  constructor(file: string, codeUrl: string) {
+  constructor(message: MessageFromContentScript) {
     super()
-    this.file = file
-    this.fetchCodeAndCreateService(codeUrl)
+    this.file = message.file
+    this.fetchCodeAndCreateService(message)
   }
 
-  async fetchCodeAndCreateService(codeUrl: string) {
-    const code = await this.fetchCode(codeUrl)
+  async fetchCodeAndCreateService(message: MessageFromContentScript) {
+    const code = await this.fetchCode(message)
     this.createService(code)
   }
 }

@@ -52,6 +52,7 @@ export default class Renderer {
     this.fileName = renderParams.getFileName()
     this.$container = renderParams.getContainer() as HTMLElement
     console.log('container:', this.$container)
+    const tabSize = parseInt(getComputedStyle(this.$container).tabSize, 10) || 8
 
     // this.$positionContainer = renderParams.getPositionContainer
     //   ? renderParams.getPositionContainer() as HTMLElement
@@ -88,6 +89,7 @@ export default class Renderer {
         file: this.fileName,
         type: MessageType.service,
         codeUrl: this.codeUrl,
+        tabSize,
       },
       () => {},
     )
