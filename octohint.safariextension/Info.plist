@@ -5,7 +5,7 @@
 	<key>Author</key>
 	<string>pd4d10</string>
 	<key>Builder Version</key>
-	<string>13605.1.18.2</string>
+	<string>13604.5.6</string>
 	<key>CFBundleDisplayName</key>
 	<string>Octohint</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0.5</string>
+	<string>2.0.6</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>Chrome</key>
