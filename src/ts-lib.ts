@@ -2,7 +2,13 @@
 // TODO: Use Webpack code split instead of global variable
 // TODO: Go to definition
 
-window.TS_LIB = [
+declare global {
+  interface Window {
+    TS_LIB: string
+  }
+}
+
+export const TS_LIB = [
   // ES and DOM standard
   require('raw-loader!typescript/lib/lib.d.ts'),
   require('raw-loader!typescript/lib/lib.dom.d.ts'),
@@ -31,3 +37,5 @@ window.TS_LIB = [
   // require('raw-loader!@types/safari-extension/index.d.ts'),
   // require('raw-loader!@types/safari-extension-content/index.d.ts'),
 ].join('\n')
+
+window.TS_LIB = TS_LIB

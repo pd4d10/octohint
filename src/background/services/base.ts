@@ -1,9 +1,7 @@
-import { parseString } from 'editorconfig/lib/ini'
 import { Occurrence, QuickInfo, Definition, MessageFromContentScript } from '../../types'
-import * as path from 'path'
 
 abstract class BaseService {
-  abstract getOccurrences(file: string, line: number, character: number): Occurrence[]
+  abstract getOccurrences(file: string, line: number, character: number): Occurrence[] | void
   abstract getDefinition(file: string, line: number, character: number): Definition | void
   abstract getQuickInfo(file: string, line: number, character: number): QuickInfo | void
 

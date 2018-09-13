@@ -6,6 +6,12 @@ import stdLibs from './node-libs'
 import { without, uniq } from 'lodash'
 import { MessageFromContentScript } from '../../types'
 
+declare global {
+  interface Window {
+    TS_LIB: string
+  }
+}
+
 function getFullLibName(name: string) {
   return `/node_modules/@types/${name}/index.d.ts`
 }
@@ -24,9 +30,15 @@ export default class TSService extends MultiFileService {
   static defaultLib = ts.ScriptSnapshot.fromString(window.TS_LIB)
   static defaultLibName = '//lib.d.ts'
 
-  private service: ts.LanguageService
-  get getSourceFile() {
-    return this.service.getProgram().getSourceFile
+  private service?: ts.LanguageService
+  private getSourceFile(file: string) {
+    // This is necesarry because createService is asynchronous
+    if (this.service) {
+      const program = this.service.getProgram()
+      if (program) {
+        return program.getSourceFile(file)
+      }
+    }
   }
   private files: Files = {
     [getFullLibName('node')]: {
@@ -36,11 +48,6 @@ export default class TSService extends MultiFileService {
     },
   }
   // private libs: Files = {}
-
-  constructor(message: MessageFromContentScript) {
-    super()
-    this.createService(message)
-  }
 
   // Use regex to get third party lib names
   getLibNamesFromCode(code: string) {
@@ -178,63 +185,69 @@ export default class TSService extends MultiFileService {
   // }
 
   getOccurrences(file: string, line: number, character: number) {
-    if (!this.service) return [] // This is necesarry because createService is asynchronous
     const instance = this.getSourceFile(file)
-
-    // After upgrading to typescript@2.5
-    // When mouse position is invalid (outside the code area), always break on a debugger expression
-    // https://github.com/Microsoft/TypeScript/blob/9e51882d9cb1efdd164e27e98f3de2d5294b8257/src/compiler/scanner.ts#L341
-    // Deactivate breakpoint to prevent annoying break, and catch this error
-    let position: number
-    try {
-      position = instance.getPositionOfLineAndCharacter(line, character)
-    } catch (err) {
-      return []
+    if (instance) {
+      // After upgrading to typescript@2.5
+      // When mouse position is invalid (outside the code area), always break on a debugger expression
+      // https://github.com/Microsoft/TypeScript/blob/9e51882d9cb1efdd164e27e98f3de2d5294b8257/src/compiler/scanner.ts#L341
+      // Deactivate breakpoint to prevent annoying break, and catch this error
+      // let position: number
+      // try {
+      const position = instance.getPositionOfLineAndCharacter(line, character)
+      // } catch (err) {
+      //   console.error(err)
+      //   return
+      // }
+      if (this.service) {
+        const references = this.service.getReferencesAtPosition(file, position)
+        if (references) {
+          return references.filter(({ fileName }) => fileName === file).map(reference => ({
+            isWriteAccess: reference.isWriteAccess,
+            range: instance.getLineAndCharacterOfPosition(reference.textSpan.start),
+            width: reference.textSpan.length,
+          }))
+        }
+      }
     }
-    return (this.service.getReferencesAtPosition(file, position) || [])
-      .filter(({ fileName }) => fileName === file)
-      .map(reference => ({
-        isWriteAccess: reference.isWriteAccess,
-        range: instance.getLineAndCharacterOfPosition(reference.textSpan.start),
-        width: reference.textSpan.length,
-      }))
   }
 
   getDefinition(file: string, line: number, character: number) {
-    if (!this.service) return
     const instance = this.getSourceFile(file)
-    let position: number
-    try {
-      position = instance.getPositionOfLineAndCharacter(line, character)
-    } catch (err) {
-      return
-    }
-    const infos = this.service.getDefinitionAtPosition(file, position)
-    if (infos) {
-      const infosOfCurrentFile = infos.filter(info => info.fileName === file)
-      if (infosOfCurrentFile.length) {
-        return instance.getLineAndCharacterOfPosition(infosOfCurrentFile[0].textSpan.start)
+    if (this.service && instance) {
+      let position: number
+      try {
+        position = instance.getPositionOfLineAndCharacter(line, character)
+      } catch (err) {
+        return
+      }
+      const infos = this.service.getDefinitionAtPosition(file, position)
+      if (infos) {
+        const infosOfCurrentFile = infos.filter(info => info.fileName === file)
+        if (infosOfCurrentFile.length) {
+          return instance.getLineAndCharacterOfPosition(infosOfCurrentFile[0].textSpan.start)
+        }
       }
     }
   }
 
   getQuickInfo(file: string, line: number, character: number) {
-    if (!this.service) return
     const instance = this.getSourceFile(file)
-    let position: number
-    try {
-      position = instance.getPositionOfLineAndCharacter(line, character)
-    } catch (err) {
-      // console.error(err)
-      return
-    }
-    const quickInfo = this.service.getQuickInfoAtPosition(file, position)
-    if (quickInfo) {
-      // TODO: Colorize display parts
-      return {
-        info: quickInfo.displayParts,
-        range: instance.getLineAndCharacterOfPosition(quickInfo.textSpan.start),
-        width: quickInfo.textSpan.length,
+    if (this.service && instance) {
+      let position: number
+      try {
+        position = instance.getPositionOfLineAndCharacter(line, character)
+      } catch (err) {
+        // console.error(err)
+        return
+      }
+      const quickInfo = this.service.getQuickInfoAtPosition(file, position)
+      if (quickInfo && quickInfo.displayParts) {
+        // TODO: Colorize display parts
+        return {
+          info: quickInfo.displayParts,
+          range: instance.getLineAndCharacterOfPosition(quickInfo.textSpan.start),
+          width: quickInfo.textSpan.length,
+        }
       }
     }
   }

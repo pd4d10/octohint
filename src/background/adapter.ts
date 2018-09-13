@@ -1,4 +1,3 @@
-import * as ts from 'typescript'
 import { createService } from './services'
 import TsService from './services/typescript'
 import { MessageType, MessageFromContentScript, MessageFromBackground, AddBackgroundListener } from '../types'
@@ -8,7 +7,7 @@ const TIMEOUT = 1000 * 60 * 5 // 5min
 
 export default abstract class Adapter {
   services: { [file: string]: MultiFileService } = {}
-  ts: TsService
+  ts = new TsService()
 
   abstract addListener(
     cb: (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => void,
@@ -25,20 +24,11 @@ export default abstract class Adapter {
   }
 
   handleMessage = (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => {
-    const send = (...args) => {
-      console.log(message, ...args)
-      sendResponse(...args)
-    }
-
     // const { file, codeUrl, tabSize } = message
     let service
     const ext = this.getExtension(message.file)
     if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
-      if (!this.ts) {
-        this.ts = new TsService(message)
-      } else {
-        this.ts.createService(message)
-      }
+      this.ts.createService(message)
       service = this.ts
     } else {
       if (!this.services[message.file]) {
@@ -59,9 +49,11 @@ export default abstract class Adapter {
     //   return
     // }
 
+    let response: MessageFromBackground
+
     switch (message.type) {
       case MessageType.service: {
-        send({}) // Trigger for Safari
+        response = {} // Trigger for Safari
 
         // chrome.browserAction.setIcon({
         //   path: 'icon.png',
@@ -70,23 +62,28 @@ export default abstract class Adapter {
         //   title: 'Octohint is active.',
         // })
 
-        return
+        break
       }
       case MessageType.occurrence: {
         const { x, y } = message.position
-        send({
+        response = {
           occurrences: service.getOccurrences(message.file, y, x),
           info: message.meta ? service.getDefinition(message.file, y, x) : undefined,
-        })
-        return
+        }
+        break
       }
       case MessageType.quickInfo: {
         const { x, y } = message.position
-        send({ data: service.getQuickInfo(message.file, y, x) })
-        return
+        response = {
+          data: service.getQuickInfo(message.file, y, x),
+        }
+        break
       }
       default:
-        send({})
+        response = {}
     }
+
+    console.log(message, response)
+    sendResponse(response)
   }
 }

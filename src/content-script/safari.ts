@@ -2,7 +2,11 @@
 import Adapter from './adapter'
 import { MessageFromBackground, SendMessageToBackground } from '../types'
 
-// declare var OCTOHINT_ON_MESSAGE: (message: MessageFromBackground) => void
+declare global {
+  interface Window {
+    OCTOHINT_ON_MESSAGE: (message: MessageFromBackground) => void
+  }
+}
 
 window.OCTOHINT_ON_MESSAGE = () => {}
 
