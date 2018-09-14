@@ -29,7 +29,7 @@
   "dependencies": {
     "@types/chrome": "^0.0.71",
     "@types/lodash": "^4.14.88",
-    "@types/node": "^10.5.5",
+    "@types/node": "^10.9.4",
     "@types/safari-extension": "^0.0.27",
     "@types/safari-extension-content": "^0.0.14",
     "editorconfig": "^0.15.0",
