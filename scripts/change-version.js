@@ -1,7 +1,7 @@
 // Sepcific a new version, like 2.0.1 -> 2.0.2
 
 const fs = require('fs')
-const { spawn } = require('child_process')
+const { spawnSync } = require('child_process')
 
 const version = process.argv[2]
 
@@ -16,9 +16,9 @@ files.slice(0, 2).forEach(file => {
 })
 fs.writeFileSync(
   files[2],
-  fs.readFileSync(files[2], 'utf8').replace(/<string>\d.\d.\d<\/string>/, `<string>${version}</string>`)
+  fs.readFileSync(files[2], 'utf8').replace(/<string>\d.\d.\d<\/string>/, `<string>${version}</string>`),
 )
 
-spawn('git', ['add', ...files])
-spawn('git', ['commit', '-m', version])
-spawn('git', ['tag', 'v' + version])
+spawnSync('git', ['add', ...files])
+spawnSync('git', ['commit', '-m', version])
+spawnSync('git', ['tag', 'v' + version])
