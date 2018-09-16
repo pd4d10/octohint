@@ -24,9 +24,15 @@
   version "0.0.28"
   resolved "https://registry.yarnpkg.com/@types/filewriter/-/filewriter-0.0.28.tgz#c054e8af4d9dd75db4e63abc76f885168714d4b3"
 
-"@types/lodash@^4.14.88":
-  version "4.14.115"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.115.tgz#54d171b2ce12c058742443b5f6754760f701b8f9"
+"@types/lodash-es@^4.17.1":
+  version "4.17.1"
+  resolved "https://registry.yarnpkg.com/@types/lodash-es/-/lodash-es-4.17.1.tgz#56745e5411558362aeca31def918f88f725dd29d"
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash@*":
+  version "4.14.116"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.116.tgz#5ccf215653e3e8c786a58390751033a9adca0eb9"
 
 "@types/node@^10.9.4":
   version "10.9.4"
@@ -2097,6 +2103,10 @@ locate-path@^2.0.0:
   dependencies:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
+
+lodash-es@^4.17.11:
+  version "4.17.11"
+  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.11.tgz#145ab4a7ac5c5e52a3531fb4f310255a152b4be0"
 
 lodash.camelcase@^4.3.0:
   version "4.3.0"

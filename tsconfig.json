@@ -3,7 +3,7 @@
     "outDir": "./dist/",
     "sourceMap": true,
     "strict": true,
-    "module": "commonjs",
+    "module": "esnext",
     "target": "es5",
     "jsx": "react",
     "jsxFactory": "h",
@@ -11,7 +11,5 @@
     "lib": ["dom", "esnext"],
     "types": ["node"]
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }

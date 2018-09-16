@@ -3,7 +3,7 @@ import { MultiFileService } from './base'
 import * as path from 'path'
 // import TS_LIB from '../../ts-lib'
 import stdLibs from './node-libs'
-import { without, uniq } from 'lodash'
+import { without, uniq } from 'lodash-es'
 import { MessageFromContentScript } from '../../types'
 
 declare global {

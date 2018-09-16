@@ -1,5 +1,4 @@
-import * as debounce from 'lodash/debounce'
-import { LineAndCharacter } from 'typescript'
+import { debounce } from 'lodash-es'
 import { renderToDOM } from './containers'
 import {
   MessageType,
