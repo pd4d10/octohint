@@ -35,28 +35,22 @@ Use this extension: [Install Chrome Extensions](https://addons.opera.com/en/exte
 
 ### Safari
 
-1. Go to [release page](https://github.com/pd4d10/octohint/releases), find `octohint.safariextension.zip` file and download it, then double click to unpack it in Finder
-
-2. [Enable Develop tools of Safari](https://developer.apple.com/library/content/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/GettingStarted/GettingStarted.html)
-
-3. At top menubar, click Develop -> Show Extension builder, then click '+' on the bottom left corner of popup window, choose 'Add Extension', then select unpacked folder on step 1.
-
-4. Click 'Install' button on the top right, done.
+Install it from [Safari Extensions Gallery](https://safari-extensions.apple.com/details/?id=com.pd4d10.octohint-2FFP8Y4P2A)
 
 ## Features
 
 With Octohint installed, when you view code at GitHub (For example [this demo](https://github.com/pd4d10/octohint/blob/master/assets/demo.ts)), you'll get features as follows:
 
-* Mouse Hover: Show information of current token
-* Left Click: Show all references of current token
-* [⌘] + Click: Go to definition of current token (For Windows and Linux user, use [Ctrl] instead)
+- Mouse Hover: Show information of current token
+- Left Click: Show all references of current token
+- [⌘] + Click: Go to definition of current token (For Windows and Linux user, use [Ctrl] instead)
 
 ## Supported languages
 
 Octohint supports all languages. There are two strategies:
 
-* IntelliSense hint: TypeScript, JavaScript, CSS, LESS, SCSS
-* Simple token matching: All other languages
+- IntelliSense hint: TypeScript, JavaScript, CSS, LESS, SCSS
+- Simple token matching: All other languages
 
 It is because browser only runs JavaScript. But with help of WebAssembly, maybe we could bring other languages(like Go/Rust)' IntelliSense analysis to browser! It's still in research
 
@@ -78,7 +72,7 @@ Feel free to use it at your private GitHub/GitLab/Bitbucket.
 
 ## Related
 
-* [Octoview](https://github.com/pd4d10/octoview): The missing preview feature for GitHub
+- [Octoview](https://github.com/pd4d10/octoview): The missing preview feature for GitHub
 
 ## License
 
