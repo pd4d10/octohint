@@ -44,7 +44,9 @@ export default class Renderer {
     this.fileName = renderParams.getFileName()
     this.$container = renderParams.getContainer() as HTMLElement
     console.log('container:', this.$container)
-    const tabSize = parseInt(getComputedStyle(this.$container).tabSize, 10) || 8
+
+    const tabSizeDom = renderParams.getTabSizeDom ? renderParams.getTabSizeDom() : this.$container
+    const tabSize = parseInt(getComputedStyle(tabSizeDom as HTMLElement).tabSize, 10) || 8
 
     // this.$positionContainer = renderParams.getPositionContainer
     //   ? renderParams.getPositionContainer() as HTMLElement

@@ -15,7 +15,10 @@ function getFilePath(loc: { host: string; pathname: string } = location) {
 }
 
 export interface RendererParams {
-  getContainer: () => Element | null // Considering scroll-x, container must be inside the wrapper
+  /**
+   * Considering scroll-x, container must be inside the wrapper
+   */
+  getContainer: () => Element | null
   getFontDOM: () => Element | null
   // getHighlightColor: () => string
   getLineWidthAndHeight: () => {
@@ -30,6 +33,12 @@ export interface RendererParams {
   }
   getCodeUrl: () => string
   getFileName: () => string
+
+  /**
+   * Get tab size of actually renderer dom
+   * If not passed, container will be used
+   */
+  getTabSizeDom?: () => Element | null
   // TODO: This is pretty tricky for making GitLab and Bitbucket work
   extraBeforeRender?: () => void
 }
@@ -46,6 +55,7 @@ const GitHubRenderer: RendererParams = {
   getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
   // .replace('github.com', 'raw.githubusercontent.com'),
   getFileName: getFilePath,
+  getTabSizeDom: () => $('.blob-wrapper table'),
 }
 
 function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
@@ -62,6 +72,7 @@ function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
       const fileName = (wrapper.querySelector('.file-info') as HTMLElement).innerText.trim()
       return path.join(getFilePath(), fileName)
     },
+    getTabSizeDom: () => wrapper.querySelector('.blob-wrapper table'),
   }
 }
 
