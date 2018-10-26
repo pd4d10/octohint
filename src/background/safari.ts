@@ -1,6 +1,4 @@
-/// <reference types="safari-extension" />
 import Adapter from './adapter'
-// import { AddBackgroundListener } from '../../types'
 
 class SafariAdapter extends Adapter {
   addListener(cb) {

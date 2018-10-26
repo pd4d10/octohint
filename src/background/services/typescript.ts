@@ -4,7 +4,7 @@ import * as path from 'path'
 // import TS_LIB from '../../ts-lib'
 import stdLibs from './node-libs'
 import { without, uniq } from 'lodash-es'
-import { MessageFromContentScript } from '../../types'
+import * as types from '../../types'
 
 declare global {
   interface Window {
@@ -121,7 +121,7 @@ export default class TSService extends MultiFileService {
   }
 
   // Notice that this method is asynchronous
-  async createService(message: MessageFromContentScript) {
+  async createService(message: types.MessageFromContentScript) {
     if (this.files[message.file]) return
 
     const code = await this.fetchCode(message)

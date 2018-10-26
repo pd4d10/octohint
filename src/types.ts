@@ -1,6 +1,6 @@
-import { LineAndCharacter, SymbolDisplayPart } from 'typescript'
+import * as ts from 'typescript'
 
-export type Range = LineAndCharacter
+export type Range = ts.LineAndCharacter
 
 export interface Occurrence {
   isWriteAccess?: boolean
@@ -9,19 +9,19 @@ export interface Occurrence {
 }
 
 export interface QuickInfo {
-  info: SymbolDisplayPart[] | string
+  info: ts.SymbolDisplayPart[] | string
   range: Range
   width: number
 }
 
-export type Definition = LineAndCharacter
+export type Definition = ts.LineAndCharacter
 
-export interface Position {
+type Position = {
   x: number
   y: number
 }
 
-export enum MessageType {
+export enum Message {
   service = 'service',
   occurrence = 'occurrence',
   quickInfo = 'quickInfo',
@@ -59,17 +59,17 @@ interface BaseContentMessage {
 }
 
 interface ContentMessageOfService extends BaseContentMessage {
-  type: MessageType.service
+  type: Message.service
 }
 
 interface ContentMessageOfOccurrence extends BaseContentMessage {
-  type: MessageType.occurrence
+  type: Message.occurrence
   position: Position
   meta?: boolean
 }
 
 interface ContentMessageOfQuickInfo extends BaseContentMessage {
-  type: MessageType.quickInfo
+  type: Message.quickInfo
   position: Position
 }
 

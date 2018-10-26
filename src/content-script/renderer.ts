@@ -1,13 +1,6 @@
 import { debounce } from 'lodash-es'
 import { renderToDOM } from './containers'
-import {
-  MessageType,
-  MessageFromContentScript,
-  MessageFromBackground,
-  BackgroundMessageOfOccurrence,
-  BackgroundMessageOfQuickInfo,
-  Range,
-} from '../types'
+import * as types from '../types'
 import { RendererParams } from './adapter'
 
 interface Padding {
@@ -40,10 +33,10 @@ export default class Renderer {
   codeUrl: string
   setState = () => {}
 
-  sendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void
+  sendMessage: (data: types.MessageFromContentScript, cb: (message: types.MessageFromBackground) => void) => void
 
   constructor(
-    sendMessage: (data: MessageFromContentScript, cb: (message: MessageFromBackground) => void) => void,
+    sendMessage: (data: types.MessageFromContentScript, cb: (message: types.MessageFromBackground) => void) => void,
     renderParams: RendererParams,
   ) {
     this.sendMessage = sendMessage
@@ -86,7 +79,7 @@ export default class Renderer {
     this.sendMessage(
       {
         file: this.fileName,
-        type: MessageType.service,
+        type: types.Message.service,
         codeUrl: this.codeUrl,
         tabSize,
       },
@@ -134,12 +127,12 @@ export default class Renderer {
     this.sendMessage(
       {
         file: this.fileName,
-        type: MessageType.occurrence,
+        type: types.Message.occurrence,
         position,
         meta: this.isMacOS ? e.metaKey : e.ctrlKey,
         codeUrl: this.codeUrl,
       },
-      (response: BackgroundMessageOfOccurrence) => {
+      (response: types.BackgroundMessageOfOccurrence) => {
         if (response.info) {
           Object.assign(nextState, {
             definition: {
@@ -209,11 +202,11 @@ export default class Renderer {
     const params = {
       file: this.fileName,
       codeUrl: this.codeUrl,
-      type: MessageType.quickInfo,
+      type: types.Message.quickInfo,
       position,
     }
 
-    this.sendMessage(params, (response: BackgroundMessageOfQuickInfo) => {
+    this.sendMessage(params, (response: types.BackgroundMessageOfQuickInfo) => {
       const { data } = response
       if (data) {
         const { range } = data

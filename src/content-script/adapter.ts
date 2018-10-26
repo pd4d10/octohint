@@ -1,5 +1,5 @@
 import * as path from 'path'
-import { SendMessageToBackground } from '../types'
+import * as types from '../types'
 import Renderer from './renderer'
 
 const $ = (selector: string) => document.querySelector(selector)
@@ -103,7 +103,7 @@ const GitLabRenderer: RendererParams = {
 export default abstract class Adapter {
   prevContainer?: Element | null
 
-  abstract getSendMessage(): SendMessageToBackground
+  abstract getSendMessage(): types.SendMessageToBackground
   sendMessage = this.getSendMessage()
 
   constructor() {

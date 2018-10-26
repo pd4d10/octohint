@@ -1,4 +1,3 @@
-/// <reference types="chrome" />
 import Adapter from './adapter'
 
 class ChromeAdapter extends Adapter {

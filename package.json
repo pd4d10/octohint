@@ -4,7 +4,7 @@
   "version": "2.0.7",
   "description": "IntelliSense hint for GitHub",
   "scripts": {
-    "dev": "webpack",
+    "start": "webpack",
     "build": "webpack --config webpack.config.production.js",
     "package": "cp LICENSE chrome/ && cp LICENSE octohint.safariextension/ && zip --exclude .DS_Store -b chrome -r chrome.zip chrome/*",
     "test": "echo test",

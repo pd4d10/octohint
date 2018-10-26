@@ -1,11 +1,11 @@
-import { Occurrence, QuickInfo, Definition, MessageFromContentScript } from '../../types'
+import * as types from '../../types'
 
 abstract class BaseService {
-  abstract getOccurrences(file: string, line: number, character: number): Occurrence[] | void
-  abstract getDefinition(file: string, line: number, character: number): Definition | void
-  abstract getQuickInfo(file: string, line: number, character: number): QuickInfo | void
+  abstract getOccurrences(file: string, line: number, character: number): types.Occurrence[] | void
+  abstract getDefinition(file: string, line: number, character: number): types.Definition | void
+  abstract getQuickInfo(file: string, line: number, character: number): types.QuickInfo | void
 
-  async fetchCode(message: MessageFromContentScript) {
+  async fetchCode(message: types.MessageFromContentScript) {
     const r0 = await fetch(message.codeUrl, { credentials: 'same-origin' })
     if (!r0.ok) {
       throw new Error(message.codeUrl)
@@ -25,13 +25,13 @@ export abstract class SingleFileService extends BaseService {
   file: string
   abstract createService(code: string): void
 
-  constructor(message: MessageFromContentScript) {
+  constructor(message: types.MessageFromContentScript) {
     super()
     this.file = message.file
     this.fetchCodeAndCreateService(message)
   }
 
-  async fetchCodeAndCreateService(message: MessageFromContentScript) {
+  async fetchCodeAndCreateService(message: types.MessageFromContentScript) {
     const code = await this.fetchCode(message)
     this.createService(code)
   }

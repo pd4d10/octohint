@@ -1,6 +1,6 @@
 import { CSSService, LESSService, SCSSService } from './css'
 import SimpleService from './simple'
-import { MessageFromContentScript } from '../../types'
+import * as types from '../../types'
 // import VueService from './vue'
 
 function getServiceByFileName(ext: string) {
@@ -18,7 +18,7 @@ function getServiceByFileName(ext: string) {
   }
 }
 
-export function createService(ext: string, message: MessageFromContentScript) {
+export function createService(ext: string, message: types.MessageFromContentScript) {
   const Service = getServiceByFileName(ext)
   return new Service(message)
 }

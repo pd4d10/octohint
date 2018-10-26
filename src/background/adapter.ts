@@ -1,6 +1,6 @@
 import { createService } from './services'
 import TsService from './services/typescript'
-import { MessageType, MessageFromContentScript, MessageFromBackground, AddBackgroundListener } from '../types'
+import * as types from '../types'
 import { MultiFileService } from './services/base'
 
 const TIMEOUT = 1000 * 60 * 5 // 5min
@@ -10,7 +10,7 @@ export default abstract class Adapter {
   ts = new TsService()
 
   abstract addListener(
-    cb: (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => void,
+    cb: (message: types.MessageFromContentScript, sendResponse: (message: types.MessageFromBackground) => void) => void,
   ): void
   abstract addTabUpdateListener(): void
 
@@ -23,7 +23,10 @@ export default abstract class Adapter {
     return path.replace(/.*\.(.*?)$/, '$1')
   }
 
-  handleMessage = (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => {
+  handleMessage = (
+    message: types.MessageFromContentScript,
+    sendResponse: (message: types.MessageFromBackground) => void,
+  ) => {
     // const { file, codeUrl, tabSize } = message
     let service
     const ext = this.getExtension(message.file)
@@ -49,10 +52,10 @@ export default abstract class Adapter {
     //   return
     // }
 
-    let response: MessageFromBackground
+    let response: types.MessageFromBackground
 
     switch (message.type) {
-      case MessageType.service: {
+      case types.Message.service: {
         response = {} // Trigger for Safari
 
         // chrome.browserAction.setIcon({
@@ -64,7 +67,7 @@ export default abstract class Adapter {
 
         break
       }
-      case MessageType.occurrence: {
+      case types.Message.occurrence: {
         const { x, y } = message.position
         response = {
           occurrences: service.getOccurrences(message.file, y, x),
@@ -72,7 +75,7 @@ export default abstract class Adapter {
         }
         break
       }
-      case MessageType.quickInfo: {
+      case types.Message.quickInfo: {
         const { x, y } = message.position
         response = {
           data: service.getQuickInfo(message.file, y, x),
