@@ -5,14 +5,9 @@
   "description": "IntelliSense hint for GitHub",
   "scripts": {
     "dev": "webpack",
-    "dev:safari": "TARGET=safari webpack",
     "build": "webpack --config webpack.config.production.js",
-    "build:safari": "TARGET=safari webpack --config webpack.config.production.js",
-    "package": "cd chrome; cp ../LICENSE .; zip -r ../chrome.zip .; rm LICENSE; cd ..",
-    "package:safari": "cd octohint.safariextension; cp ../LICENSE .; zip -r ../octohint.safariextension.zip .; rm LICENSE; cd ..",
+    "package": "cp LICENSE chrome/ && cp LICENSE octohint.safariextension/ && zip --exclude .DS_Store -b chrome -r chrome.zip chrome/*",
     "test": "echo test",
-    "get-node-libs": "node scripts/get-node-libs",
-    "change-version": "node scripts/change-version",
     "icon": "rm -rf chrome/icons/*; node scripts/generate-icons"
   },
   "repository": {

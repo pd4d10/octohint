@@ -4,19 +4,17 @@ const StringReplacePlugin = require('string-replace-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 // TODO: Live reload
 
-const isSafari = process.env.TARGET === 'safari'
-
-module.exports = {
+const config = {
   mode: 'development',
   watch: true,
   entry: {
-    background: isSafari ? './src/background/safari' : './src/background',
-    'content-script': isSafari ? './src/content-script/safari' : './src/content-script',
+    background: './src/background',
+    'content-script': './src/content-script',
     'ts-lib': './src/ts-lib',
     options: './src/options',
   },
   output: {
-    path: path.resolve(isSafari ? 'octohint.safariextension/dist' : 'chrome/dist'),
+    path: path.resolve('chrome/dist'),
     filename: '[name].js',
   },
   // Enable sourcemaps for debugging webpack's output.
@@ -70,7 +68,7 @@ module.exports = {
   // https://github.com/postcss/postcss-js/issues/10#issuecomment-179782081
   node: { fs: 'empty' },
   plugins: [
-    new CleanWebpackPlugin(isSafari ? 'octohint.safariextension/dist' : 'chrome/dist'),
+    new CleanWebpackPlugin('chrome/dist'),
     new StringReplacePlugin(),
     new HtmlWebpackPlugin({
       title: 'Options',
@@ -79,3 +77,22 @@ module.exports = {
     }),
   ],
 }
+
+// multiple outputs
+// https://github.com/webpack/webpack/blob/master/examples/multi-compiler/webpack.config.js
+module.exports = [
+  config,
+  {
+    ...config,
+    entry: {
+      ...config.entry,
+      background: './src/background/safari',
+      'content-script': './src/content-script/safari',
+    },
+    output: {
+      ...config.output,
+      path: path.resolve('octohint.safariextension/dist'),
+    },
+    plugins: [new CleanWebpackPlugin('octohint.safariextension/dist'), ...config.plugins.slice(1)],
+  },
+]
