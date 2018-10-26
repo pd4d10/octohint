@@ -24,7 +24,7 @@ const config = {
       {
         // This is an ugly hack to prevent require error
         test: /node_modules\/vscode.*\.js$/,
-        loader: StringReplacePlugin.replace({
+        use: StringReplacePlugin.replace({
           replacements: [
             {
               pattern: /factory\(require, exports\)/g,
@@ -43,17 +43,13 @@ const config = {
       },
       {
         test: /\.tsx?$/,
-        loader: 'awesome-typescript-loader',
+        use: 'awesome-typescript-loader',
         exclude: /node_modules/,
-      },
-      {
-        test: /\.css$/,
-        loader: 'style-loader!css-loader',
       },
       {
         enforce: 'pre',
         test: /\.js$/,
-        loader: 'source-map-loader',
+        use: 'source-map-loader',
         exclude: /node_modules/,
       },
     ],
