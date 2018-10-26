@@ -27,12 +27,11 @@
   },
   "homepage": "https://github.com/pd4d10/octohint",
   "dependencies": {
-    "@types/chrome": "^0.0.71",
+    "@types/chrome": "^0.0.74",
     "@types/lodash-es": "^4.17.1",
     "@types/node": "^10.9.4",
     "@types/safari-extension": "^0.0.27",
     "@types/safari-extension-content": "^0.0.14",
-    "editorconfig": "^0.15.0",
     "lodash-es": "^4.17.11",
     "path-browserify": "^1.0.0",
     "preact": "^8.2.6",
@@ -48,10 +47,10 @@
     "raw-loader": "^0.5.1",
     "source-map-loader": "^0.2.3",
     "string-replace-webpack-plugin": "^0.1.3",
-    "style-loader": "^0.21.0",
-    "uglifyjs-webpack-plugin": "^1.1.2",
+    "style-loader": "^0.23.1",
+    "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "^4.16.3",
-    "webpack-bundle-analyzer": "^2.9.1",
+    "webpack-bundle-analyzer": "^3.0.3",
     "webpack-command": "^0.4.1"
   }
 }
