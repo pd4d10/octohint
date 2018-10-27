@@ -1,16 +1,14 @@
 import * as ts from 'typescript'
 
-export type Range = ts.LineAndCharacter
-
 export interface Occurrence {
   isWriteAccess?: boolean
-  range: Range
+  range: ts.LineAndCharacter
   width: number
 }
 
 export interface QuickInfo {
   info: ts.SymbolDisplayPart[] | string
-  range: Range
+  range: ts.LineAndCharacter
   width: number
 }
 
@@ -34,7 +32,7 @@ interface BackgroundMessageOfService {}
 
 export interface BackgroundMessageOfOccurrence {
   occurrences: Occurrence[]
-  info?: Range
+  info?: ts.LineAndCharacter
 }
 
 export interface BackgroundMessageOfQuickInfo {
@@ -45,7 +43,7 @@ interface BackgroundMessageOfError {
   error: string
 }
 
-export type MessageFromBackground =
+export type BackgroundMessage =
   | BackgroundMessageOfService
   | BackgroundMessageOfOccurrence
   | BackgroundMessageOfQuickInfo
@@ -55,11 +53,11 @@ export type MessageFromBackground =
 interface BaseContentMessage {
   file: string
   codeUrl: string
-  tabSize: number
 }
 
 interface ContentMessageOfService extends BaseContentMessage {
   type: Message.service
+  tabSize: number
 }
 
 interface ContentMessageOfOccurrence extends BaseContentMessage {
@@ -73,13 +71,10 @@ interface ContentMessageOfQuickInfo extends BaseContentMessage {
   position: Position
 }
 
-export type MessageFromContentScript = ContentMessageOfService | ContentMessageOfOccurrence | ContentMessageOfQuickInfo
+export type ContentMessage = ContentMessageOfService | ContentMessageOfOccurrence | ContentMessageOfQuickInfo
 
-export type SendMessageToBackground = (
-  data: MessageFromContentScript,
-  cb: (message: MessageFromBackground) => void,
-) => void
+export type SendMessageToBackground = (data: ContentMessage, cb: (message: BackgroundMessage) => void) => void
 
 export type AddBackgroundListener = (
-  listener: (message: MessageFromContentScript, sendResponse: (message: MessageFromBackground) => void) => void,
+  listener: (message: ContentMessage, sendResponse: (message: BackgroundMessage) => void) => void,
 ) => void

@@ -121,7 +121,7 @@ export default class TSService extends MultiFileService {
   }
 
   // Notice that this method is asynchronous
-  async createService(message: types.MessageFromContentScript) {
+  async createService(message: types.ContentMessage) {
     if (this.files[message.file]) return
 
     const code = await this.fetchCode(message)

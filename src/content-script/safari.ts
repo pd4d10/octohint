@@ -3,7 +3,7 @@ import * as types from '../types'
 
 declare global {
   interface Window {
-    OCTOHINT_ON_MESSAGE: (message: types.MessageFromBackground) => void
+    OCTOHINT_ON_MESSAGE: (message: types.BackgroundMessage) => void
   }
 }
 
@@ -20,7 +20,7 @@ class SafariAdapter extends Adapter {
   constructor() {
     safari.self.addEventListener(
       'message',
-      (res: { message: types.MessageFromBackground }) => {
+      (res: { message: types.BackgroundMessage }) => {
         window.OCTOHINT_ON_MESSAGE(res.message)
       },
       false,

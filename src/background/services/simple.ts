@@ -1,5 +1,5 @@
 import { LineAndCharacter } from 'typescript'
-import { MultiFileService, SingleFileService } from './base'
+import { SingleFileService } from './base'
 
 const tokenRegex = /[A-Za-z0-9_]/
 
@@ -21,7 +21,7 @@ function findAllPositions(str: string, substr: string, res: number[] = [], offse
 }
 
 export default class SimpleService extends SingleFileService {
-  lines: string[]
+  lines!: string[]
 
   createService(code: string) {
     this.lines = code.split('\n')

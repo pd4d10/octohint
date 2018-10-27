@@ -18,7 +18,7 @@ function getServiceByFileName(ext: string) {
   }
 }
 
-export function createService(ext: string, message: types.MessageFromContentScript) {
+export function createService(ext: string, message: types.ContentMessage) {
   const Service = getServiceByFileName(ext)
   return new Service(message)
 }

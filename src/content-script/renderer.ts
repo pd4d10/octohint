@@ -16,27 +16,27 @@ interface Line {
 export default class Renderer {
   renderParams: RendererParams
 
-  $background: Element
+  $background!: Element
   fileName: string
   DEBOUNCE_TIMEOUT = 300
   isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
   $container: HTMLElement
   // $positionContainer: HTMLElement
-  fontWidth: number
-  fontFamily: string | null
-  fontSize: string | null
-  line: Line
-  padding: Padding
-  code: string
+  fontWidth!: number
+  fontFamily!: string | null
+  fontSize!: string | null
+  line!: Line
+  padding!: Padding
+  code!: string
   offsetTop: number
   codeUrl: string
   setState = () => {}
 
-  sendMessage: (data: types.MessageFromContentScript, cb: (message: types.MessageFromBackground) => void) => void
+  sendMessage: (data: types.ContentMessage, cb: (message: types.BackgroundMessage) => void) => void
 
   constructor(
-    sendMessage: (data: types.MessageFromContentScript, cb: (message: types.MessageFromBackground) => void) => void,
+    sendMessage: (data: types.ContentMessage, cb: (message: types.BackgroundMessage) => void) => void,
     renderParams: RendererParams,
   ) {
     this.sendMessage = sendMessage

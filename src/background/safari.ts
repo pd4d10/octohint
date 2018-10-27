@@ -1,7 +1,7 @@
 import Adapter from './adapter'
 
 class SafariAdapter extends Adapter {
-  addListener(cb) {
+  addListener(cb: any) {
     safari.application.addEventListener(
       'message',
       (e: SafariExtensionMessageEvent) => {

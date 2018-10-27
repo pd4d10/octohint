@@ -1,7 +1,7 @@
 import Adapter from './adapter'
 
 class ChromeAdapter extends Adapter {
-  addListener(cb) {
+  addListener(cb: any) {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (!sender.tab || !sender.tab.id) return
 

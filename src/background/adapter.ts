@@ -10,7 +10,7 @@ export default abstract class Adapter {
   ts = new TsService()
 
   abstract addListener(
-    cb: (message: types.MessageFromContentScript, sendResponse: (message: types.MessageFromBackground) => void) => void,
+    cb: (message: types.ContentMessage, sendResponse: (message: types.BackgroundMessage) => void) => void,
   ): void
   abstract addTabUpdateListener(): void
 
@@ -23,10 +23,7 @@ export default abstract class Adapter {
     return path.replace(/.*\.(.*?)$/, '$1')
   }
 
-  handleMessage = (
-    message: types.MessageFromContentScript,
-    sendResponse: (message: types.MessageFromBackground) => void,
-  ) => {
+  handleMessage = (message: types.ContentMessage, sendResponse: (message: types.BackgroundMessage) => void) => {
     // const { file, codeUrl, tabSize } = message
     let service
     const ext = this.getExtension(message.file)
@@ -52,7 +49,7 @@ export default abstract class Adapter {
     //   return
     // }
 
-    let response: types.MessageFromBackground
+    let response: types.BackgroundMessage
 
     switch (message.type) {
       case types.Message.service: {

@@ -1,12 +1,12 @@
 import { h, Component } from 'preact'
 import { SymbolDisplayPart } from 'typescript'
 
-export interface StateType {
-  isVisible: boolean
+export type QuickInfoState = {
+  visible: boolean
   info: SymbolDisplayPart[] | string
   left: number
   fontFamily: string
-  fontSize: string
+  fontSize: number | string
   line: number
   height: number
 }
@@ -22,13 +22,13 @@ function getColorFromKind(kind: string) {
   }
 }
 
-export default class QuickInfo extends Component<{ ref: (ref: any) => any }, StateType> {
-  state: StateType = {
-    isVisible: false,
+export default class QuickInfo extends Component<{ ref: (ref: any) => any }, QuickInfoState> {
+  state: QuickInfoState = {
+    visible: false,
     info: [],
     left: 0,
     fontFamily: 'monospace',
-    fontSize: '12px',
+    fontSize: 12,
     line: 0,
     height: 0,
   }
@@ -54,7 +54,7 @@ export default class QuickInfo extends Component<{ ref: (ref: any) => any }, Sta
     return (
       <div
         style={{
-          display: state.isVisible ? 'block' : 'none',
+          display: state.visible ? 'block' : 'none',
           whiteSpace: 'pre-wrap',
           position: 'absolute',
           background: '#efeff2',
@@ -63,8 +63,8 @@ export default class QuickInfo extends Component<{ ref: (ref: any) => any }, Sta
           padding: `2px ${padding}px`,
           fontFamily: state.fontFamily,
           left: state.left,
-          maxWidth: '500px',
-          maxHeight: '300px',
+          maxWidth: 500,
+          maxHeight: 300,
           overflow: 'auto',
           wordBreak: 'break-all',
           ...positionStyle,
