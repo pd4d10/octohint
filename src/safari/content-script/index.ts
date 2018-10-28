@@ -1,4 +1,4 @@
-import Adapter from './adapter'
+import Adapter from '../../content-script/adapter'
 
 class SafariAdapter extends Adapter {
   addListener(cb: any) {

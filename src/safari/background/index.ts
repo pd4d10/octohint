@@ -1,5 +1,5 @@
-import Adapter from './adapter'
-import * as types from '../types'
+import Adapter from '../../content-script/adapter'
+import * as types from '../../types'
 
 declare global {
   interface Window {

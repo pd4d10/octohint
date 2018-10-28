@@ -1,4 +1,4 @@
-import Adapter from './adapter'
+import Adapter from '../content-script/adapter'
 
 class ChromeAdapter extends Adapter {
   getSendMessage() {

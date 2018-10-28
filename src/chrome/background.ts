@@ -1,4 +1,4 @@
-import Adapter from './adapter'
+import Adapter from '../background/adapter'
 
 class ChromeAdapter extends Adapter {
   addListener(cb: any) {

@@ -8,10 +8,10 @@ const config = {
   mode: 'development',
   watch: true,
   entry: {
-    background: './src/background',
-    'content-script': './src/content-script',
     'ts-lib': './src/ts-lib',
-    options: './src/options',
+    background: './src/chrome/background',
+    'content-script': './src/chrome/content-script',
+    options: './src/chrome/options',
   },
   output: {
     path: path.resolve('chrome/dist'),
@@ -81,14 +81,14 @@ module.exports = [
   {
     ...config,
     entry: {
-      ...config.entry,
-      background: './src/background/safari',
-      'content-script': './src/content-script/safari',
+      'ts-lib': './src/ts-lib',
+      background: './src/safari/background',
+      'content-script': './src/safari/content-script',
     },
     output: {
       ...config.output,
       path: path.resolve('octohint.safariextension/dist'),
     },
-    plugins: [new CleanWebpackPlugin('octohint.safariextension/dist'), ...config.plugins.slice(1)],
+    plugins: [new CleanWebpackPlugin('octohint.safariextension/dist'), new StringReplacePlugin()],
   },
 ]
