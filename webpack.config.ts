@@ -1,10 +1,11 @@
-const path = require('path')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
-const StringReplacePlugin = require('string-replace-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+import * as webpack from 'webpack'
+import * as path from 'path'
+import * as CleanWebpackPlugin from 'clean-webpack-plugin'
+import * as StringReplacePlugin from 'string-replace-webpack-plugin'
+import * as HtmlWebpackPlugin from 'html-webpack-plugin'
 // TODO: Live reload
 
-const config = {
+const config: webpack.Configuration = {
   mode: 'development',
   watch: true,
   entry: {
@@ -74,21 +75,20 @@ const config = {
   ],
 }
 
+const safariConfig: webpack.Configuration = {
+  ...config,
+  entry: {
+    'ts-lib': './src/ts-lib',
+    background: './src/safari/background',
+    'content-script': './src/safari/content-script',
+  },
+  output: {
+    ...config.output,
+    path: path.resolve('octohint.safariextension/dist'),
+  },
+  plugins: [new CleanWebpackPlugin('octohint.safariextension/dist'), new StringReplacePlugin()],
+}
+
 // multiple outputs
 // https://github.com/webpack/webpack/blob/master/examples/multi-compiler/webpack.config.js
-module.exports = [
-  config,
-  {
-    ...config,
-    entry: {
-      'ts-lib': './src/ts-lib',
-      background: './src/safari/background',
-      'content-script': './src/safari/content-script',
-    },
-    output: {
-      ...config.output,
-      path: path.resolve('octohint.safariextension/dist'),
-    },
-    plugins: [new CleanWebpackPlugin('octohint.safariextension/dist'), new StringReplacePlugin()],
-  },
-]
+export default [config, safariConfig]

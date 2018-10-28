@@ -40,3 +40,5 @@ chrome/dist/
 chrome/LICENSE
 octohint.safariextension/dist/
 octohint.safariextension/LICENSE
+webpack.config.js
+webpack.config.production.js
