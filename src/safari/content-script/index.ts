@@ -1,21 +1,32 @@
 import Adapter from '../../content-script/adapter'
+import * as types from '../../types'
+
+declare global {
+  interface Window {
+    OCTOHINT_ON_MESSAGE: (message: types.BackgroundMessage) => void
+  }
+}
+
+window.OCTOHINT_ON_MESSAGE = () => {}
 
 class SafariAdapter extends Adapter {
-  addListener(cb: any) {
-    safari.application.addEventListener(
+  getSendMessage(): types.SendMessageToBackground {
+    return (data, cb) => {
+      window.OCTOHINT_ON_MESSAGE = cb
+      safari.self.tab.dispatchMessage('from page', data)
+    }
+  }
+
+  constructor() {
+    safari.self.addEventListener(
       'message',
-      (e: SafariExtensionMessageEvent) => {
-        cb(e.message, message => {
-          const tab = e.target as SafariBrowserTab
-          tab.page.dispatchMessage('message', message)
-        })
+      (res: { message: types.BackgroundMessage }) => {
+        window.OCTOHINT_ON_MESSAGE(res.message)
       },
       false,
     )
+    super()
   }
-
-  // Not supported at Safari
-  addTabUpdateListener() {}
 }
 
 new SafariAdapter()

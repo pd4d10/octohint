@@ -2,6 +2,6 @@
   "extends": "../../../tsconfig",
   "include": ["."],
   "compilerOptions": {
-    "types": ["safari-extension"]
+    "types": ["safari-extension-content"]
   }
 }
