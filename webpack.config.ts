@@ -5,24 +5,6 @@ import * as StringReplacePlugin from 'string-replace-webpack-plugin'
 import * as HtmlWebpackPlugin from 'html-webpack-plugin'
 // TODO: Live reload
 
-import { Plugin, RuleSetUse } from 'webpack'
-
-declare class StringReplacePlugin extends Plugin {
-  static replace(options: StringReplacePlugin.Options, nextLoaders?: string): RuleSetUse
-  static replace(prevLoaders: string, options: StringReplacePlugin.Options, nextLoaders?: string): RuleSetUse
-}
-
-declare namespace StringReplacePlugin {
-  interface Options {
-    replacements: ReplacementItem[]
-  }
-
-  interface ReplacementItem {
-    pattern: RegExp
-    replacement: (substring: string, ...args: any[]) => string
-  }
-}
-
 const config: webpack.Configuration = {
   mode: 'development',
   watch: true,
