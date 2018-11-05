@@ -25,7 +25,7 @@ Install it from [Safari Extensions Gallery](https://safari-extensions.apple.com/
 
 ### Firefox
 
-Currently you could build it from source. Follow [this guide](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox) to install it from local directory.
+Currently you could build it from source, see web extension section of [contributing docs](CONTRIBUTING.md). Follow [this guide](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox) to install it from local directory.
 
 Make sure your version of Firefox supports web extensions.
 
