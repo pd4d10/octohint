@@ -1,15 +1,15 @@
 # Octohint
 
-[![Build Status](https://travis-ci.org/pd4d10/octohint.svg)](https://travis-ci.org/pd4d10/octohint)
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/d/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/stars/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
+[![build](https://travis-ci.org/pd4d10/octohint.svg)](https://travis-ci.org/pd4d10/octohint)
+[![chrome web store](https://img.shields.io/chrome-web-store/v/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
+[![users](https://img.shields.io/chrome-web-store/d/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
+[![rating](https://img.shields.io/chrome-web-store/stars/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
 
-<img src="assets/demo.gif" alt="Demo" width="593" />
+<img src="assets/demo.gif" alt="Demo" width="636" />
 
 ## Introduction
 
-Octohint is a browser extension which adds IntelliSense hint feature to GitHub.
+Octohint is a browser extension which adds IntelliSense hint to GitHub and GitLab.
 
 [Introduction at Medium](https://medium.com/@pd4d10/introducing-octohint-e1a3e4b80c47)
 
@@ -19,23 +19,19 @@ Octohint is a browser extension which adds IntelliSense hint feature to GitHub.
 
 Install it from [Chrome Web Store](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
 
-Manual installation:
+### Safari
 
-Go to [release page](https://github.com/pd4d10/octohint/releases), find `chrome.zip` file, download and unpack it.
+Install it from [Safari Extensions Gallery](https://safari-extensions.apple.com/details/?id=com.pd4d10.octohint-2FFP8Y4P2A)
 
 ### Firefox
 
-Follow [this guide](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox). The file is the same as manual installation of Chrome.
+Currently you could build it from source. Follow [this guide](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox) to install it from local directory.
 
 Make sure your version of Firefox supports web extensions.
 
 ### Opera
 
-Use this extension: [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/download-chrome-extension-9/) to install Octohint from [Chrome Web Store](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
-
-### Safari
-
-Install it from [Safari Extensions Gallery](https://safari-extensions.apple.com/details/?id=com.pd4d10.octohint-2FFP8Y4P2A)
+Use this extension: [Install Chrome Extensions](https://addons.opera.com/en/extensions/details/download-chrome-extension-9/) to install Octohint from Chrome Web Store
 
 ## Features
 
@@ -52,11 +48,13 @@ Octohint supports all languages. There are two strategies:
 - IntelliSense hint: TypeScript, JavaScript, CSS, LESS, SCSS
 - Simple token matching: All other languages
 
-It is because browser only runs JavaScript. But with help of WebAssembly, maybe we could bring other languages(like Go/Rust)' IntelliSense analysis to browser! It's still in research
+It is because browser only runs JavaScript. But with help of WebAssembly, maybe we could bring other languages' IntelliSense analysis to browser! It's still in research
 
 ## Supported platforms
 
-Support GitHub, GitLab and Bitbucket. Since GitLab CE has many versions, I'm not sure it works correctly on every version. If you find some bugs you could [submit an issue](https://github.com/pd4d10/octohint/issues/new).
+Support GitHub and GitLab. Since GitLab CE has many versions, I'm not sure it works correctly on every version. If you find some bugs you could [submit an issue](https://github.com/pd4d10/octohint/issues/new).
+
+Bitbucket's code viewer UI has changed greatly, so there is still lots of work to do.
 
 ## Get your private site works
 
@@ -70,7 +68,7 @@ Octohint is a pure client thing. All code analysis are performed at your browser
 
 Feel free to use it at your private GitHub/GitLab/Bitbucket.
 
-## Related
+## Related tools
 
 - [Octoview](https://github.com/pd4d10/octoview): The missing preview feature for GitHub
 
