@@ -6,7 +6,7 @@ import configs from './webpack.config'
 // TODO Tree shaking
 const pConfigs: webpack.Configuration[] = configs.map((config, index) => ({
   ...config,
-  mode: 'production',
+  mode: 'production' as webpack.Configuration['mode'],
   devtool: false,
   optimization: {
     noEmitOnErrors: false,
