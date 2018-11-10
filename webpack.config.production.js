@@ -1,12 +1,12 @@
-import * as webpack from 'webpack'
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
-import * as UglifyJsPlugin from 'uglifyjs-webpack-plugin'
-import configs from './webpack.config'
+const webpack = require('webpack')
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const configs = require('./webpack.config')
 
-// TODO Tree shaking
-const pConfigs: webpack.Configuration[] = configs.map((config, index) => ({
+/** @type {webpack.Configuration[]} */
+const pConfigs = configs.map((config, index) => ({
   ...config,
-  mode: 'production' as webpack.Configuration['mode'],
+  mode: 'production',
   devtool: false,
   optimization: {
     noEmitOnErrors: false,
@@ -33,4 +33,4 @@ const pConfigs: webpack.Configuration[] = configs.map((config, index) => ({
   ],
 }))
 
-export default pConfigs
+module.exports = pConfigs

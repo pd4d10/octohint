@@ -4,8 +4,8 @@
   "version": "2.0.7",
   "description": "IntelliSense hint for GitHub",
   "scripts": {
-    "start": "tsc webpack.config.ts; webpack",
-    "build": "tsc webpack.config.production.ts; webpack --config webpack.config.production.js",
+    "start": "webpack",
+    "build": "webpack --config webpack.config.production.js",
     "package": "cp LICENSE chrome/ && cp LICENSE octohint.safariextension/ && zip --exclude .DS_Store -b chrome -r chrome.zip chrome/*",
     "test": "echo test",
     "icon": "rm -rf chrome/icons/*; node scripts/generate-icons"
@@ -35,12 +35,6 @@
     "vscode-languageserver-types": "^3.5.0"
   },
   "devDependencies": {
-    "@types/clean-webpack-plugin": "^0.1.2",
-    "@types/html-webpack-plugin": "^3.2.0",
-    "@types/string-replace-webpack-plugin": "^0.1.0",
-    "@types/uglifyjs-webpack-plugin": "^1.1.0",
-    "@types/webpack": "^4.4.17",
-    "@types/webpack-bundle-analyzer": "^2.13.0",
     "awesome-typescript-loader": "^5.2.1",
     "clean-webpack-plugin": "^0.1.17",
     "html-webpack-plugin": "^3.2.0",

@@ -1,11 +1,11 @@
-import * as webpack from 'webpack'
-import * as path from 'path'
-import * as CleanWebpackPlugin from 'clean-webpack-plugin'
-import * as StringReplacePlugin from 'string-replace-webpack-plugin'
-import * as HtmlWebpackPlugin from 'html-webpack-plugin'
-// TODO: Live reload
+const webpack = require('webpack')
+const path = require('path')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+const StringReplacePlugin = require('string-replace-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-const config: webpack.Configuration = {
+/** @type {webpack.Configuration} */
+const config = {
   mode: 'development',
   watch: true,
   entry: {
@@ -75,7 +75,8 @@ const config: webpack.Configuration = {
   ],
 }
 
-const safariConfig: webpack.Configuration = {
+/** @type {webpack.Configuration} */
+const safariConfig = {
   ...config,
   entry: {
     'ts-lib': './src/ts-lib',
@@ -91,4 +92,4 @@ const safariConfig: webpack.Configuration = {
 
 // multiple outputs
 // https://github.com/webpack/webpack/blob/master/examples/multi-compiler/webpack.config.js
-export default [config, safariConfig]
+module.exports = [config, safariConfig]
