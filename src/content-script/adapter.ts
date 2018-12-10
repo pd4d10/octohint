@@ -1,4 +1,3 @@
-import * as path from 'path'
 import * as types from '../types'
 import Renderer from './renderer'
 
@@ -72,7 +71,7 @@ function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
     getCodeUrl: () => (wrapper.querySelector('.file-actions a') as HTMLAnchorElement).href,
     getFileName: () => {
       const fileName = (wrapper.querySelector('.file-info') as HTMLElement).innerText.trim()
-      return path.join(getFilePath(), fileName)
+      return getFilePath().replace(/\/$/, '') + fileName
     },
     getTabSizeDom: () => wrapper.querySelector('.blob-wrapper table'),
   }

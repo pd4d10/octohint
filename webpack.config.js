@@ -58,9 +58,6 @@ const config = {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
-    alias: {
-      path: 'path-browserify',
-    },
   },
 
   // https://github.com/postcss/postcss-js/issues/10#issuecomment-179782081
