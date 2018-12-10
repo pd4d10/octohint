@@ -1,16 +1,11 @@
 import * as ts from 'typescript'
 import { MultiFileService } from './base'
 import * as path from 'path'
-// import TS_LIB from '../../ts-lib'
 import stdLibs from './node-libs'
 import { without, uniq } from 'lodash-es'
 import * as types from '../../types'
 
-declare global {
-  interface Window {
-    TS_LIB: string
-  }
-}
+const defaultLibName = '//lib.d.ts'
 
 function getFullLibName(name: string) {
   return `/node_modules/@types/${name}/index.d.ts`
@@ -27,9 +22,6 @@ interface Files {
 // FIXME: Very slow when click type `string`
 // TODO: Go to definition for third party libs
 export default class TSService extends MultiFileService {
-  static defaultLib = ts.ScriptSnapshot.fromString(window.TS_LIB)
-  static defaultLibName = '//lib.d.ts'
-
   private service?: ts.LanguageService
   private getSourceFile(file: string) {
     // This is necesarry because createService is asynchronous
@@ -40,13 +32,7 @@ export default class TSService extends MultiFileService {
       }
     }
   }
-  private files: Files = {
-    [getFullLibName('node')]: {
-      content: require('raw-loader!@types/node/index.d.ts'),
-      version: 0,
-      // dependencies: [],
-    },
-  }
+  private files: Files = {}
   // private libs: Files = {}
 
   // Use regex to get third party lib names
@@ -124,6 +110,7 @@ export default class TSService extends MultiFileService {
   async createService(message: types.ContentMessage) {
     if (this.files[message.file]) return
 
+    const defaultLib = await import('../../ts-lib')
     const code = await this.fetchCode(message)
     this.updateContent(message.file, code)
 
@@ -152,8 +139,8 @@ export default class TSService extends MultiFileService {
       },
       getScriptSnapshot: fileName => {
         let snapshot
-        if (fileName === TSService.defaultLibName) {
-          snapshot = TSService.defaultLib
+        if (fileName === defaultLibName) {
+          snapshot = defaultLib
         } else if (this.files[fileName]) {
           snapshot = ts.ScriptSnapshot.fromString(this.files[fileName].content)
         }
@@ -168,7 +155,7 @@ export default class TSService extends MultiFileService {
         allowSyntheticDefaultImports: true,
         // lib: ['lib.es6.d.ts'],
       }),
-      getDefaultLibFileName: () => TSService.defaultLibName,
+      getDefaultLibFileName: () => defaultLibName,
       // getDefaultLibFileName: options => ts.getDefaultLibFileName(options),
       // getNewLine: ts.sys.newLine,
       log: console.log,
@@ -201,11 +188,13 @@ export default class TSService extends MultiFileService {
       if (this.service) {
         const references = this.service.getReferencesAtPosition(file, position)
         if (references) {
-          return references.filter(({ fileName }) => fileName === file).map(reference => ({
-            isWriteAccess: reference.isWriteAccess,
-            range: instance.getLineAndCharacterOfPosition(reference.textSpan.start),
-            width: reference.textSpan.length,
-          }))
+          return references
+            .filter(({ fileName }) => fileName === file)
+            .map(reference => ({
+              isWriteAccess: reference.isWriteAccess,
+              range: instance.getLineAndCharacterOfPosition(reference.textSpan.start),
+              width: reference.textSpan.length,
+            }))
         }
       }
     }

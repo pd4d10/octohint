@@ -10,7 +10,6 @@ const config = {
   mode: 'development',
   watch: true,
   entry: {
-    'ts-lib': './src/ts-lib',
     background: './src/chrome/background',
     'content-script': './src/chrome/content-script',
     options: './src/chrome/options',
@@ -18,6 +17,7 @@ const config = {
   output: {
     path: path.resolve('chrome/dist'),
     filename: '[name].js',
+    publicPath: '/dist/',
   },
   // Enable sourcemaps for debugging webpack's output.
   devtool: 'source-map',

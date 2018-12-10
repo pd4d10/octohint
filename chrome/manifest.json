@@ -8,7 +8,7 @@
     "128": "icons/logo.png"
   },
   "background": {
-    "scripts": ["dist/ts-lib.js", "dist/background.js"],
+    "scripts": ["dist/background.js"],
     "persistent": false
   },
   "permissions": [
