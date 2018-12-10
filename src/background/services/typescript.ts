@@ -65,9 +65,9 @@ export default class TSService extends MultiFileService {
     const prefix = 'https://unpkg.com'
     try {
       // Find typings file path
-      const { typings } = await this.fetchWithCredentials(path.join(prefix, name, 'package.json'), true)
-      if (typings) {
-        return await this.fetchWithCredentials(path.join(prefix, name, typings))
+      const { types, typings } = await this.fetchWithCredentials(path.join(prefix, name, 'package.json'), true)
+      if (types || typings) {
+        return await this.fetchWithCredentials(path.join(prefix, name, types || typings))
       }
 
       // If typings not specified, try DefinitelyTyped
