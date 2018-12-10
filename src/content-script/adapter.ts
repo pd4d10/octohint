@@ -52,8 +52,10 @@ const GitHubRenderer: RendererParams = {
     left: 60 + fontWidth,
     top: 0,
   }),
-  getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
-  // .replace('github.com', 'raw.githubusercontent.com'),
+  getCodeUrl: () =>
+    getCurrentUrl()
+      .replace('github.com', 'raw.githubusercontent.com')
+      .replace('/blob/', '/'),
   getFileName: getFilePath,
   getTabSizeDom: () => $('.blob-wrapper table'),
 }
