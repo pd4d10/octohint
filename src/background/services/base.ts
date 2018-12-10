@@ -5,16 +5,16 @@ abstract class BaseService {
   abstract getDefinition(file: string, line: number, character: number): types.Definition | void
   abstract getQuickInfo(file: string, line: number, character: number): types.QuickInfo | void
 
-  async fetchCode(message: types.ContentMessage) {
-    const r0 = await fetch(message.codeUrl, { credentials: 'same-origin' })
-    if (!r0.ok) {
-      throw new Error(message.codeUrl)
+  async fetchWithCredentials(url: string, isJson = false) {
+    const res = await fetch(url, { credentials: 'same-origin' })
+    if (!res.ok) {
+      throw new Error(`url fetch fails: ${url}`)
     }
-    let code = await r0.text()
-    if (!code.includes('\t')) {
-      return code
-    }
+    return await res[isJson ? 'json' : 'text']()
+  }
 
+  async fetchCode(message: types.ContentMessage) {
+    const code = await this.fetchWithCredentials(message.codeUrl)
     return code.replace(/\t/g, ' '.repeat(message.tabSize))
   }
 }
