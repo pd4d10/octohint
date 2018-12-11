@@ -2,13 +2,13 @@
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const config = require('./webpack.config')
-const safariConfig = require('./webpack.config.safari')
+const safariConfigs = require('./webpack.config.safari')
 
 // multiple outputs
 // https://github.com/webpack/webpack/blob/master/examples/multi-compiler/webpack.config.js
 
 /** @type {import('webpack').Configuration[]} */
-const pConfigs = [config, safariConfig].map((config, index) => ({
+const pConfigs = [config, ...safariConfigs].map((config, index) => ({
   ...config,
   mode: 'production',
   devtool: false,

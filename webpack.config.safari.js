@@ -1,30 +1,45 @@
 // @ts-check
 const path = require('path')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
 const StringReplacePlugin = require('string-replace-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const config = require('./webpack.config')
 
-/** @type {import('webpack').Configuration} */
-const safariConfig = {
+// content script and background should split into different webpack config
+// because namespace safari are conflict
+const baseConfig = {
   ...config,
-  entry: {
-    background: './src/safari/background',
-    'content-script': './src/safari/content-script',
-  },
   output: {
     ...config.output,
     path: path.resolve('octohint.safariextension/dist'),
     publicPath: '',
   },
+}
+
+/** @type {import('webpack').Configuration} */
+const contentScriptConfig = {
+  ...baseConfig,
+  entry: {
+    'content-script': './src/safari/content-script',
+  },
+  plugins: [],
+}
+
+contentScriptConfig.module.rules[0].use.options.configFileName = './src/safari/content-script/tsconfig.json'
+
+/** @type {import('webpack').Configuration} */
+const backgroundConfig = {
+  ...baseConfig,
+  entry: {
+    background: './src/safari/background',
+  },
   plugins: [
-    new CleanWebpackPlugin('octohint.safariextension/dist'),
     new StringReplacePlugin(),
     new HtmlWebpackPlugin({
       filename: 'global.html',
-      chunks: ['background'],
     }),
   ],
 }
 
-module.exports = safariConfig
+backgroundConfig.module.rules[0].use.options.configFileName = './src/safari/background/tsconfig.json'
+
+module.exports = [contentScriptConfig, backgroundConfig]
