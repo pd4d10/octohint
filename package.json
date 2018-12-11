@@ -8,7 +8,7 @@
     "start:safari": "webpack --config webpack.config.safari.js",
     "build": "webpack --config webpack.config.production.js",
     "package": "cp LICENSE chrome/ && cp LICENSE octohint.safariextension/ && zip --exclude .DS_Store -b chrome -r chrome.zip chrome/*",
-    "test": "npx prettier src/**/*",
+    "test": "npx prettier src/**/*.{ts,tsx}",
     "icon": "rm -rf chrome/icons/*; node scripts/generate-icons"
   },
   "repository": "pd4d10/octohint",
@@ -33,7 +33,6 @@
     "raw-loader": "^1.0.0",
     "source-map-loader": "^0.2.3",
     "string-replace-webpack-plugin": "^0.1.3",
-    "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "^4.27.1",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.1.2"

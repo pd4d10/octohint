@@ -1,6 +1,6 @@
 // @ts-check
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 const config = require('./webpack.config')
 const safariConfigs = require('./webpack.config.safari')
 
@@ -15,8 +15,8 @@ const pConfigs = [config, ...safariConfigs].map((config, index) => ({
   optimization: {
     noEmitOnErrors: false,
     minimizer: [
-      new UglifyJsPlugin({
-        uglifyOptions: {
+      new TerserPlugin({
+        terserOptions: {
           compress: {
             drop_console: true,
           },
