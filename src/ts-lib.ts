@@ -2,15 +2,7 @@
 // Use dynamic import to do code split in webpack
 // TODO: Go to definition
 
-declare global {
-  interface Window {
-    TS_LIB: string
-  }
-}
-
-declare var require: (lib: string) => string
-
-const TS_LIB = [
+export default [
   // ES and DOM standard
   require('raw-loader!typescript/lib/lib.d.ts'),
   require('raw-loader!typescript/lib/lib.dom.d.ts'),
@@ -40,5 +32,3 @@ const TS_LIB = [
   // require('raw-loader!@types/safari-extension/index.d.ts'),
   // require('raw-loader!@types/safari-extension-content/index.d.ts'),
 ].join('\n')
-
-export default TS_LIB

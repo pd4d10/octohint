@@ -5,9 +5,10 @@
   "description": "IntelliSense hint for GitHub",
   "scripts": {
     "start": "webpack",
+    "start:safari": "webpack --config webpack.config.safari.js",
     "build": "webpack --config webpack.config.production.js",
     "package": "cp LICENSE chrome/ && cp LICENSE octohint.safariextension/ && zip --exclude .DS_Store -b chrome -r chrome.zip chrome/*",
-    "test": "echo test",
+    "test": "npx prettier src/**/*",
     "icon": "rm -rf chrome/icons/*; node scripts/generate-icons"
   },
   "repository": "pd4d10/octohint",

@@ -5,7 +5,7 @@
 	<key>Author</key>
 	<string>pd4d10</string>
 	<key>Builder Version</key>
-	<string>13604.5.6</string>
+	<string>14606.1.36.1.9</string>
 	<key>CFBundleDisplayName</key>
 	<string>Octohint</string>
 	<key>CFBundleIdentifier</key>
@@ -19,7 +19,7 @@
 	<key>Chrome</key>
 	<dict>
 		<key>Global Page</key>
-		<string>global.html</string>
+		<string>dist/global.html</string>
 	</dict>
 	<key>Content</key>
 	<dict>
