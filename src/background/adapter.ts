@@ -65,17 +65,25 @@ export default abstract class Adapter {
         break
       }
       case types.Message.occurrence: {
-        const { x, y } = message.position
+        const info = {
+          file: message.file,
+          line: message.position.y,
+          character: message.position.x,
+        }
         response = {
-          occurrences: service.getOccurrences(message.file, y, x),
-          info: message.meta ? service.getDefinition(message.file, y, x) : undefined,
+          occurrences: service.getOccurrences(info),
+          info: message.meta ? service.getDefinition(info) : undefined,
         }
         break
       }
       case types.Message.quickInfo: {
-        const { x, y } = message.position
+        const info = {
+          file: message.file,
+          line: message.position.y,
+          character: message.position.x,
+        }
         response = {
-          data: service.getQuickInfo(message.file, y, x),
+          data: service.getQuickInfo(info),
         }
         break
       }

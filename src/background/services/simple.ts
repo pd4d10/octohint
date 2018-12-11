@@ -1,5 +1,6 @@
 import { LineAndCharacter } from 'typescript'
 import { SingleFileService } from './base'
+import { PositionInfo } from '../../types'
 
 const tokenRegex = /[A-Za-z0-9_]/
 
@@ -28,19 +29,19 @@ export default class SimpleService extends SingleFileService {
   }
 
   // TODO: CJK character
-  getOccurrences(file: string, line: number, character: number) {
-    const l = this.lines[line]
+  getOccurrences(info: PositionInfo) {
+    const l = this.lines[info.line]
     let token = ''
 
     // Get token
-    for (let i = character; i < l.length; i++) {
+    for (let i = info.character; i < l.length; i++) {
       if (tokenRegex.test(l[i])) {
         token += l[i]
       } else {
         break
       }
     }
-    for (let i = character - 1; i > -1; i--) {
+    for (let i = info.character - 1; i > -1; i--) {
       if (tokenRegex.test(l[i])) {
         token = l[i] + token
       } else {

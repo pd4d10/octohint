@@ -78,3 +78,9 @@ export type SendMessageToBackground = (data: ContentMessage, cb: (message: Backg
 export type AddBackgroundListener = (
   listener: (message: ContentMessage, sendResponse: (message: BackgroundMessage) => void) => void,
 ) => void
+
+export interface PositionInfo {
+  file: string
+  line: number
+  character: number
+}

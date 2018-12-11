@@ -1,6 +1,7 @@
 import * as cssService from 'vscode-css-languageservice'
 import * as ls from 'vscode-languageserver-types'
 import { MultiFileService, SingleFileService } from './base'
+import { PositionInfo } from '../../types'
 
 abstract class BaseService extends SingleFileService {
   private service!: cssService.LanguageService
@@ -15,22 +16,22 @@ abstract class BaseService extends SingleFileService {
     this.stylesheet = this.service.parseStylesheet(this.document)
   }
 
-  getOccurrences(file: string, line: number, character: number) {
-    return this.service.findDocumentHighlights(this.document, { line, character }, this.stylesheet).map(highlight => ({
+  getOccurrences(info: PositionInfo) {
+    return this.service.findDocumentHighlights(this.document, info, this.stylesheet).map(highlight => ({
       range: highlight.range.start,
       width: highlight.range.end.character - highlight.range.start.character,
     }))
   }
 
-  getDefinition(file: string, line: number, character: number) {
-    const definition = this.service.findDefinition(this.document, { line, character }, this.stylesheet)
+  getDefinition(info: PositionInfo) {
+    const definition = this.service.findDefinition(this.document, info, this.stylesheet)
     if (definition) {
       return definition.range.start
     }
   }
 
-  getQuickInfo(file: string, line: number, character: number) {
-    const hover = this.service.doHover(this.document, { line, character }, this.stylesheet)
+  getQuickInfo(info: PositionInfo) {
+    const hover = this.service.doHover(this.document, info, this.stylesheet)
     if (hover && hover.contents && hover.range) {
       // TODO: Show all information
       let info: string
