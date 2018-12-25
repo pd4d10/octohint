@@ -148,14 +148,16 @@ export default class Renderer {
         }
 
         // TODO: Fix overflow when length is large
-        const occurrences = response.occurrences.map(occurrence => ({
-          height: this.line.height,
-          width: occurrence.width * this.fontWidth,
-          top: occurrence.range.line * this.line.height,
-          left: occurrence.range.character * this.fontWidth,
-          isWriteAccess: occurrence.isWriteAccess,
-        }))
-        Object.assign(nextState, { occurrences })
+        if (response.occurrences) {
+          const occurrences = response.occurrences.map(occurrence => ({
+            height: this.line.height,
+            width: occurrence.width * this.fontWidth,
+            top: occurrence.range.line * this.line.height,
+            left: occurrence.range.character * this.fontWidth,
+            isWriteAccess: occurrence.isWriteAccess,
+          }))
+          Object.assign(nextState, { occurrences })
+        }
         this.setState(nextState)
       },
     )

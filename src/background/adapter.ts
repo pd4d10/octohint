@@ -73,7 +73,7 @@ export default abstract class Adapter {
         response = {
           occurrences: service.getOccurrences(info),
           info: message.meta ? service.getDefinition(info) : undefined,
-        }
+        } as types.BackgroundMessageOfOccurrence
         break
       }
       case types.Message.quickInfo: {
@@ -84,7 +84,7 @@ export default abstract class Adapter {
         }
         response = {
           data: service.getQuickInfo(info),
-        }
+        } as types.BackgroundMessageOfQuickInfo
         break
       }
       default:

@@ -31,7 +31,7 @@ export enum Message {
 interface BackgroundMessageOfService {}
 
 export interface BackgroundMessageOfOccurrence {
-  occurrences: Occurrence[]
+  occurrences?: Occurrence[]
   info?: ts.LineAndCharacter
 }
 
