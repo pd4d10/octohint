@@ -117,7 +117,7 @@ export default class Renderer {
     const nextState = {
       occurrences: [],
       definition: {
-        isVisible: false,
+        visible: false,
       },
     }
 
@@ -138,7 +138,7 @@ export default class Renderer {
         if (response.info) {
           Object.assign(nextState, {
             definition: {
-              isVisible: true,
+              visible: true,
               height: this.line.height,
               width: this.line.width - 20, // TODO: Magic number
               top: response.info.line * this.line.height,
@@ -185,16 +185,16 @@ export default class Renderer {
   }
 
   handleMouseOut = (e: MouseEvent) => {
-    console.log('mouseout', e)
+    // console.log('mouseout', e)
     this.setState({
       quickInfo: {
-        isVisible: false,
+        visible: false,
       },
     })
   }
 
   handleMouseMove = debounce((e: MouseEvent) => {
-    console.log('mousemove', e)
+    // console.log('mousemove', e)
     const position = this.getPosition(e)
 
     if (position.x < 0 || position.y < 0) {
@@ -215,7 +215,7 @@ export default class Renderer {
         const top = range.line * this.line.height
         this.setState({
           quickInfo: {
-            isVisible: true,
+            visible: true,
             info: data.info,
             top,
             line: range.line,
@@ -230,7 +230,7 @@ export default class Renderer {
       } else {
         this.setState({
           quickInfo: {
-            isVisible: false,
+            visible: false,
           },
         })
       }

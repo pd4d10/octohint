@@ -2,7 +2,7 @@ import { h } from 'preact'
 import { colors } from '../constants'
 
 export interface QuickInfoBackgroundProps {
-  isVisible: boolean
+  visible: boolean
   top: number
   left: number
   width: number
@@ -12,7 +12,7 @@ export interface QuickInfoBackgroundProps {
 const QuickInfoBackground = (props: QuickInfoBackgroundProps) => (
   <div
     style={{
-      display: props.isVisible ? 'block' : 'none',
+      display: props.visible ? 'block' : 'none',
       position: 'absolute',
       background: colors.quickInfoBackground,
       // lineHeight: '20px',

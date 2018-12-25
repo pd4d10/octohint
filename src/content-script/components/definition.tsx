@@ -2,7 +2,7 @@ import { h } from 'preact'
 import { colors } from '../constants'
 
 export interface DefinitionProps {
-  isVisible: boolean
+  visible: boolean
   height: number
   width: number
   top: number
@@ -11,7 +11,7 @@ export interface DefinitionProps {
 const Definition = (props: DefinitionProps) => (
   <div
     style={{
-      display: props.isVisible ? 'block' : 'none',
+      display: props.visible ? 'block' : 'none',
       position: 'absolute',
       background: colors.definitionHighlight,
       left: 0,

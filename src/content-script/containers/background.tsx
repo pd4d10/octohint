@@ -13,13 +13,13 @@ export default class Background extends Component<{ ref: (ref: any) => any }, St
   state = {
     occurrences: [],
     definition: {
-      isVisible: false,
+      visible: false,
       height: 0,
       width: 0,
       top: 0,
     },
     quickInfo: {
-      isVisible: false,
+      visible: false,
       top: 0,
       left: 0,
       width: 0,
