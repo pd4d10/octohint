@@ -47,8 +47,8 @@ const GitHubRenderer: RendererParams = {
   // getHighlightColor: () => '#fffbdd',
   getFontDOM: () => $('#LC1'),
   getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
-  getPadding: fontWidth => ({
-    left: 60 + fontWidth,
+  getPadding: () => ({
+    left: 60,
     top: 0,
   }),
   getCodeUrl: () =>
@@ -64,8 +64,8 @@ function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
     getContainer: () => wrapper.querySelector('.blob-wrapper'),
     getFontDOM: () => wrapper.querySelector('.blob-wrapper .blob-code'),
     getLineWidthAndHeight: () => ({ width: 918, height: 20 }),
-    getPadding: fontWidth => ({
-      left: 60 + fontWidth,
+    getPadding: () => ({
+      left: 60,
       top: 0,
     }),
     getCodeUrl: () => (wrapper.querySelector('.file-actions a') as HTMLAnchorElement).href,
