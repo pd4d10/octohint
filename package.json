@@ -7,7 +7,7 @@
     "start": "webpack",
     "start:safari": "webpack --config webpack.config.safari.js",
     "build": "webpack --config webpack.config.production.js",
-    "package": "cp LICENSE chrome/ && cp LICENSE octohint.safariextension/ && zip --exclude .DS_Store -b chrome -r chrome.zip chrome/*",
+    "package": "cp LICENSE chrome/ && cp LICENSE octohint.safariextension/ && cd chrome/ && zip --exclude .DS_Store -r ../chrome.zip *",
     "test": "npx prettier src/**/*.{ts,tsx}",
     "icon": "rm -rf chrome/icons/*; node scripts/generate-icons"
   },
