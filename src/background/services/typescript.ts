@@ -1,7 +1,7 @@
 import * as ts from 'typescript'
 import { MultiFileService } from './base'
 import * as path from 'path'
-import stdLibs from './node-libs'
+import stdLibs from './node-libs.json'
 import { without, uniq } from 'lodash-es'
 import * as types from '../../types'
 

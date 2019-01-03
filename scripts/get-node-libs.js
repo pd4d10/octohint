@@ -7,4 +7,4 @@ const libs = types.match(regex).map(item => item.replace(regex, '$1'))
 
 console.log(libs)
 
-fs.writeFileSync('./src/background/services/node-libs.ts', `export default ${JSON.stringify(libs, null, 2)}`)
+fs.writeFileSync('./src/background/services/node-libs.json', JSON.stringify(libs))

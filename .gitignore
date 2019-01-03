@@ -40,3 +40,4 @@ chrome/dist/
 chrome/LICENSE
 octohint.safariextension/dist/
 octohint.safariextension/LICENSE
+*.zip
