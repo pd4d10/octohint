@@ -1,7 +1,7 @@
-import { debounce } from 'lodash-es'
-import { renderToDOM } from './containers'
+import { render, h } from 'preact'
 import * as types from '../types'
 import { RendererParams } from './adapter'
+import App from './app'
 
 interface Padding {
   left: number
@@ -18,8 +18,6 @@ export default class Renderer {
 
   $background!: Element
   fileName: string
-  DEBOUNCE_TIMEOUT = 300
-  isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
   $container: HTMLElement
   // $positionContainer: HTMLElement
@@ -31,7 +29,6 @@ export default class Renderer {
   code!: string
   offsetTop: number
   codeUrl: string
-  setState = () => {}
 
   sendMessage: (data: types.ContentMessage, cb: (message: types.BackgroundMessage) => void) => void
 
@@ -73,10 +70,6 @@ export default class Renderer {
     this.padding = renderParams.getPadding(this.fontWidth)
 
     this.render(this.$container)
-    this.addEventListener(this.$container)
-    document.addEventListener('keydown', this.handleKeyDown)
-    document.addEventListener('keyup', this.handleKeyUp)
-
     // Create service on page load
     this.sendMessage(
       {
@@ -89,12 +82,6 @@ export default class Renderer {
     )
   }
 
-  addEventListener($container: HTMLElement) {
-    $container.addEventListener('click', this.handleClick)
-    $container.addEventListener('mousemove', this.handleMouseMove)
-    $container.addEventListener('mouseout', this.handleMouseOut)
-  }
-
   getOffsetTop(e: HTMLElement): number {
     if (!e) {
       return 0
@@ -102,142 +89,6 @@ export default class Renderer {
     const parent = e.offsetParent as HTMLElement
     return e.offsetTop + this.getOffsetTop(parent)
   }
-
-  getPosition(e: MouseEvent) {
-    const rect = this.$background.getBoundingClientRect()
-    return {
-      // Must be integers, so use Math.floor
-      x: Math.floor((e.clientX - rect.left) / this.fontWidth),
-      y: Math.floor((e.clientY - rect.top) / this.line.height),
-    }
-  }
-
-  handleClick = (e: MouseEvent) => {
-    console.log('click', e)
-    const nextState = {
-      occurrences: [],
-      definition: {
-        visible: false,
-      },
-    }
-
-    const position = this.getPosition(e)
-    if (position.x < 0 || position.y < 0) {
-      return
-    }
-
-    this.sendMessage(
-      {
-        file: this.fileName,
-        type: types.Message.occurrence,
-        position,
-        meta: this.isMacOS ? e.metaKey : e.ctrlKey,
-        codeUrl: this.codeUrl,
-      },
-      (response: types.BackgroundMessageOfOccurrence) => {
-        if (response.info) {
-          Object.assign(nextState, {
-            definition: {
-              visible: true,
-              height: this.line.height,
-              width: this.line.width - 20, // TODO: Magic number
-              top: response.info.line * this.line.height,
-            },
-          })
-          window.scrollTo(0, this.offsetTop + this.padding.top + response.info.line * this.line.height - 80) // TODO: Magic number
-        }
-
-        // TODO: Fix overflow when length is large
-        if (response.occurrences) {
-          const occurrences = response.occurrences.map(occurrence => ({
-            height: this.line.height,
-            width: occurrence.width * this.fontWidth,
-            top: occurrence.range.line * this.line.height,
-            left: occurrence.range.character * this.fontWidth,
-            isWriteAccess: occurrence.isWriteAccess,
-          }))
-          Object.assign(nextState, { occurrences })
-        }
-        this.setState(nextState)
-      },
-    )
-
-    // TODO: Exclude click event triggered by selecting text
-    // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
-    // if (window.getSelection().toString()) {
-    //   return
-    // }
-  }
-
-  handleKeyDown = (e: KeyboardEvent) => {
-    console.log('keydown', e)
-    if (this.isMacOS ? e.key === 'Meta' : e.key === 'Control') {
-      // FIXME: Slow when file is large
-      this.$container.style.cursor = 'pointer'
-      // FIXME: Sometimes keyup can't be triggered, add a long enough timeout to restore
-      setTimeout(() => (this.$container.style.cursor = null), 10000)
-    }
-  }
-
-  handleKeyUp = (e: KeyboardEvent) => {
-    console.log('keyup', e)
-    if (this.isMacOS ? e.key === 'Meta' : e.key === 'Control') {
-      this.$container.style.cursor = null
-    }
-  }
-
-  handleMouseOut = (e: MouseEvent) => {
-    // console.log('mouseout', e)
-    this.setState({
-      quickInfo: {
-        visible: false,
-      },
-    })
-  }
-
-  handleMouseMove = debounce((e: MouseEvent) => {
-    // console.log('mousemove', e)
-    const position = this.getPosition(e)
-
-    if (position.x < 0 || position.y < 0) {
-      return
-    }
-
-    const params = {
-      file: this.fileName,
-      codeUrl: this.codeUrl,
-      type: types.Message.quickInfo,
-      position,
-    }
-
-    this.sendMessage(params, (response: types.BackgroundMessageOfQuickInfo) => {
-      const { data } = response
-      if (data) {
-        const { range } = data
-        const top = range.line * this.line.height
-        this.setState({
-          quickInfo: {
-            visible: true,
-            info: data.info,
-            top,
-            line: range.line,
-            left: range.character * this.fontWidth,
-            height: this.line.height,
-            fontFamily: this.fontFamily,
-            fontWidth: this.fontWidth,
-            fontSize: this.fontSize,
-            width: data.width * this.fontWidth,
-          },
-        })
-      } else {
-        this.setState({
-          quickInfo: {
-            visible: false,
-          },
-        })
-      }
-    })
-  }, this.DEBOUNCE_TIMEOUT)
 
   // '20px' => 20
   px2num(px: string | null) {
@@ -310,7 +161,6 @@ export default class Renderer {
     $background.style.width = wrapperWidth // Important, fix Y scrollbar
 
     this.$background = $background
-
     const $quickInfo = document.createElement('div')
     $quickInfo.style.position = 'relative'
     const style = getComputedStyle($container)
@@ -327,7 +177,8 @@ export default class Renderer {
 
     $container.insertBefore($background, $container.firstChild)
     $container.appendChild($quickInfo)
+    this.$quickInfo = $quickInfo
 
-    this.setState = renderToDOM($background, $quickInfo)
+    render(<App {...this} />, $background)
   }
 }
