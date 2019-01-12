@@ -1,8 +1,14 @@
 import { h, Component } from 'preact'
 import Portal from 'preact-portal'
-import { SymbolDisplayPart } from 'typescript'
 import { debounce } from 'lodash-es'
-import * as types from '../types'
+import {
+  Definition,
+  Occurrence,
+  QuickInfo,
+  BackgroundMessageOfOccurrence,
+  Message,
+  BackgroundMessageOfQuickInfo,
+} from '../types'
 
 const colors = {
   lineBg: '#fffbdd',
@@ -14,31 +20,15 @@ const colors = {
 const DEBOUNCE_TIMEOUT = 300
 const isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
-export default class App extends Component<any> {
-  state = {
-    occurrences: [] as {
-      isWriteAccess: boolean
-      width: number
-      height: number
-      top: number
-      left: number
-    }[],
-    definition: {
-      visible: false,
-      height: 0,
-      width: 0,
-      top: 0,
-    },
-    quickInfo: {
-      visible: false,
-      top: 0,
-      left: 0,
-      width: 0,
-      height: 0,
-      info: [] as SymbolDisplayPart[] | string,
-      fontSize: 12,
-      line: 0,
-    },
+interface AppState {
+  occurrences: Occurrence[]
+  definition?: Definition
+  quickInfo?: QuickInfo
+}
+
+export default class App extends Component<any, AppState> {
+  state: AppState = {
+    occurrences: [],
   }
 
   $container: HTMLElement
@@ -77,18 +67,12 @@ export default class App extends Component<any> {
     this.$container.addEventListener('click', this.handleClick)
     this.$container.addEventListener('mousemove', this.handleMouseMove)
     this.$container.addEventListener('mouseout', e => {
-      this.setState({ quickInfo: { visible: false } })
+      this.setState({ quickInfo: undefined })
     })
   }
 
   handleClick = (e: MouseEvent) => {
     console.log('click', e)
-    const nextState = {
-      occurrences: [],
-      definition: {
-        visible: false,
-      },
-    }
 
     const position = this.getPosition(e)
     if (position.x < 0 || position.y < 0) {
@@ -98,21 +82,14 @@ export default class App extends Component<any> {
     this.props.sendMessage(
       {
         file: this.props.fileName,
-        type: types.Message.occurrence,
+        type: Message.occurrence,
         position,
         meta: isMacOS ? e.metaKey : e.ctrlKey,
         codeUrl: this.props.codeUrl,
       },
-      (response: types.BackgroundMessageOfOccurrence) => {
+      (response: BackgroundMessageOfOccurrence) => {
         if (response.info) {
-          Object.assign(nextState, {
-            definition: {
-              visible: true,
-              height: this.props.line.height,
-              width: this.props.line.width - 20, // TODO: Magic number
-              top: response.info.line * this.props.line.height,
-            },
-          })
+          this.setState({ definition: response.info })
           window.scrollTo(
             0,
             this.props.offsetTop + this.props.padding.top + response.info.line * this.props.line.height - 80,
@@ -121,16 +98,8 @@ export default class App extends Component<any> {
 
         // TODO: Fix overflow when length is large
         if (response.occurrences) {
-          const occurrences = response.occurrences.map(occurrence => ({
-            height: this.props.line.height,
-            width: occurrence.width * this.props.fontWidth,
-            top: occurrence.range.line * this.props.line.height,
-            left: occurrence.range.character * this.props.fontWidth,
-            isWriteAccess: occurrence.isWriteAccess,
-          }))
-          Object.assign(nextState, { occurrences })
+          this.setState({ occurrences: response.occurrences })
         }
-        this.setState(nextState)
       },
     )
 
@@ -152,111 +121,91 @@ export default class App extends Component<any> {
     const params = {
       file: this.props.fileName,
       codeUrl: this.props.codeUrl,
-      type: types.Message.quickInfo,
+      type: Message.quickInfo,
       position,
     }
 
-    this.props.sendMessage(params, (response: types.BackgroundMessageOfQuickInfo) => {
-      const { data } = response
-      if (data) {
-        const { range } = data
-        const top = range.line * this.props.line.height
-        this.setState({
-          quickInfo: {
-            visible: true,
-            info: data.info,
-            top,
-            line: range.line,
-            left: range.character * this.props.fontWidth,
-            height: this.props.line.height,
-            fontFamily: this.props.fontFamily,
-            fontWidth: this.props.fontWidth,
-            fontSize: this.props.fontSize,
-            width: data.width * this.props.fontWidth,
-          },
-        })
-      } else {
-        this.setState({
-          quickInfo: {
-            visible: false,
-          },
-        })
-      }
+    this.props.sendMessage(params, (response: BackgroundMessageOfQuickInfo) => {
+      this.setState({ quickInfo: response.data })
     })
   }, DEBOUNCE_TIMEOUT)
 
   render() {
     const { state } = this
 
-    // TODO: Fix https://github.com/Microsoft/TypeScript/blob/master/Gulpfile.ts
-    // TODO: Show info according to height
-    // TODO: Make quick info could be copied
-    // For line 0 and 1, show info below, this is tricky
-    // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
-    // So quick info can't show outside $('.blob-wrapper')
-    const positionStyle: { top?: number; bottom?: number } = {}
-    if (state.quickInfo.line < 2) {
-      positionStyle.top = (state.quickInfo.line + 1) * state.quickInfo.height
-    } else {
-      positionStyle.bottom = 0 - state.quickInfo.line * state.quickInfo.height
-    }
-
     return (
       <div>
-        <div
-          style={{
-            display: state.definition.visible ? 'block' : 'none',
-            position: 'absolute',
-            background: colors.lineBg,
-            left: 0,
-            width: state.definition.width,
-            height: state.definition.height,
-            top: state.definition.top,
-          }}
-        />
+        {state.definition && (
+          <div
+            style={{
+              position: 'absolute',
+              background: colors.lineBg,
+              left: 0,
+              width: this.props.line.width,
+              height: this.props.line.height - 20, // TODO: Magic number
+              top: state.definition.line * this.props.line.height,
+            }}
+          />
+        )}
         {state.occurrences.map(occurrence => (
           <div
             style={{
               position: 'absolute',
               background: occurrence.isWriteAccess ? colors.occurrenceWrite : colors.occurrenceRead,
-              width: occurrence.width,
-              height: occurrence.height,
-              top: occurrence.top,
-              left: occurrence.left,
+              width: occurrence.width * this.props.fontWidth,
+              height: this.props.line.height,
+              top: occurrence.range.line * this.props.line.height,
+              left: occurrence.range.character * this.props.fontWidth,
             }}
           />
         ))}
-        <div
-          style={{
-            display: state.quickInfo.visible ? 'block' : 'none',
-            position: 'absolute',
-            background: colors.quickInfoBackground,
-            // lineHeight: '20px',
-            top: state.quickInfo.top,
-            left: state.quickInfo.left,
-            width: state.quickInfo.width,
-            height: state.quickInfo.height,
-          }}
-        />
+
+        {state.quickInfo && (
+          <div
+            style={{
+              position: 'absolute',
+              background: colors.quickInfoBackground,
+              // lineHeight: '20px',
+              top: state.quickInfo.range.line * this.props.line.height,
+              left: state.quickInfo.range.character * this.props.fontWidth,
+              width: state.quickInfo.width * this.props.fontWidth,
+              height: this.props.line.height,
+            }}
+          />
+        )}
         {
           <Portal into={this.props.$quickInfo}>
-            {state.quickInfo.info && (
+            {state.quickInfo && state.quickInfo.info && (
               <div
                 style={{
-                  display: state.quickInfo.visible ? 'block' : 'none',
                   whiteSpace: 'pre-wrap',
                   position: 'absolute',
-                  background: '#efeff2',
+                  backgroundColor: '#efeff2',
                   border: `1px solid #c8c8c8`,
-                  fontSize: state.quickInfo.fontSize,
+                  fontSize: 12,
                   padding: `2px 4px`,
                   fontFamily: 'monospace',
-                  left: state.quickInfo.left,
+                  left: state.quickInfo.range.character * this.props.fontWidth,
                   maxWidth: 500,
                   maxHeight: 300,
                   overflow: 'auto',
                   wordBreak: 'break-all',
-                  ...positionStyle,
+                  ...(() => {
+                    // TODO: Fix https://github.com/Microsoft/TypeScript/blob/master/Gulpfile.ts
+                    // TODO: Show info according to height
+                    // TODO: Make quick info could be copied
+                    // For line 0 and 1, show info below, this is tricky
+                    // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
+                    // So quick info can't show outside $('.blob-wrapper')
+                    const positionStyle: { top?: number; bottom?: number } = {}
+                    if (state.quickInfo.range.line < 2) {
+                      positionStyle.top = (state.quickInfo.range.line + 1) * this.props.line.height
+                    } else {
+                      positionStyle.bottom = 0 - state.quickInfo.range.line * this.props.line.height
+                    }
+
+                    return positionStyle
+                  })(),
                 }}
               >
                 {Array.isArray(state.quickInfo.info)
