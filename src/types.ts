@@ -73,7 +73,7 @@ interface ContentMessageOfQuickInfo extends BaseContentMessage {
 
 export type ContentMessage = ContentMessageOfService | ContentMessageOfOccurrence | ContentMessageOfQuickInfo
 
-export type SendMessageToBackground = (data: ContentMessage, cb: (message: BackgroundMessage) => void) => void
+export type SendMessageToBackground = (data: ContentMessage) => Promise<BackgroundMessage>
 
 export type AddBackgroundListener = (
   listener: (message: ContentMessage, sendResponse: (message: BackgroundMessage) => void) => void,

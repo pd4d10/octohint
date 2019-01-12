@@ -12,7 +12,7 @@ import {
 
 const colors = {
   lineBg: '#fffbdd',
-  quickInfoBackground: 'rgba(173,214,255,.3)',
+  quickInfoBg: 'rgba(173,214,255,.3)',
   occurrenceWrite: 'rgba(14,99,156,.4)',
   occurrenceRead: 'rgba(173,214,255,.7)',
 }
@@ -21,15 +21,13 @@ const DEBOUNCE_TIMEOUT = 300
 const isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
 interface AppState {
-  occurrences: Occurrence[]
+  occurrences?: Occurrence[]
   definition?: Definition
   quickInfo?: QuickInfo
 }
 
 export default class App extends Component<any, AppState> {
-  state: AppState = {
-    occurrences: [],
-  }
+  state: AppState = {}
 
   $container: HTMLElement
 
@@ -71,7 +69,7 @@ export default class App extends Component<any, AppState> {
     })
   }
 
-  handleClick = (e: MouseEvent) => {
+  handleClick = async (e: MouseEvent) => {
     console.log('click', e)
 
     const position = this.getPosition(e)
@@ -79,29 +77,23 @@ export default class App extends Component<any, AppState> {
       return
     }
 
-    this.props.sendMessage(
-      {
-        file: this.props.fileName,
-        type: Message.occurrence,
-        position,
-        meta: isMacOS ? e.metaKey : e.ctrlKey,
-        codeUrl: this.props.codeUrl,
-      },
-      (response: BackgroundMessageOfOccurrence) => {
-        if (response.info) {
-          this.setState({ definition: response.info })
-          window.scrollTo(
-            0,
-            this.props.offsetTop + this.props.padding.top + response.info.line * this.props.line.height - 80,
-          ) // TODO: Magic number
-        }
+    const response = await this.props.sendMessage({
+      file: this.props.fileName,
+      type: Message.occurrence,
+      position,
+      meta: isMacOS ? e.metaKey : e.ctrlKey,
+      codeUrl: this.props.codeUrl,
+    })
+    if (response.info) {
+      this.setState({ definition: response.info })
+      window.scrollTo(
+        0,
+        this.props.offsetTop + this.props.padding.top + response.info.line * this.props.line.height - 80,
+      ) // TODO: Magic number
+    }
 
-        // TODO: Fix overflow when length is large
-        if (response.occurrences) {
-          this.setState({ occurrences: response.occurrences })
-        }
-      },
-    )
+    // TODO: Fix overflow when length is large
+    this.setState({ occurrences: response.occurrences })
 
     // TODO: Exclude click event triggered by selecting text
     // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
@@ -110,7 +102,7 @@ export default class App extends Component<any, AppState> {
     // }
   }
 
-  handleMouseMove = debounce((e: MouseEvent) => {
+  handleMouseMove = debounce(async (e: MouseEvent) => {
     // console.log('mousemove', e)
     const position = this.getPosition(e)
 
@@ -125,17 +117,16 @@ export default class App extends Component<any, AppState> {
       position,
     }
 
-    this.props.sendMessage(params, (response: BackgroundMessageOfQuickInfo) => {
-      this.setState({ quickInfo: response.data })
-    })
+    const { data } = await this.props.sendMessage(params)
+    this.setState({ quickInfo: data })
   }, DEBOUNCE_TIMEOUT)
 
   render() {
-    const { state } = this
+    const { definition, occurrences, quickInfo } = this.state
 
     return (
       <div>
-        {state.definition && (
+        {definition && (
           <div
             style={{
               position: 'absolute',
@@ -143,39 +134,40 @@ export default class App extends Component<any, AppState> {
               left: 0,
               width: this.props.line.width,
               height: this.props.line.height - 20, // TODO: Magic number
-              top: state.definition.line * this.props.line.height,
+              top: definition.line * this.props.line.height,
             }}
           />
         )}
-        {state.occurrences.map(occurrence => (
-          <div
-            style={{
-              position: 'absolute',
-              background: occurrence.isWriteAccess ? colors.occurrenceWrite : colors.occurrenceRead,
-              width: occurrence.width * this.props.fontWidth,
-              height: this.props.line.height,
-              top: occurrence.range.line * this.props.line.height,
-              left: occurrence.range.character * this.props.fontWidth,
-            }}
-          />
-        ))}
+        {occurrences &&
+          occurrences.map(occurrence => (
+            <div
+              style={{
+                position: 'absolute',
+                background: occurrence.isWriteAccess ? colors.occurrenceWrite : colors.occurrenceRead,
+                width: occurrence.width * this.props.fontWidth,
+                height: this.props.line.height,
+                top: occurrence.range.line * this.props.line.height,
+                left: occurrence.range.character * this.props.fontWidth,
+              }}
+            />
+          ))}
 
-        {state.quickInfo && (
+        {quickInfo && (
           <div
             style={{
               position: 'absolute',
-              background: colors.quickInfoBackground,
+              background: colors.quickInfoBg,
               // lineHeight: '20px',
-              top: state.quickInfo.range.line * this.props.line.height,
-              left: state.quickInfo.range.character * this.props.fontWidth,
-              width: state.quickInfo.width * this.props.fontWidth,
+              top: quickInfo.range.line * this.props.line.height,
+              left: quickInfo.range.character * this.props.fontWidth,
+              width: quickInfo.width * this.props.fontWidth,
               height: this.props.line.height,
             }}
           />
         )}
         {
           <Portal into={this.props.$quickInfo}>
-            {state.quickInfo && state.quickInfo.info && (
+            {quickInfo && quickInfo.info && (
               <div
                 style={{
                   whiteSpace: 'pre-wrap',
@@ -185,7 +177,7 @@ export default class App extends Component<any, AppState> {
                   fontSize: 12,
                   padding: `2px 4px`,
                   fontFamily: 'monospace',
-                  left: state.quickInfo.range.character * this.props.fontWidth,
+                  left: quickInfo.range.character * this.props.fontWidth,
                   maxWidth: 500,
                   maxHeight: 300,
                   overflow: 'auto',
@@ -198,25 +190,25 @@ export default class App extends Component<any, AppState> {
                     // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
                     // So quick info can't show outside $('.blob-wrapper')
                     const positionStyle: { top?: number; bottom?: number } = {}
-                    if (state.quickInfo.range.line < 2) {
-                      positionStyle.top = (state.quickInfo.range.line + 1) * this.props.line.height
+                    if (quickInfo.range.line < 2) {
+                      positionStyle.top = (quickInfo.range.line + 1) * this.props.line.height
                     } else {
-                      positionStyle.bottom = 0 - state.quickInfo.range.line * this.props.line.height
+                      positionStyle.bottom = 0 - quickInfo.range.line * this.props.line.height
                     }
 
                     return positionStyle
                   })(),
                 }}
               >
-                {Array.isArray(state.quickInfo.info)
-                  ? state.quickInfo.info.map(part => {
+                {Array.isArray(quickInfo.info)
+                  ? quickInfo.info.map(part => {
                       if (part.text === '\n') {
                         return <br />
                       }
                       return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
                     })
-                  : state.quickInfo.info.replace(/\\/g, '')
-                // JSON.parse(`"${state.info}"`)
+                  : quickInfo.info.replace(/\\/g, '')
+                // JSON.parse(`"${info}"`)
                 }
               </div>
             )}

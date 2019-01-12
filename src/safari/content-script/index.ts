@@ -11,10 +11,11 @@ window.OCTOHINT_ON_MESSAGE = () => {}
 
 class SafariAdapter extends Adapter {
   getSendMessage(): types.SendMessageToBackground {
-    return (data, cb) => {
-      window.OCTOHINT_ON_MESSAGE = cb
-      safari.self.tab.dispatchMessage('from page', data)
-    }
+    return data =>
+      new Promise(resolve => {
+        window.OCTOHINT_ON_MESSAGE = resolve
+        safari.self.tab.dispatchMessage('from page', data)
+      })
   }
 
   constructor() {

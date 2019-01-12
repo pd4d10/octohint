@@ -1,8 +1,12 @@
 import Adapter from '../content-script/adapter'
+import { SendMessageToBackground } from '../types'
 
 class ChromeAdapter extends Adapter {
-  getSendMessage() {
-    return chrome.runtime.sendMessage
+  getSendMessage(): SendMessageToBackground {
+    return data =>
+      new Promise(resolve => {
+        chrome.runtime.sendMessage(data, resolve)
+      })
   }
 }
 

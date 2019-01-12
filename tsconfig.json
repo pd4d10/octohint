@@ -1,6 +1,6 @@
 {
   "include": ["src"],
-  "exclude": ["src/safari"],
+  "exclude": ["src/safari", "src/chrome"],
   "compilerOptions": {
     /* Basic Options */
     "resolveJsonModule": true,
