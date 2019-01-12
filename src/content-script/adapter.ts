@@ -1,5 +1,5 @@
-import * as types from '../types'
 import Renderer from './renderer'
+import { SendMessageToBackground } from '../types'
 
 const $ = (selector: string) => document.querySelector(selector)
 const $$ = (selector: string) => document.querySelectorAll(selector)
@@ -115,7 +115,7 @@ const GitLabRenderer: RendererParams = {
 export default abstract class Adapter {
   prevContainer?: Element | null
 
-  abstract getSendMessage(): types.SendMessageToBackground
+  abstract getSendMessage(): SendMessageToBackground
   sendMessage = this.getSendMessage()
 
   constructor() {

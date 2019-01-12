@@ -1,7 +1,7 @@
 import { render, h } from 'preact'
-import * as types from '../types'
 import { RendererParams } from './adapter'
 import App from './app'
+import { ContentMessage, BackgroundMessage, MessageType } from '../types'
 
 interface Padding {
   left: number
@@ -30,10 +30,10 @@ export default class Renderer {
   offsetTop: number
   codeUrl: string
 
-  sendMessage: (data: types.ContentMessage, cb: (message: types.BackgroundMessage) => void) => void
+  sendMessage: (data: ContentMessage, cb: (message: BackgroundMessage) => void) => void
 
   constructor(
-    sendMessage: (data: types.ContentMessage, cb: (message: types.BackgroundMessage) => void) => void,
+    sendMessage: (data: ContentMessage, cb: (message: BackgroundMessage) => void) => void,
     renderParams: RendererParams,
   ) {
     this.sendMessage = sendMessage
@@ -73,8 +73,8 @@ export default class Renderer {
     // Create service on page load
     this.sendMessage(
       {
+        type: MessageType.service,
         file: this.fileName,
-        type: types.Message.service,
         codeUrl: this.codeUrl,
         tabSize,
       },

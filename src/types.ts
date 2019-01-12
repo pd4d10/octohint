@@ -19,7 +19,7 @@ type Position = {
   y: number
 }
 
-export enum Message {
+export enum MessageType {
   service = 'service',
   occurrence = 'occurrence',
   quickInfo = 'quickInfo',
@@ -56,22 +56,25 @@ interface BaseContentMessage {
 }
 
 interface ContentMessageOfService extends BaseContentMessage {
-  type: Message.service
+  type: MessageType.service
   tabSize: number
 }
 
 interface ContentMessageOfOccurrence extends BaseContentMessage {
-  type: Message.occurrence
+  type: MessageType.occurrence
   position: Position
   meta?: boolean
 }
 
 interface ContentMessageOfQuickInfo extends BaseContentMessage {
-  type: Message.quickInfo
+  type: MessageType.quickInfo
   position: Position
 }
 
-export type ContentMessage = ContentMessageOfService | ContentMessageOfOccurrence | ContentMessageOfQuickInfo
+export type ContentMessage =
+  | ContentMessageOfService
+  | ContentMessageOfOccurrence
+  | ContentMessageOfQuickInfo
 
 export type SendMessageToBackground = (data: ContentMessage) => Promise<BackgroundMessage>
 

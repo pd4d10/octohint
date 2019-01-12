@@ -1,6 +1,6 @@
 import * as cssService from 'vscode-css-languageservice'
 import * as ls from 'vscode-languageserver-types'
-import { MultiFileService, SingleFileService } from './base'
+import { SingleFileService } from './base'
 import { PositionInfo } from '../../types'
 
 abstract class BaseService extends SingleFileService {
@@ -17,10 +17,12 @@ abstract class BaseService extends SingleFileService {
   }
 
   getOccurrences(info: PositionInfo) {
-    return this.service.findDocumentHighlights(this.document, info, this.stylesheet).map(highlight => ({
-      range: highlight.range.start,
-      width: highlight.range.end.character - highlight.range.start.character,
-    }))
+    return this.service
+      .findDocumentHighlights(this.document, info, this.stylesheet)
+      .map(highlight => ({
+        range: highlight.range.start,
+        width: highlight.range.end.character - highlight.range.start.character,
+      }))
   }
 
   getDefinition(info: PositionInfo) {

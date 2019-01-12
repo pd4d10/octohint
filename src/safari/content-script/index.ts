@@ -1,16 +1,16 @@
 import Adapter from '../../content-script/adapter'
-import * as types from '../../types'
+import { BackgroundMessage, SendMessageToBackground } from '../../types'
 
 declare global {
   interface Window {
-    OCTOHINT_ON_MESSAGE: (message: types.BackgroundMessage) => void
+    OCTOHINT_ON_MESSAGE: (message: BackgroundMessage) => void
   }
 }
 
 window.OCTOHINT_ON_MESSAGE = () => {}
 
 class SafariAdapter extends Adapter {
-  getSendMessage(): types.SendMessageToBackground {
+  getSendMessage(): SendMessageToBackground {
     return data =>
       new Promise(resolve => {
         window.OCTOHINT_ON_MESSAGE = resolve
@@ -21,7 +21,7 @@ class SafariAdapter extends Adapter {
   constructor() {
     safari.self.addEventListener(
       'message',
-      (res: { message: types.BackgroundMessage }) => {
+      (res: { message: BackgroundMessage }) => {
         window.OCTOHINT_ON_MESSAGE(res.message)
       },
       false,

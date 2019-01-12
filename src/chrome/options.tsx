@@ -64,7 +64,8 @@ class Options extends Component<{}, { origins: string[]; temp: string }> {
       <div style={{ lineHeight: '1.8' }}>
         <form onSubmit={this.handleAdd}>
           <p>
-            Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a different site. If it doesn't work, see{' '}
+            Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a different site. If
+            it doesn't work, see{' '}
             <a href="https://developer.chrome.com/extensions/match_patterns">Match Patterns</a>
           </p>
           <table>

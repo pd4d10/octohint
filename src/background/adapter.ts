@@ -1,16 +1,22 @@
 import { createService } from './services'
-import TsService from './services/typescript'
-import * as types from '../types'
-import { MultiFileService } from './services/base'
+import { TsService } from './services/typescript'
+import { MultipleFileService } from './services/base'
+import {
+  ContentMessage,
+  BackgroundMessage,
+  MessageType,
+  BackgroundMessageOfOccurrence,
+  BackgroundMessageOfQuickInfo,
+} from '../types'
 
 const TIMEOUT = 1000 * 60 * 5 // 5min
 
 export default abstract class Adapter {
-  services: { [file: string]: MultiFileService } = {}
+  services: { [file: string]: MultipleFileService } = {}
   ts = new TsService()
 
   abstract addListener(
-    cb: (message: types.ContentMessage, sendResponse: (message: types.BackgroundMessage) => void) => void,
+    cb: (message: ContentMessage, sendResponse: (message: BackgroundMessage) => void) => void,
   ): void
   abstract addTabUpdateListener(): void
 
@@ -23,7 +29,7 @@ export default abstract class Adapter {
     return path.replace(/.*\.(.*?)$/, '$1')
   }
 
-  handleMessage = (message: types.ContentMessage, sendResponse: (message: types.BackgroundMessage) => void) => {
+  handleMessage = (message: ContentMessage, sendResponse: (message: BackgroundMessage) => void) => {
     // const { file, codeUrl, tabSize } = message
     let service
     const ext = this.getExtension(message.file)
@@ -49,10 +55,10 @@ export default abstract class Adapter {
     //   return
     // }
 
-    let response: types.BackgroundMessage
+    let response: BackgroundMessage
 
     switch (message.type) {
-      case types.Message.service: {
+      case MessageType.service: {
         response = {} // Trigger for Safari
 
         // chrome.browserAction.setIcon({
@@ -64,7 +70,7 @@ export default abstract class Adapter {
 
         break
       }
-      case types.Message.occurrence: {
+      case MessageType.occurrence: {
         const info = {
           file: message.file,
           line: message.position.y,
@@ -73,10 +79,10 @@ export default abstract class Adapter {
         response = {
           occurrences: service.getOccurrences(info),
           info: message.meta ? service.getDefinition(info) : undefined,
-        } as types.BackgroundMessageOfOccurrence
+        } as BackgroundMessageOfOccurrence
         break
       }
-      case types.Message.quickInfo: {
+      case MessageType.quickInfo: {
         const info = {
           file: message.file,
           line: message.position.y,
@@ -84,7 +90,7 @@ export default abstract class Adapter {
         }
         response = {
           data: service.getQuickInfo(info),
-        } as types.BackgroundMessageOfQuickInfo
+        } as BackgroundMessageOfQuickInfo
         break
       }
       default:

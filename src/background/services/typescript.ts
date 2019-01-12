@@ -1,9 +1,9 @@
-import * as ts from 'typescript'
-import { MultiFileService } from './base'
+import ts from 'typescript'
+import { MultipleFileService } from './base'
 import * as path from 'path'
 import stdLibs from './node-libs.json'
 import { without, uniq } from 'lodash-es'
-import * as types from '../../types'
+import { ContentMessage, PositionInfo } from '../../types'
 
 const defaultLibName = '//lib.d.ts'
 
@@ -21,7 +21,7 @@ interface Files {
 
 // FIXME: Very slow when click type `string`
 // TODO: Go to definition for third party libs
-export default class TSService extends MultiFileService {
+export class TsService extends MultipleFileService {
   private service?: ts.LanguageService
   private getSourceFile(file: string) {
     // This is necesarry because createService is asynchronous
@@ -65,7 +65,10 @@ export default class TSService extends MultiFileService {
     const prefix = 'https://unpkg.com'
     try {
       // Find typings file path
-      const { types, typings } = await this.fetchWithCredentials(path.join(prefix, name, 'package.json'), true)
+      const { types, typings } = await this.fetchWithCredentials(
+        path.join(prefix, name, 'package.json'),
+        true,
+      )
       if (types || typings) {
         return await this.fetchWithCredentials(path.join(prefix, name, types || typings))
       }
@@ -98,7 +101,7 @@ export default class TSService extends MultiFileService {
   }
 
   // Notice that this method is asynchronous
-  async createService(message: types.ContentMessage) {
+  async createService(message: ContentMessage) {
     if (this.files[message.file]) return
 
     const defaultLib = await import('../../ts-lib')
@@ -162,7 +165,7 @@ export default class TSService extends MultiFileService {
   //   return sourceFile.getPositionOfLineAndCharacter(line, character)
   // }
 
-  getOccurrences(info: types.PositionInfo) {
+  getOccurrences(info: PositionInfo) {
     const instance = this.getSourceFile(info.file)
     if (instance) {
       // After upgrading to typescript@2.5
@@ -191,7 +194,7 @@ export default class TSService extends MultiFileService {
     }
   }
 
-  getDefinition(info: types.PositionInfo) {
+  getDefinition(info: PositionInfo) {
     const instance = this.getSourceFile(info.file)
     if (this.service && instance) {
       let position: number
@@ -210,7 +213,7 @@ export default class TSService extends MultiFileService {
     }
   }
 
-  getQuickInfo(info: types.PositionInfo) {
+  getQuickInfo(info: PositionInfo) {
     const instance = this.getSourceFile(info.file)
     if (this.service && instance) {
       let position: number

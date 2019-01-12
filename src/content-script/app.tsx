@@ -1,7 +1,7 @@
 import { h, Component } from 'preact'
 import Portal from 'preact-portal'
 import { debounce } from 'lodash-es'
-import { Definition, Occurrence, QuickInfo, Message } from '../types'
+import { Definition, Occurrence, QuickInfo, MessageType } from '../types'
 
 const colors = {
   lineBg: '#fffbdd',
@@ -72,7 +72,7 @@ export default class App extends Component<any, AppState> {
 
       const response = await this.props.sendMessage({
         file: this.props.fileName,
-        type: Message.occurrence,
+        type: MessageType.occurrence,
         position,
         meta: isMacOS ? e.metaKey : e.ctrlKey,
         codeUrl: this.props.codeUrl,
@@ -84,7 +84,10 @@ export default class App extends Component<any, AppState> {
       if (response.info) {
         window.scrollTo(
           0,
-          this.props.offsetTop + this.props.padding.top + response.info.line * this.props.line.height - 80,
+          this.props.offsetTop +
+            this.props.padding.top +
+            response.info.line * this.props.line.height -
+            80,
         ) // TODO: Magic number
       }
 
@@ -109,7 +112,7 @@ export default class App extends Component<any, AppState> {
         const { data } = await this.props.sendMessage({
           file: this.props.fileName,
           codeUrl: this.props.codeUrl,
-          type: Message.quickInfo,
+          type: MessageType.quickInfo,
           position,
         })
         this.setState({ quickInfo: data })
@@ -145,7 +148,9 @@ export default class App extends Component<any, AppState> {
             <div
               style={{
                 position: 'absolute',
-                background: occurrence.isWriteAccess ? colors.occurrenceWrite : colors.occurrenceRead,
+                background: occurrence.isWriteAccess
+                  ? colors.occurrenceWrite
+                  : colors.occurrenceRead,
                 width: occurrence.width * this.props.fontWidth,
                 height: this.props.line.height,
                 top: occurrence.range.line * this.props.line.height,
