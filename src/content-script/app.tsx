@@ -1,14 +1,7 @@
 import { h, Component } from 'preact'
 import Portal from 'preact-portal'
 import { debounce } from 'lodash-es'
-import {
-  Definition,
-  Occurrence,
-  QuickInfo,
-  BackgroundMessageOfOccurrence,
-  Message,
-  BackgroundMessageOfQuickInfo,
-} from '../types'
+import { Definition, Occurrence, QuickInfo, Message } from '../types'
 
 const colors = {
   lineBg: '#fffbdd',
@@ -46,80 +39,89 @@ export default class App extends Component<any, AppState> {
   }
 
   componentDidMount() {
+    // keydown: change mouse cursor to pointer
     document.addEventListener('keydown', e => {
       console.log('keydown', e)
-      if (isMacOS ? e.key === 'Meta' : e.key === 'Control') {
+      if (isMeta(e)) {
         // FIXME: Slow when file is large
         this.$container.style.cursor = 'pointer'
         // FIXME: Sometimes keyup can't be triggered, add a long enough timeout to restore
-        setTimeout(() => (this.$container.style.cursor = null), 10000)
+        setTimeout(() => {
+          this.$container.style.cursor = null
+        }, 10000)
       }
     })
-    document.addEventListener('keyup', (e: KeyboardEvent) => {
+
+    // keyup: recover mouse cursor
+    document.addEventListener('keyup', e => {
       console.log('keyup', e)
-      if (isMacOS ? e.key === 'Meta' : e.key === 'Control') {
+      if (isMeta(e)) {
         this.$container.style.cursor = null
       }
     })
 
-    this.$container.addEventListener('click', this.handleClick)
-    this.$container.addEventListener('mousemove', this.handleMouseMove)
+    // click: show occurrences
+    // if meta key is pressed, also show definition and scroll to it
+    this.$container.addEventListener('click', async e => {
+      console.log('click', e)
+
+      const position = this.getPosition(e)
+      if (position.x < 0 || position.y < 0) {
+        return
+      }
+
+      const response = await this.props.sendMessage({
+        file: this.props.fileName,
+        type: Message.occurrence,
+        position,
+        meta: isMacOS ? e.metaKey : e.ctrlKey,
+        codeUrl: this.props.codeUrl,
+      })
+
+      // TODO: Fix overflow when length is large
+      this.setState({ definition: response.info, occurrences: response.occurrences })
+
+      if (response.info) {
+        window.scrollTo(
+          0,
+          this.props.offsetTop + this.props.padding.top + response.info.line * this.props.line.height - 80,
+        ) // TODO: Magic number
+      }
+
+      // TODO: Exclude click event triggered by selecting text
+      // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
+      // if (window.getSelection().toString()) {
+      //   return
+      // }
+    })
+
+    // mousemove: show quick info on stop
+    this.$container.addEventListener(
+      'mousemove',
+      debounce(async (e: MouseEvent) => {
+        // console.log('mousemove', e)
+        const position = this.getPosition(e)
+
+        if (position.x < 0 || position.y < 0) {
+          return
+        }
+
+        const { data } = await this.props.sendMessage({
+          file: this.props.fileName,
+          codeUrl: this.props.codeUrl,
+          type: Message.quickInfo,
+          position,
+        })
+        this.setState({ quickInfo: data })
+      }, DEBOUNCE_TIMEOUT),
+    )
+
+    // mouseout: hide quick info on leave
     this.$container.addEventListener('mouseout', e => {
+      // console.log('mouseout', e)
       this.setState({ quickInfo: undefined })
     })
   }
-
-  handleClick = async (e: MouseEvent) => {
-    console.log('click', e)
-
-    const position = this.getPosition(e)
-    if (position.x < 0 || position.y < 0) {
-      return
-    }
-
-    const response = await this.props.sendMessage({
-      file: this.props.fileName,
-      type: Message.occurrence,
-      position,
-      meta: isMacOS ? e.metaKey : e.ctrlKey,
-      codeUrl: this.props.codeUrl,
-    })
-    if (response.info) {
-      this.setState({ definition: response.info })
-      window.scrollTo(
-        0,
-        this.props.offsetTop + this.props.padding.top + response.info.line * this.props.line.height - 80,
-      ) // TODO: Magic number
-    }
-
-    // TODO: Fix overflow when length is large
-    this.setState({ occurrences: response.occurrences })
-
-    // TODO: Exclude click event triggered by selecting text
-    // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
-    // if (window.getSelection().toString()) {
-    //   return
-    // }
-  }
-
-  handleMouseMove = debounce(async (e: MouseEvent) => {
-    // console.log('mousemove', e)
-    const position = this.getPosition(e)
-
-    if (position.x < 0 || position.y < 0) {
-      return
-    }
-
-    const params = {
-      file: this.props.fileName,
-      codeUrl: this.props.codeUrl,
-      type: Message.quickInfo,
-      position,
-    }
-
-    const { data } = await this.props.sendMessage(params)
-    this.setState({ quickInfo: data })
-  }, DEBOUNCE_TIMEOUT)
 
   render() {
     const { definition, occurrences, quickInfo } = this.state
@@ -228,4 +230,8 @@ function getColorFromKind(kind: string) {
     default:
       return '#001080'
   }
+}
+
+function isMeta(e: KeyboardEvent) {
+  return isMacOS ? e.key === 'Meta' : e.key === 'Control'
 }
