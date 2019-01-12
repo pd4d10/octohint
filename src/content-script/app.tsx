@@ -134,8 +134,8 @@ export default class App extends Component<any, AppState> {
               position: 'absolute',
               background: colors.lineBg,
               left: 0,
-              width: this.props.line.width,
-              height: this.props.line.height - 20, // TODO: Magic number
+              width: this.props.line.width - 20, // TODO: Magic number
+              height: this.props.line.height,
               top: definition.line * this.props.line.height,
             }}
           />
