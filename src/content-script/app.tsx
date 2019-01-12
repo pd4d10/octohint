@@ -178,7 +178,7 @@ export default class App extends Component<any, AppState> {
                   border: `1px solid #c8c8c8`,
                   fontSize: 12,
                   padding: `2px 4px`,
-                  fontFamily: 'monospace',
+                  fontFamily: this.props.fontFamily,
                   left: quickInfo.range.character * this.props.fontWidth,
                   maxWidth: 500,
                   maxHeight: 300,
