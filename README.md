@@ -25,7 +25,9 @@ Install it from [Safari Extensions Gallery](https://safari-extensions.apple.com/
 
 ### Firefox
 
-Currently you could build it from source, see web extension section of [contributing docs](CONTRIBUTING.md). Follow [this guide](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox) to install it from local directory.
+Currently you could build it from source, see web extension section of [contributing docs](CONTRIBUTING.md). Or [try this one](https://github.com/pd4d10/octohint/issues/24#issuecomment-450467200). 
+You can use the "On your own" signing option on [Mozilla addon site](https://addons.mozilla.org/en-US/developers/addon/submit/distribution) to create a signed add-on for your self, and install it.
+Alternatively, you can follow [this guide](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox) to install it temporarly from local directory, note that add-on installed this way is temporary add-on, and will be removed every time you restart the Firefox.
 
 Make sure your version of Firefox supports web extensions.
 
