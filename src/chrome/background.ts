@@ -1,31 +1,30 @@
-import Adapter from '../background/adapter'
+async function inject(tabId: number) {
+  console.log('injecting...')
+  const { ChromeAdapter } = await import('./adapter')
+  new ChromeAdapter()
 
-class ChromeAdapter extends Adapter {
-  addListener(cb: any) {
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      if (!sender.tab || !sender.tab.id) return
-
-      // TODO: Do not set it every time
-      // chrome.browserAction.setIcon({ tabId: sender.tab.id, path: 'icons/active.png' })
-      // chrome.browserAction.setTitle({ title: 'Octohint works' })
-      cb(message, sendResponse)
-    })
-  }
-
-  addTabUpdateListener() {
-    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-      if (changeInfo.status !== 'complete') return
-      const code =
-        'var injected = window.octohintInjected; window.octohintInjected = true; injected;'
-      chrome.tabs.executeScript(tabId, { code }, res => {
-        if (chrome.runtime.lastError || res[0]) return
-        chrome.tabs.executeScript(tabId, { file: 'dist/content-script.js' })
-      })
-    })
-  }
+  chrome.tabs.executeScript(tabId, { file: 'dist/content-script.js' }, () => {
+    console.log('injected')
+  })
 }
 
-new ChromeAdapter()
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  // console.log('tabs.onUpdate', tabId, changeInfo, tab)
+
+  if (changeInfo.status === 'complete') {
+    chrome.tabs.executeScript(
+      tabId,
+      {
+        code: 'var injected = window.octohintInjected; window.octohintInjected = true; injected;',
+      },
+      res => {
+        if (!chrome.runtime.lastError && !res[0]) {
+          inject(tabId)
+        }
+      },
+    )
+  }
+})
 
 // Need to request all sites permissions to get URL
 // So it does work as expected

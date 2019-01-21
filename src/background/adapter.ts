@@ -13,16 +13,13 @@ const TIMEOUT = 1000 * 60 * 5 // 5min
 
 export default abstract class Adapter {
   services: { [file: string]: MultipleFileService } = {}
-  ts = new TsService()
 
   abstract addListener(
     cb: (message: ContentMessage, sendResponse: (message: BackgroundMessage) => void) => void,
   ): void
-  abstract addTabUpdateListener(): void
 
   constructor() {
     this.addListener(this.handleMessage)
-    this.addTabUpdateListener()
   }
 
   getExtension(path: string) {
@@ -34,8 +31,8 @@ export default abstract class Adapter {
     let service
     const ext = this.getExtension(message.file)
     if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
-      this.ts.createService(message)
-      service = this.ts
+      service = new TsService()
+      service.createService(message)
     } else {
       if (!this.services[message.file]) {
         this.services[message.file] = createService(ext, message)

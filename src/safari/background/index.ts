@@ -13,9 +13,6 @@ class SafariAdapter extends Adapter {
       false,
     )
   }
-
-  // Not supported at Safari
-  addTabUpdateListener() {}
 }
 
 new SafariAdapter()
