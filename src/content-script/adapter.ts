@@ -1,7 +1,13 @@
-import Renderer from './renderer'
+import { renderToContainer } from './renderer'
 
-const $ = (selector: string) => document.querySelector(selector)
-const $$ = (selector: string) => document.querySelectorAll(selector)
+const $ = (selector: string, wrapper: HTMLElement = document.body) => {
+  const dom = wrapper.querySelector(selector)
+  if (!dom) return null
+  return dom as HTMLElement
+}
+const $$ = (selector: string) => {
+  return document.querySelectorAll(selector)
+}
 
 function getCurrentUrl() {
   return location.protocol + '//' + location.host + location.pathname
@@ -12,191 +18,170 @@ function getFilePath(loc: { host: string; pathname: string } = location) {
   return '/' + loc.host + loc.pathname
 }
 
-// abstract class Renderer {
-//   abstract containerSelector: string
-//   abstract lineWidth: number
-//   abstract lineHeight: number
-
-//   render() {
-//     const container = document.querySelector(this.containerSelector)
-//   }
-// }
-
-// class GithubRenderer extends Renderer {
-//   containerSelector = '.blob-wrapper'
-//   lineWidth: number
-//   lineHeight: number
-
-//   constructor() {
-//     super()
-//     this.lineWidth = 1
-//     this.lineHeight = 1
-//   }
-// }
-
-export interface RendererParams {
-  /**
-   * Considering scroll-x, container must be inside the wrapper
-   */
-  // containerSelector: string
-
-  getContainer: () => Element | null
-  getFontDOM: () => Element | null
-  // getHighlightColor: () => string
-  getLineWidthAndHeight: () => {
-    width: number
-    height: number
-  }
-  getPadding(
-    fontWidth: number,
-  ): {
-    left: number
-    top: number
-  }
-  getCodeUrl: () => string
-  getFileName: () => string
-
-  /**
-   * Get tab size of actually renderer dom
-   * If not passed, container will be used
-   */
-  getTabSizeDom?: () => Element | null
+export interface RenderParams {
+  container: HTMLElement
+  fontDom: HTMLElement
+  tabSizeDom: HTMLElement
+  lineWidth: number
+  lineHeight: number
+  paddingLeft: number
+  paddingTop: number
+  codeUrl: string
+  fileName: string
   // TODO: This is pretty tricky for making GitLab and Bitbucket work
   beforeRender?: () => void
 }
 
-const GitHubRenderer: RendererParams = {
-  getContainer: () => $('.blob-wrapper'),
-  // getHighlightColor: () => '#fffbdd',
-  getFontDOM: () => $('#LC1'),
-  getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
-  getPadding: () => ({
-    left: 60,
-    top: 0,
-  }),
-  getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
-  getFileName: getFilePath,
-  getTabSizeDom: () => $('.blob-wrapper table'),
-}
+const getGithubParams = (): RenderParams | undefined => {
+  const container = $('.blob-wrapper')
+  const line1 = $('#LC1')
+  const tabSizeDom = $('.blob-wrapper table')
+  if (!container || !line1 || !tabSizeDom) return
 
-function GithubGistRendererFactory(wrapper: HTMLElement): RendererParams {
+  const rect = line1.getBoundingClientRect()
   return {
-    getContainer: () => wrapper.querySelector('.blob-wrapper'),
-    getFontDOM: () => wrapper.querySelector('.blob-wrapper .blob-code'),
-    getLineWidthAndHeight: () => ({ width: 918, height: 20 }),
-    getPadding: () => ({
-      left: 60,
-      top: 0,
-    }),
-    getCodeUrl: () => (wrapper.querySelector('.file-actions a') as HTMLAnchorElement).href,
-    getFileName: () => {
-      const fileName = (wrapper.querySelector('.file-info') as HTMLElement).innerText.trim()
-      return getFilePath().replace(/\/$/, '') + fileName
-    },
-    getTabSizeDom: () => wrapper.querySelector('.blob-wrapper table'),
+    container,
+    fontDom: line1,
+    tabSizeDom,
+    lineWidth: rect.width,
+    lineHeight: rect.height,
+    paddingLeft: 60,
+    paddingTop: 0,
+    codeUrl: getCurrentUrl().replace('/blob/', '/raw/'),
+    fileName: getFilePath(),
   }
 }
 
-const BitbucketRenderer: RendererParams = {
-  getContainer: () => $('.view-lines'),
-  getFontDOM: () => $('.view-lines span'),
-  getLineWidthAndHeight: () => ({
-    width: (<HTMLElement>$('.view-lines .view-line')).offsetWidth - 43,
-    height: 18,
-  }),
-  getPadding: () => ({
-    left: 0,
-    top: 0,
-  }),
-  getCodeUrl: () => getCurrentUrl().replace('/src/', '/raw/'),
-  getFileName: getFilePath,
-  // extraBeforeRender: () => (($('.file-source .code pre') as HTMLElement).style.position = 'relative'),
+function getGithubGistParams(wrapper: HTMLElement): RenderParams | undefined {
+  const container = $('.blob-wrapper', wrapper)
+  const fontDom = $('.blob-wrapper .blob-code', wrapper)
+  const tabSizeDom = $('.blob-wrapper table', wrapper)
+  const codeAction = $('.file-actions a', wrapper)
+  const fileInfo = $('.file-info', wrapper)
+  if (
+    !container ||
+    !fontDom ||
+    !tabSizeDom ||
+    !codeAction ||
+    !fileInfo ||
+    !(codeAction instanceof HTMLAnchorElement)
+  )
+    return
+
+  const codeUrl = codeAction.href
+  if (!codeUrl) return
+
+  return {
+    container,
+    fontDom,
+    tabSizeDom,
+    lineWidth: 918,
+    lineHeight: 20,
+    paddingLeft: 60,
+    paddingTop: 0,
+    codeUrl,
+    fileName: getFilePath().replace(/\/$/, '') + fileInfo.innerText.trim(),
+  }
 }
 
-// This GitLab is for old version
-// TODO: New version use dynamic loading
-const GitLabRenderer: RendererParams = {
-  getContainer: () => $('.blob-content .code'),
-  getFontDOM: () => $('#LC1'),
-  getLineWidthAndHeight: () => $('#LC1')!.getBoundingClientRect(),
-  getPadding: () => ({
-    left: 10,
-    top: 0,
-  }),
-  getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
-  getFileName: getFilePath,
-  beforeRender: () => {
-    const $code = $('.blob-content .code code') as HTMLElement
-    $code.style.position = 'relative'
-    $code.style.background = 'transparent'
-  },
-}
+// const BitbucketRenderer: RendererParams = {
+//   getContainer: () => $('.view-lines'),
+//   getFontDOM: () => $('.view-lines span'),
+//   getLineWidthAndHeight: () => ({
+//     width: (<HTMLElement>$('.view-lines .view-line')).offsetWidth - 43,
+//     height: 18,
+//   }),
+//   paddingLeft: 0,
+//   paddingTop: 0,
+//   getCodeUrl: () => getCurrentUrl().replace('/src/', '/raw/'),
+//   getFileName: getFilePath,
+//   // extraBeforeRender: () => (($('.file-source .code pre') as HTMLElement).style.position = 'relative'),
+// }
 
-export class Adapter {
-  prevContainer?: Element | null
+// // This GitLab is for old version
+// // TODO: New version use dynamic loading
+// const GitLabRenderer: RendererParams = {
+//   getContainer: () => $('.blob-content .code'),
+//   getFontDOM: () => $('#LC1'),
+//   getLineWidthAndHeight: () => $('#LC1')!.getBoundingClientRect(),
+//   paddingLeft: 10,
+//   paddingTop: 0,
+//   getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
+//   getFileName: getFilePath,
+//   beforeRender: () => {
+//     const $code = $('.blob-content .code code') as HTMLElement
+//     $code.style.position = 'relative'
+//     $code.style.background = 'transparent'
+//   },
+// }
 
-  constructor() {
-    // GitHub Gist
-    if (location.host === 'gist.github.com') {
-      // const list = $$('.file-actions a')
-      Array.prototype.forEach.call(
-        document.querySelectorAll('.js-gist-file-update-container'),
-        (wrapper: HTMLElement) => {
-          new Renderer(GithubGistRendererFactory(wrapper))
-        },
-      )
-      return
-    }
+// let prevContainer: Element | null
 
-    // GitHub
-    // TODO: Dynamic import
-    // May be deployed at private domain, URL
-    // So use DOM selector
-    this.addMutationObserver($('#js-repo-pjax-container'), GitHubRenderer)
-    if (GitHubRenderer.getContainer()) {
-      new Renderer(GitHubRenderer)
-      return
-    }
+// // TODO:
+// const addMutationObserver = (
+//   container: Element | null,
+//   params: RendererParams,
+//   extraCondition = true,
+// ) => {
+//   if (!container || !extraCondition) return
 
-    // GitLab
-    this.addMutationObserver($('.blob-viewer'), GitLabRenderer) // Dynamic loading
-    // FIXME: Use `document.documentElement` may cause problems when DOM added by other extensions
-    // this.addMutationObserver(document.documentElement, GitLabRenderer, GitLabRenderer.getContainer() !== null)
-    if (GitLabRenderer.getContainer()) {
-      // Direct loading, like browser go back
-      new Renderer(GitLabRenderer)
-      return
-    }
+//   new MutationObserver(mutations => {
+//     mutations.forEach(mutation => {
+//       console.log(mutation)
+//       if (mutation.type === 'childList' && mutation.addedNodes.length) {
+//         // This fix GitHub trigger multi mutations sometimes while dynamic loading
+//         // Check if current container equals to previous, if same then ignore
+//         const container = params.getContainer()
+//         if (container && prevContainer !== container) {
+//           renderToContainer(params)
+//           prevContainer = container
+//         }
+//       }
+//     })
+//   }).observe(container, {
+//     attributes: true,
+//     childList: true,
+//     characterData: true,
+//   })
+// }
 
-    // Bitbucket
-    // Seems Bitbucket already use monaco-editor to show code
-    // this.addMutationObserver($('.react-monaco-editor-container'), BitbucketRenderer)
-    // if (BitbucketRenderer.getContainer()) {
-    //   new Renderer(BitbucketRenderer)
-    //   return
-    // }
+export const runAdapter = () => {
+  // GitHub Gist
+  if (location.host === 'gist.github.com') {
+    const containers = $$('.js-gist-file-update-container')
+    if (!containers) return
+    containers.forEach(container => {
+      const params = getGithubGistParams(container as HTMLElement)
+      if (params) {
+        renderToContainer(params)
+      }
+    })
+    return
   }
 
-  addMutationObserver(container: Element | null, params: RendererParams, extraCondition = true) {
-    if (container && extraCondition) {
-      new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-          console.log(mutation)
-          if (mutation.type === 'childList' && mutation.addedNodes.length) {
-            // This fix GitHub trigger multi mutations sometimes while dynamic loading
-            // Check if current container equals to previous, if same then ignore
-            const container = params.getContainer()
-            if (container && this.prevContainer !== container) {
-              new Renderer(params)
-              this.prevContainer = container
-            }
-          }
-        })
-      }).observe(container, {
-        attributes: true,
-        childList: true,
-        characterData: true,
-      })
-    }
+  // GitHub
+  // TODO: Dynamic import
+  // May be deployed at private domain, URL
+  // So use DOM selector
+  const params = getGithubParams()
+  if (params) {
+    renderToContainer(params)
+    return
   }
+
+  // GitLab
+  // FIXME: Use `document.documentElement` may cause problems when DOM added by other extensions
+  // this.addMutationObserver(document.documentElement, GitLabRenderer, GitLabRenderer.getContainer() !== null)
+
+  // Direct loading, like browser go back
+  // renderToContainer(GitLabRenderer)
+  // return
+
+  // Bitbucket
+  // Seems Bitbucket already use monaco-editor to show code
+  // this.addMutationObserver($('.react-monaco-editor-container'), BitbucketRenderer)
+  // if (BitbucketRenderer.getContainer()) {
+  //   new Renderer(BitbucketRenderer)
+  //   return
+  // }
 }

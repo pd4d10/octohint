@@ -1,193 +1,158 @@
 import { render, h } from 'preact'
-import { RendererParams } from './adapter'
+import { RenderParams } from './adapter'
 import App from './app'
-import { ContentMessage, BackgroundMessage, MessageType } from '../types'
+import { MessageType } from '../types'
 
-interface Padding {
-  left: number
-  top: number
+const getFontParams = (fontDom: HTMLElement) => {
+  const testDom = document.createElement('span')
+  testDom.innerText = '0'
+  fontDom.appendChild(testDom)
+
+  const style = getComputedStyle(testDom)
+  const result = {
+    width: testDom.getBoundingClientRect().width,
+    family: style.fontFamily,
+  }
+
+  testDom.remove()
+  return result
 }
 
-interface Line {
-  width: number
-  height: number
+const getOffsetTop = (e: HTMLElement): number => {
+  if (!e) {
+    return 0
+  }
+  const parent = e.offsetParent as HTMLElement
+  return e.offsetTop + getOffsetTop(parent)
 }
 
-export default class Renderer {
-  renderParams: RendererParams
-  fileName: string
-  $container: HTMLElement
-
-  // $positionContainer: HTMLElement
-  fontWidth!: number
-  fontFamily!: string | null
-  fontSize!: string | null
-  line!: Line
-  padding!: Padding
-  code!: string
-  offsetTop: number
-  codeUrl: string
-
-  constructor(renderParams: RendererParams) {
-    this.renderParams = renderParams
-    this.fileName = renderParams.getFileName()
-    this.$container = renderParams.getContainer() as HTMLElement
-    console.log('container:', this.$container)
-
-    const tabSizeDom = renderParams.getTabSizeDom ? renderParams.getTabSizeDom() : this.$container
-    const tabSize = parseInt(getComputedStyle(tabSizeDom as HTMLElement).tabSize, 10) || 8
-
-    // this.$positionContainer = renderParams.getPositionContainer
-    //   ? renderParams.getPositionContainer() as HTMLElement
-    //   : this.$container
-    // No need to check if DOM exists, already check it at initialization
-    // this.$container = this.$positionContainer
-
-    this.offsetTop = this.getOffsetTop(this.$container)
-
-    this.codeUrl = renderParams.getCodeUrl()
-
-    // Get font width and family
-    const fontDOM = renderParams.getFontDOM() as HTMLElement
-    if (!fontDOM) return
-    this.line = renderParams.getLineWidthAndHeight()
-
-    const testDOM = document.createElement('span')
-    testDOM.innerText = '0'
-    fontDOM.appendChild(testDOM)
-    this.fontWidth = testDOM.getBoundingClientRect().width
-    ;({ fontFamily: this.fontFamily, fontSize: this.fontSize } = getComputedStyle(testDOM))
-    testDOM.remove()
-
-    this.padding = renderParams.getPadding(this.fontWidth)
-
-    this.render(this.$container)
-    // Create service on page load
-    chrome.runtime.sendMessage({
-      type: MessageType.service,
-      file: this.fileName,
-      codeUrl: this.codeUrl,
-      tabSize,
-    })
+// '20px' => 20
+const px2num = (px: string | null) => {
+  if (px) {
+    return parseInt(px.replace('px', ''), 10)
+  } else {
+    return 0
   }
+}
 
-  getOffsetTop(e: HTMLElement): number {
-    if (!e) {
-      return 0
-    }
-    const parent = e.offsetParent as HTMLElement
-    return e.offsetTop + this.getOffsetTop(parent)
-  }
+/**
+ * Principles:
+ * Do not break DOM position as mush as possible
+ * Like set `position` property to existing DOM
+ *
+ * <container>           +--------------------+
+ *   - container padding top + border top
+ *              +--------------------+
+ *   <background />
+ *  +-----------------------------
+ *  |                padding top
+ *  |              +-----------
+ *  | padding left | Code area
+ *  |              +----------
+ *  |                padding bottom
+ *  +-------------------------------
+ *   <quickInfo />
+ *               ---------------
+ *   - container padding bottom + border bottom
+ * </container>  +--------------------+
+ *
+ * Problems:
+ * 1. Masks should not cover code
+ * 2. Masks should not be selected
+ * 3. Masks should follow Horizontal scroll
+ * 4. Quick info overflow on first or second line
+ *
+ * DOM structure    - z-index
+ *
+ * <container>
+ *   <background /> - 0
+ *   ...            - 1
+ *   <quickInfo />  - 2
+ * </container>
+ *
+ * <container> and its childrens should not set background-color
+ * Order: background -> other childrens(including code) -> quickInfo
+ */
+export const renderToContainer = ({
+  container,
+  fontDom,
+  tabSizeDom,
+  lineWidth,
+  lineHeight,
+  paddingLeft,
+  paddingTop,
+  codeUrl,
+  fileName,
+  beforeRender,
+}: RenderParams) => {
+  console.log('container:', container)
 
-  // '20px' => 20
-  px2num(px: string | null) {
-    if (px) {
-      return parseInt(px.replace('px', ''), 10)
-    } else {
-      return 0
-    }
-  }
+  const tabSize = parseInt(getComputedStyle(tabSizeDom as HTMLElement).tabSize, 10) || 8
 
-  /**
-   * Principles:
-   * Do not break DOM position as mush as possible
-   * Like set `position` property to existing DOM
-   *
-   * <container>           +--------------------+
-   *   - container padding top + border top
-   *              +--------------------+
-   *   <background />
-   *  +-----------------------------
-   *  |                padding top
-   *  |              +-----------
-   *  | padding left | Code area
-   *  |              +----------
-   *  |                padding bottom
-   *  +-------------------------------
-   *   <quickInfo />
-   *               ---------------
-   *   - container padding bottom + border bottom
-   * </container>  +--------------------+
-   *
-   * Problems:
-   * 1. Masks should not cover code
-   * 2. Masks should not be selected
-   * 3. Masks should follow Horizontal scroll
-   * 4. Quick info overflow on first or second line
-   *
-   * DOM structure    - z-index
-   *
-   * <container>
-   *   <background /> - 0
-   *   ...            - 1
-   *   <quickInfo />  - 2
-   * </container>
-   *
-   * <container> and its childrens should not set background-color
-   * Order: background -> other childrens(including code) -> quickInfo
-   */
-  render($container: HTMLElement) {
-    // TODO: This is pretty tricky for making GitLab and Bitbucket work
-    if (this.renderParams.beforeRender) {
-      this.renderParams.beforeRender()
-    }
+  // Get font width and family
+  const fontParams = getFontParams(fontDom)
 
-    // this.$container.style.position = 'relative'
-    // this.$positionContainer.style.position = 'relative'
-    // ;[].forEach.call($container.children, ($child: HTMLElement) => {
-    //   $child.style.position = 'relative'
-    //   $child.style.zIndex = '1'
-    // })
+  // TODO: This is pretty tricky for making GitLab and Bitbucket work
+  if (beforeRender) beforeRender()
 
-    const { width, height } = $container.getBoundingClientRect()
-    const wrapperWidth = `${width - this.padding.left - 10}px`
+  // container.style.position = 'relative'
+  // this.$positionContainer.style.position = 'relative'
+  // ;[].forEach.call(container.children, ($child: HTMLElement) => {
+  //   $child.style.position = 'relative'
+  //   $child.style.zIndex = '1'
+  // })
 
-    const $background = document.createElement('div')
-    $background.style.position = 'relative'
-    // $background.style.zIndex = '-1' // Set z-index to -1 makes GitLab occurrence not show
-    $background.style.top = `${this.padding.top}px`
-    $background.style.left = `${this.padding.left}px`
-    $background.style.width = wrapperWidth // Important, fix Y scrollbar
+  const { width, height } = container.getBoundingClientRect()
+  const wrapperWidth = `${width - paddingLeft - 10}px`
 
-    const $quickInfo = document.createElement('div')
-    $quickInfo.style.position = 'relative'
-    const style = getComputedStyle($container)
-    const paddingAndBorderOfContainer =
-      this.px2num(style.paddingTop) +
-      this.px2num(style.paddingBottom) +
-      this.px2num(style.borderTopWidth) +
-      this.px2num(style.borderBottomWidth)
+  const $background = document.createElement('div')
+  $background.style.position = 'relative'
+  // $background.style.zIndex = '-1' // Set z-index to -1 makes GitLab occurrence not show
+  $background.style.top = `${paddingTop}px`
+  $background.style.left = `${paddingLeft}px`
+  $background.style.width = wrapperWidth // Important, fix Y scrollbar
 
-    $quickInfo.style.width = wrapperWidth // Important, make quick info show as wide as possible
-    // $quickInfo.style.zIndex = '2'
-    $quickInfo.style.bottom = `${height - paddingAndBorderOfContainer - this.padding.top}px`
-    $quickInfo.style.left = `${this.padding.left}px`
+  const $quickInfo = document.createElement('div')
+  $quickInfo.style.position = 'relative'
+  const style = getComputedStyle(container)
+  const paddingAndBorderOfContainer =
+    px2num(style.paddingTop) +
+    px2num(style.paddingBottom) +
+    px2num(style.borderTopWidth) +
+    px2num(style.borderBottomWidth)
 
-    $container.insertBefore($background, $container.firstChild)
-    $container.appendChild($quickInfo)
+  $quickInfo.style.width = wrapperWidth // Important, make quick info show as wide as possible
+  // $quickInfo.style.zIndex = '2'
+  $quickInfo.style.bottom = `${height - paddingAndBorderOfContainer - paddingTop}px`
+  $quickInfo.style.left = `${paddingLeft}px`
 
-    render(
-      <App
-        {...{
-          $container,
-          $background,
-          $quickInfo,
-          fontWidth: this.fontWidth,
-          fontFamily: this.fontFamily,
-          fileName: this.fileName,
-          codeUrl: this.codeUrl,
-          offsetTop: this.offsetTop,
-          line: {
-            height: this.line.height,
-            width: this.line.width,
-          },
-          padding: {
-            top: this.padding.top,
-          },
-          ...this,
-        }}
-      />,
-      $background,
-    )
-  }
+  container.insertBefore($background, container.firstChild)
+  container.appendChild($quickInfo)
+
+  render(
+    <App
+      {...{
+        container,
+        $background,
+        $quickInfo,
+        fontWidth: fontParams.width,
+        fontFamily: fontParams.family,
+        fileName,
+        codeUrl,
+        offsetTop: getOffsetTop(container),
+        lineWidth,
+        lineHeight,
+        paddingTop,
+      }}
+    />,
+    $background,
+  )
+
+  // Create service on page load
+  chrome.runtime.sendMessage({
+    type: MessageType.service,
+    file: fileName,
+    codeUrl: codeUrl,
+    tabSize,
+  })
 }

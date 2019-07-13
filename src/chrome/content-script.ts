@@ -1,3 +1,3 @@
-import { Adapter } from '../content-script/adapter'
+import { runAdapter } from '../content-script/adapter'
 
-new Adapter()
+runAdapter()

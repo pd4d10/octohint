@@ -28,13 +28,9 @@ interface AppProps {
   fileName: string
   codeUrl: string
   offsetTop: number
-  line: {
-    height: number
-    width: number
-  }
-  padding: {
-    top: number
-  }
+  lineHeight: number
+  lineWidth: number
+  paddingTop: number
 }
 
 interface AppState {
@@ -50,7 +46,7 @@ export default class App extends Component<AppProps, AppState> {
 
   constructor(props: any) {
     super(props)
-    this.$container = props.$container
+    this.$container = props.container
   }
 
   async sendMessage(message: ContentMessage): Promise<BackgroundMessage> {
@@ -66,7 +62,7 @@ export default class App extends Component<AppProps, AppState> {
     return {
       // Must be integers, so use Math.floor
       x: Math.floor((e.clientX - rect.left) / this.props.fontWidth),
-      y: Math.floor((e.clientY - rect.top) / this.props.line.height),
+      y: Math.floor((e.clientY - rect.top) / this.props.lineHeight),
     }
   }
 
@@ -117,8 +113,8 @@ export default class App extends Component<AppProps, AppState> {
         window.scrollTo(
           0,
           this.props.offsetTop +
-            this.props.padding.top +
-            response.info.line * this.props.line.height -
+            this.props.paddingTop +
+            response.info.line * this.props.lineHeight -
             80,
         ) // TODO: Magic number
       }
@@ -169,9 +165,9 @@ export default class App extends Component<AppProps, AppState> {
               position: 'absolute',
               background: colors.lineBg,
               left: 0,
-              width: this.props.line.width - 20, // TODO: Magic number
-              height: this.props.line.height,
-              top: definition.line * this.props.line.height,
+              width: this.props.lineWidth - 20, // TODO: Magic number
+              height: this.props.lineHeight,
+              top: definition.line * this.props.lineHeight,
             }}
           />
         )}
@@ -184,8 +180,8 @@ export default class App extends Component<AppProps, AppState> {
                   ? colors.occurrenceWrite
                   : colors.occurrenceRead,
                 width: occurrence.width * this.props.fontWidth,
-                height: this.props.line.height,
-                top: occurrence.range.line * this.props.line.height,
+                height: this.props.lineHeight,
+                top: occurrence.range.line * this.props.lineHeight,
                 left: occurrence.range.character * this.props.fontWidth,
               }}
             />
@@ -197,10 +193,10 @@ export default class App extends Component<AppProps, AppState> {
               position: 'absolute',
               background: colors.quickInfoBg,
               // lineHeight: '20px',
-              top: quickInfo.range.line * this.props.line.height,
+              top: quickInfo.range.line * this.props.lineHeight,
               left: quickInfo.range.character * this.props.fontWidth,
               width: quickInfo.width * this.props.fontWidth,
-              height: this.props.line.height,
+              height: this.props.lineHeight,
             }}
           />
         )}
@@ -230,9 +226,9 @@ export default class App extends Component<AppProps, AppState> {
                   // So quick info can't show outside $('.blob-wrapper')
                   const positionStyle: { top?: number; bottom?: number } = {}
                   if (quickInfo.range.line < 2) {
-                    positionStyle.top = (quickInfo.range.line + 1) * this.props.line.height
+                    positionStyle.top = (quickInfo.range.line + 1) * this.props.lineHeight
                   } else {
-                    positionStyle.bottom = 0 - quickInfo.range.line * this.props.line.height
+                    positionStyle.bottom = 0 - quickInfo.range.line * this.props.lineHeight
                   }
 
                   return positionStyle
