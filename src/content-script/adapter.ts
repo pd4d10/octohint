@@ -1,5 +1,4 @@
 import Renderer from './renderer'
-import { SendMessageToBackground } from '../types'
 
 const $ = (selector: string) => document.querySelector(selector)
 const $$ = (selector: string) => document.querySelectorAll(selector)
@@ -13,10 +12,34 @@ function getFilePath(loc: { host: string; pathname: string } = location) {
   return '/' + loc.host + loc.pathname
 }
 
+// abstract class Renderer {
+//   abstract containerSelector: string
+//   abstract lineWidth: number
+//   abstract lineHeight: number
+
+//   render() {
+//     const container = document.querySelector(this.containerSelector)
+//   }
+// }
+
+// class GithubRenderer extends Renderer {
+//   containerSelector = '.blob-wrapper'
+//   lineWidth: number
+//   lineHeight: number
+
+//   constructor() {
+//     super()
+//     this.lineWidth = 1
+//     this.lineHeight = 1
+//   }
+// }
+
 export interface RendererParams {
   /**
    * Considering scroll-x, container must be inside the wrapper
    */
+  // containerSelector: string
+
   getContainer: () => Element | null
   getFontDOM: () => Element | null
   // getHighlightColor: () => string
@@ -39,7 +62,7 @@ export interface RendererParams {
    */
   getTabSizeDom?: () => Element | null
   // TODO: This is pretty tricky for making GitLab and Bitbucket work
-  extraBeforeRender?: () => void
+  beforeRender?: () => void
 }
 
 const GitHubRenderer: RendererParams = {
@@ -51,10 +74,7 @@ const GitHubRenderer: RendererParams = {
     left: 60,
     top: 0,
   }),
-  getCodeUrl: () =>
-    getCurrentUrl()
-      .replace('github.com', 'raw.githubusercontent.com')
-      .replace('/blob/', '/'),
+  getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
   getFileName: getFilePath,
   getTabSizeDom: () => $('.blob-wrapper table'),
 }
@@ -98,35 +118,33 @@ const BitbucketRenderer: RendererParams = {
 const GitLabRenderer: RendererParams = {
   getContainer: () => $('.blob-content .code'),
   getFontDOM: () => $('#LC1'),
-  getLineWidthAndHeight: () => ($('#LC1') as HTMLElement).getBoundingClientRect(),
+  getLineWidthAndHeight: () => $('#LC1')!.getBoundingClientRect(),
   getPadding: () => ({
     left: 10,
     top: 0,
   }),
   getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
   getFileName: getFilePath,
-  extraBeforeRender: () => {
+  beforeRender: () => {
     const $code = $('.blob-content .code code') as HTMLElement
     $code.style.position = 'relative'
     $code.style.background = 'transparent'
   },
 }
 
-export default abstract class Adapter {
+export class Adapter {
   prevContainer?: Element | null
 
-  abstract getSendMessage(): SendMessageToBackground
-  sendMessage = this.getSendMessage()
-
   constructor() {
-    const sendMessage = this.getSendMessage()
-
     // GitHub Gist
-    if (/gist\.github\.com/.test(location.href)) {
+    if (location.host === 'gist.github.com') {
       // const list = $$('.file-actions a')
-      ;[].forEach.call($$('.js-gist-file-update-container'), (wrapper: HTMLElement) => {
-        new Renderer(sendMessage, GithubGistRendererFactory(wrapper))
-      })
+      Array.prototype.forEach.call(
+        document.querySelectorAll('.js-gist-file-update-container'),
+        (wrapper: HTMLElement) => {
+          new Renderer(GithubGistRendererFactory(wrapper))
+        },
+      )
       return
     }
 
@@ -136,7 +154,7 @@ export default abstract class Adapter {
     // So use DOM selector
     this.addMutationObserver($('#js-repo-pjax-container'), GitHubRenderer)
     if (GitHubRenderer.getContainer()) {
-      new Renderer(sendMessage, GitHubRenderer)
+      new Renderer(GitHubRenderer)
       return
     }
 
@@ -146,7 +164,7 @@ export default abstract class Adapter {
     // this.addMutationObserver(document.documentElement, GitLabRenderer, GitLabRenderer.getContainer() !== null)
     if (GitLabRenderer.getContainer()) {
       // Direct loading, like browser go back
-      new Renderer(sendMessage, GitLabRenderer)
+      new Renderer(GitLabRenderer)
       return
     }
 
@@ -154,7 +172,7 @@ export default abstract class Adapter {
     // Seems Bitbucket already use monaco-editor to show code
     // this.addMutationObserver($('.react-monaco-editor-container'), BitbucketRenderer)
     // if (BitbucketRenderer.getContainer()) {
-    //   new Renderer(sendMessage, BitbucketRenderer)
+    //   new Renderer(BitbucketRenderer)
     //   return
     // }
   }
@@ -169,7 +187,7 @@ export default abstract class Adapter {
             // Check if current container equals to previous, if same then ignore
             const container = params.getContainer()
             if (container && this.prevContainer !== container) {
-              new Renderer(this.getSendMessage(), params)
+              new Renderer(params)
               this.prevContainer = container
             }
           }

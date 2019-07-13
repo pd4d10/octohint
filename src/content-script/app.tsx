@@ -1,7 +1,14 @@
 import { h, Component } from 'preact'
 import Portal from 'preact-portal'
 import { debounce } from 'lodash-es'
-import { Definition, Occurrence, QuickInfo, MessageType } from '../types'
+import {
+  Definition,
+  Occurrence,
+  QuickInfo,
+  MessageType,
+  BackgroundMessage,
+  ContentMessage,
+} from '../types'
 
 const colors = {
   lineBg: '#fffbdd',
@@ -13,13 +20,30 @@ const colors = {
 const DEBOUNCE_TIMEOUT = 300
 const isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
+interface AppProps {
+  $background: HTMLElement
+  $quickInfo: HTMLElement
+  fontWidth: number
+  fontFamily: string
+  fileName: string
+  codeUrl: string
+  offsetTop: number
+  line: {
+    height: number
+    width: number
+  }
+  padding: {
+    top: number
+  }
+}
+
 interface AppState {
   occurrences?: Occurrence[]
   definition?: Definition
   quickInfo?: QuickInfo
 }
 
-export default class App extends Component<any, AppState> {
+export default class App extends Component<AppProps, AppState> {
   state: AppState = {}
 
   $container: HTMLElement
@@ -27,6 +51,14 @@ export default class App extends Component<any, AppState> {
   constructor(props: any) {
     super(props)
     this.$container = props.$container
+  }
+
+  async sendMessage(message: ContentMessage): Promise<BackgroundMessage> {
+    return await new Promise(resolve => {
+      chrome.runtime.sendMessage(message, response => {
+        resolve(response)
+      })
+    })
   }
 
   getPosition(e: MouseEvent) {
@@ -70,7 +102,7 @@ export default class App extends Component<any, AppState> {
         return
       }
 
-      const response = await this.props.sendMessage({
+      const response = await this.sendMessage({
         file: this.props.fileName,
         type: MessageType.occurrence,
         position,
@@ -109,7 +141,7 @@ export default class App extends Component<any, AppState> {
           return
         }
 
-        const { data } = await this.props.sendMessage({
+        const { data } = await this.sendMessage({
           file: this.props.fileName,
           codeUrl: this.props.codeUrl,
           type: MessageType.quickInfo,
@@ -172,55 +204,54 @@ export default class App extends Component<any, AppState> {
             }}
           />
         )}
-        {
-          <Portal into={this.props.$quickInfo}>
-            {quickInfo && quickInfo.info && (
-              <div
-                style={{
-                  whiteSpace: 'pre-wrap',
-                  position: 'absolute',
-                  backgroundColor: '#efeff2',
-                  border: `1px solid #c8c8c8`,
-                  fontSize: 12,
-                  padding: `2px 4px`,
-                  fontFamily: this.props.fontFamily,
-                  left: quickInfo.range.character * this.props.fontWidth,
-                  maxWidth: 500,
-                  maxHeight: 300,
-                  overflow: 'auto',
-                  wordBreak: 'break-all',
-                  ...(() => {
-                    // TODO: Fix https://github.com/Microsoft/TypeScript/blob/master/Gulpfile.ts
-                    // TODO: Show info according to height
-                    // TODO: Make quick info could be copied
-                    // For line 0 and 1, show info below, this is tricky
-                    // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
-                    // So quick info can't show outside $('.blob-wrapper')
-                    const positionStyle: { top?: number; bottom?: number } = {}
-                    if (quickInfo.range.line < 2) {
-                      positionStyle.top = (quickInfo.range.line + 1) * this.props.line.height
-                    } else {
-                      positionStyle.bottom = 0 - quickInfo.range.line * this.props.line.height
-                    }
 
-                    return positionStyle
-                  })(),
-                }}
-              >
-                {Array.isArray(quickInfo.info)
-                  ? quickInfo.info.map(part => {
-                      if (part.text === '\n') {
-                        return <br />
-                      }
-                      return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
-                    })
-                  : quickInfo.info.replace(/\\/g, '')
-                // JSON.parse(`"${info}"`)
-                }
-              </div>
-            )}
-          </Portal>
-        }
+        <Portal into={this.props.$quickInfo}>
+          {quickInfo && quickInfo.info && (
+            <div
+              style={{
+                whiteSpace: 'pre-wrap',
+                position: 'absolute',
+                backgroundColor: '#efeff2',
+                border: `1px solid #c8c8c8`,
+                fontSize: 12,
+                padding: `2px 4px`,
+                fontFamily: this.props.fontFamily,
+                left: quickInfo.range.character * this.props.fontWidth,
+                maxWidth: 500,
+                maxHeight: 300,
+                overflow: 'auto',
+                wordBreak: 'break-all',
+                ...(() => {
+                  // TODO: Fix https://github.com/Microsoft/TypeScript/blob/master/Gulpfile.ts
+                  // TODO: Show info according to height
+                  // TODO: Make quick info could be copied
+                  // For line 0 and 1, show info below, this is tricky
+                  // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
+                  // So quick info can't show outside $('.blob-wrapper')
+                  const positionStyle: { top?: number; bottom?: number } = {}
+                  if (quickInfo.range.line < 2) {
+                    positionStyle.top = (quickInfo.range.line + 1) * this.props.line.height
+                  } else {
+                    positionStyle.bottom = 0 - quickInfo.range.line * this.props.line.height
+                  }
+
+                  return positionStyle
+                })(),
+              }}
+            >
+              {Array.isArray(quickInfo.info)
+                ? quickInfo.info.map(part => {
+                    if (part.text === '\n') {
+                      return <br />
+                    }
+                    return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
+                  })
+                : quickInfo.info.replace(/\\/g, '')
+              // JSON.parse(`"${info}"`)
+              }
+            </div>
+          )}
+        </Portal>
       </div>
     )
   }

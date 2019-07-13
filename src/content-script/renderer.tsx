@@ -15,11 +15,9 @@ interface Line {
 
 export default class Renderer {
   renderParams: RendererParams
-
-  $background!: Element
   fileName: string
-
   $container: HTMLElement
+
   // $positionContainer: HTMLElement
   fontWidth!: number
   fontFamily!: string | null
@@ -30,13 +28,7 @@ export default class Renderer {
   offsetTop: number
   codeUrl: string
 
-  sendMessage: (data: ContentMessage, cb: (message: BackgroundMessage) => void) => void
-
-  constructor(
-    sendMessage: (data: ContentMessage, cb: (message: BackgroundMessage) => void) => void,
-    renderParams: RendererParams,
-  ) {
-    this.sendMessage = sendMessage
+  constructor(renderParams: RendererParams) {
     this.renderParams = renderParams
     this.fileName = renderParams.getFileName()
     this.$container = renderParams.getContainer() as HTMLElement
@@ -71,15 +63,12 @@ export default class Renderer {
 
     this.render(this.$container)
     // Create service on page load
-    this.sendMessage(
-      {
-        type: MessageType.service,
-        file: this.fileName,
-        codeUrl: this.codeUrl,
-        tabSize,
-      },
-      () => {},
-    )
+    chrome.runtime.sendMessage({
+      type: MessageType.service,
+      file: this.fileName,
+      codeUrl: this.codeUrl,
+      tabSize,
+    })
   }
 
   getOffsetTop(e: HTMLElement): number {
@@ -139,8 +128,8 @@ export default class Renderer {
    */
   render($container: HTMLElement) {
     // TODO: This is pretty tricky for making GitLab and Bitbucket work
-    if (this.renderParams.extraBeforeRender) {
-      this.renderParams.extraBeforeRender()
+    if (this.renderParams.beforeRender) {
+      this.renderParams.beforeRender()
     }
 
     // this.$container.style.position = 'relative'
@@ -160,7 +149,6 @@ export default class Renderer {
     $background.style.left = `${this.padding.left}px`
     $background.style.width = wrapperWidth // Important, fix Y scrollbar
 
-    this.$background = $background
     const $quickInfo = document.createElement('div')
     $quickInfo.style.position = 'relative'
     const style = getComputedStyle($container)
@@ -177,8 +165,29 @@ export default class Renderer {
 
     $container.insertBefore($background, $container.firstChild)
     $container.appendChild($quickInfo)
-    this.$quickInfo = $quickInfo
 
-    render(<App {...this} />, $background)
+    render(
+      <App
+        {...{
+          $container,
+          $background,
+          $quickInfo,
+          fontWidth: this.fontWidth,
+          fontFamily: this.fontFamily,
+          fileName: this.fileName,
+          codeUrl: this.codeUrl,
+          offsetTop: this.offsetTop,
+          line: {
+            height: this.line.height,
+            width: this.line.width,
+          },
+          padding: {
+            top: this.padding.top,
+          },
+          ...this,
+        }}
+      />,
+      $background,
+    )
   }
 }

@@ -18,8 +18,6 @@
     "@types/chrome": "^0.0.75",
     "@types/lodash-es": "^4.17.1",
     "@types/node": "^10.12.12",
-    "@types/safari-extension": "^0.0.27",
-    "@types/safari-extension-content": "^0.0.14",
     "lodash-es": "^4.17.11",
     "preact": "^8.4.2",
     "preact-portal": "^1.1.3",

@@ -5,7 +5,7 @@ const StringReplacePlugin = require('string-replace-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 /** @type {import('webpack').Configuration} */
-const config = {
+module.exports = {
   mode: 'development',
   watch: true,
   entry: {
@@ -74,5 +74,3 @@ const config = {
     }),
   ],
 }
-
-module.exports = config

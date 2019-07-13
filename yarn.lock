@@ -38,16 +38,6 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.12.tgz#e15a9d034d9210f00320ef718a50c4a799417c47"
   integrity sha512-Pr+6JRiKkfsFvmU/LK68oBRCQeEg36TyAbPhc2xpez24OOZZCuoIhWGTd39VZy6nGafSbxzGouFPTFD/rR1A0A==
 
-"@types/safari-extension-content@^0.0.14":
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/@types/safari-extension-content/-/safari-extension-content-0.0.14.tgz#638e16d1ad0c2fc8c58e3f22913e61671c14f414"
-  integrity sha1-Y44W0a0ML8jFjj8ikT5hZxwU9BQ=
-
-"@types/safari-extension@^0.0.27":
-  version "0.0.27"
-  resolved "https://registry.yarnpkg.com/@types/safari-extension/-/safari-extension-0.0.27.tgz#a204ba4aa6ba2eff8b70fe5a196fcdab5c751826"
-  integrity sha1-ogS6Sqa6Lv+LcP5aGW/Nq1x1GCY=
-
 "@webassemblyjs/ast@1.7.11":
   version "1.7.11"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.7.11.tgz#b988582cafbb2b095e8b556526f30c90d057cace"

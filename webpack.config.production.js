@@ -2,13 +2,9 @@
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const TerserPlugin = require('terser-webpack-plugin')
 const config = require('./webpack.config')
-const safariConfigs = require('./webpack.config.safari')
-
-// multiple outputs
-// https://github.com/webpack/webpack/blob/master/examples/multi-compiler/webpack.config.js
 
 /** @type {import('webpack').Configuration[]} */
-const pConfigs = [config, ...safariConfigs].map((config, index) => ({
+module.exports = {
   ...config,
   mode: 'production',
   devtool: false,
@@ -29,12 +25,5 @@ const pConfigs = [config, ...safariConfigs].map((config, index) => ({
       }),
     ],
   },
-  plugins: [
-    ...config.plugins,
-    new BundleAnalyzerPlugin({
-      analyzerPort: 8888 + index,
-    }),
-  ],
-}))
-
-module.exports = pConfigs
+  plugins: [...config.plugins, new BundleAnalyzerPlugin()],
+}
