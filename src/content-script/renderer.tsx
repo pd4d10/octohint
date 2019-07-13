@@ -3,6 +3,12 @@ import { RenderParams } from './adapter'
 import App from './app'
 import { MessageType } from '../types'
 
+const toStyleText = (obj: { [key: string]: string | number }) => {
+  return Object.entries(obj)
+    .map(([k, v]) => `${k}:${v}`)
+    .join(';')
+}
+
 const getFontParams = (fontDom: HTMLElement) => {
   const testDom = document.createElement('span')
   testDom.innerText = '0'
@@ -95,36 +101,38 @@ export const renderToContainer = ({
   // TODO: This is pretty tricky for making GitLab and Bitbucket work
   if (beforeRender) beforeRender()
 
-  // container.style.position = 'relative'
-  // this.$positionContainer.style.position = 'relative'
-  // ;[].forEach.call(container.children, ($child: HTMLElement) => {
-  //   $child.style.position = 'relative'
-  //   $child.style.zIndex = '1'
-  // })
-
-  const { width, height } = container.getBoundingClientRect()
-  const wrapperWidth = `${width - paddingLeft - 10}px`
+  const containerRect = container.getBoundingClientRect()
+  const wrapperWidth = `${containerRect.width - paddingLeft - 10}px`
 
   const $background = document.createElement('div')
-  $background.style.position = 'relative'
-  // $background.style.zIndex = '-1' // Set z-index to -1 makes GitLab occurrence not show
-  $background.style.top = `${paddingTop}px`
-  $background.style.left = `${paddingLeft}px`
-  $background.style.width = wrapperWidth // Important, fix Y scrollbar
+  $background.setAttribute(
+    'style',
+    toStyleText({
+      position: 'relative',
+      // zIndex: -1, // Set z-index to -1 makes GitLab occurrence not show
+      top: paddingTop + 'px',
+      left: paddingLeft + 'px',
+      width: wrapperWidth,
+    }),
+  )
 
   const $quickInfo = document.createElement('div')
-  $quickInfo.style.position = 'relative'
   const style = getComputedStyle(container)
   const paddingAndBorderOfContainer =
     px2num(style.paddingTop) +
     px2num(style.paddingBottom) +
     px2num(style.borderTopWidth) +
     px2num(style.borderBottomWidth)
-
-  $quickInfo.style.width = wrapperWidth // Important, make quick info show as wide as possible
-  // $quickInfo.style.zIndex = '2'
-  $quickInfo.style.bottom = `${height - paddingAndBorderOfContainer - paddingTop}px`
-  $quickInfo.style.left = `${paddingLeft}px`
+  $quickInfo.setAttribute(
+    'style',
+    toStyleText({
+      position: 'relative',
+      width: wrapperWidth, // Important, make quick info show as wide as possible
+      // zIndex: 2,
+      bottom: `${containerRect.height - paddingAndBorderOfContainer - paddingTop}px`,
+      left: `${paddingLeft}px`,
+    }),
+  )
 
   container.insertBefore($background, container.firstChild)
   container.appendChild($quickInfo)
