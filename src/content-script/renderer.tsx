@@ -17,7 +17,7 @@ const getFontParams = (fontDom: HTMLElement) => {
   const style = getComputedStyle(testDom)
   const result = {
     width: testDom.getBoundingClientRect().width,
-    family: style.fontFamily,
+    family: style.fontFamily || 'monospace',
   }
 
   testDom.remove()
@@ -93,7 +93,7 @@ export const renderToContainer = ({
 }: RenderParams) => {
   console.log('container:', container)
 
-  const tabSize = parseInt(getComputedStyle(tabSizeDom as HTMLElement).tabSize, 10) || 8
+  const tabSize = parseInt(getComputedStyle(tabSizeDom).getPropertyValue('tab-size'), 10) || 8 // TODO: Firefox
 
   // Get font width and family
   const fontParams = getFontParams(fontDom)
@@ -151,6 +151,7 @@ export const renderToContainer = ({
         lineWidth,
         lineHeight,
         paddingTop,
+        tabSize,
       }}
     />,
     $background,

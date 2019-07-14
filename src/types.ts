@@ -53,11 +53,11 @@ export type BackgroundMessage =
 interface BaseContentMessage {
   file: string
   codeUrl: string
+  tabSize: number
 }
 
 interface ContentMessageOfService extends BaseContentMessage {
   type: MessageType.service
-  tabSize: number
 }
 
 interface ContentMessageOfOccurrence extends BaseContentMessage {

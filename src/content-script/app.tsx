@@ -8,6 +8,8 @@ import {
   MessageType,
   BackgroundMessage,
   ContentMessage,
+  BackgroundMessageOfOccurrence,
+  BackgroundMessageOfQuickInfo,
 } from '../types'
 
 const colors = {
@@ -31,6 +33,7 @@ interface AppProps {
   lineHeight: number
   lineWidth: number
   paddingTop: number
+  tabSize: number
 }
 
 interface AppState {
@@ -75,7 +78,7 @@ export default class App extends Component<AppProps, AppState> {
         this.$container.style.cursor = 'pointer'
         // FIXME: Sometimes keyup can't be triggered, add a long enough timeout to restore
         setTimeout(() => {
-          this.$container.style.cursor = null
+          this.$container.style.cursor = ''
         }, 10000)
       }
     })
@@ -84,7 +87,7 @@ export default class App extends Component<AppProps, AppState> {
     document.addEventListener('keyup', e => {
       console.log('keyup', e)
       if (isMeta(e)) {
-        this.$container.style.cursor = null
+        this.$container.style.cursor = ''
       }
     })
 
@@ -98,13 +101,14 @@ export default class App extends Component<AppProps, AppState> {
         return
       }
 
-      const response = await this.sendMessage({
-        file: this.props.fileName,
+      const response = (await this.sendMessage({
         type: MessageType.occurrence,
+        file: this.props.fileName,
         position,
         meta: isMacOS ? e.metaKey : e.ctrlKey,
         codeUrl: this.props.codeUrl,
-      })
+        tabSize: this.props.tabSize,
+      })) as BackgroundMessageOfOccurrence
 
       // TODO: Fix overflow when length is large
       this.setState({ definition: response.info, occurrences: response.occurrences })
@@ -137,12 +141,13 @@ export default class App extends Component<AppProps, AppState> {
           return
         }
 
-        const { data } = await this.sendMessage({
+        const { data } = (await this.sendMessage({
           file: this.props.fileName,
           codeUrl: this.props.codeUrl,
           type: MessageType.quickInfo,
           position,
-        })
+          tabSize: this.props.tabSize,
+        })) as BackgroundMessageOfQuickInfo
         this.setState({ quickInfo: data })
       }, DEBOUNCE_TIMEOUT),
     )

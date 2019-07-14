@@ -104,7 +104,7 @@ export class TsService extends MultipleFileService {
   async createService(message: ContentMessage) {
     if (this.files[message.file]) return
 
-    const defaultLib = await import('../../ts-lib')
+    const { TS_LIB } = await import('../../ts-lib')
     const code = await this.fetchCode(message)
     this.updateContent(message.file, code)
 
@@ -134,7 +134,7 @@ export class TsService extends MultipleFileService {
       getScriptSnapshot: fileName => {
         let snapshot
         if (fileName === defaultLibName) {
-          snapshot = defaultLib
+          snapshot = ts.ScriptSnapshot.fromString(TS_LIB)
         } else if (this.files[fileName]) {
           snapshot = ts.ScriptSnapshot.fromString(this.files[fileName].content)
         }

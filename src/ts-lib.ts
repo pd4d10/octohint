@@ -2,7 +2,7 @@
 // Use dynamic import to do code split in webpack
 // TODO: Go to definition
 
-export default [
+export const TS_LIB = [
   // ES and DOM standard
   require('raw-loader!typescript/lib/lib.d.ts'),
   require('raw-loader!typescript/lib/lib.dom.d.ts'),
