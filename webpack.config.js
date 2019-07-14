@@ -26,7 +26,6 @@ module.exports = {
         test: /\.tsx?$/,
         use: {
           loader: 'awesome-typescript-loader',
-          options: { configFileName: './src/chrome/tsconfig.json' },
         },
         exclude: /node_modules/,
       },
