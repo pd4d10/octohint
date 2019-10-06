@@ -1,6 +1,6 @@
 import { render, h } from 'preact'
 import { RenderParams } from './adapter'
-import App from './app'
+import { App } from './app'
 import { MessageType } from '../types'
 
 const toStyleText = (obj: { [key: string]: string | number }) => {

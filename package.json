@@ -1,8 +1,6 @@
 {
   "name": "octohint",
   "private": true,
-  "version": "2.0.8",
-  "description": "IntelliSense hint for GitHub",
   "scripts": {
     "start": "webpack",
     "start:safari": "webpack --config webpack.config.safari.js",
@@ -11,15 +9,12 @@
     "test": "npx prettier --list-different src/**/*.{ts,tsx}",
     "icon": "rm -rf chrome/icons/*; node scripts/generate-icons"
   },
-  "repository": "pd4d10/octohint",
-  "author": "Rongjian Zhang <pd4d10@gmail.com>",
-  "license": "MIT",
   "dependencies": {
     "@types/chrome": "^0.0.75",
     "@types/lodash-es": "^4.17.1",
     "@types/node": "^10.12.12",
     "lodash-es": "^4.17.14",
-    "preact": "^8.4.2",
+    "preact": "^10.0.0",
     "preact-portal": "^1.1.3",
     "typescript": "^3.2.2",
     "vscode-css-languageservice": "^3.0.12",

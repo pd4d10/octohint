@@ -60,9 +60,9 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
   },
-
-  // https://github.com/postcss/postcss-js/issues/10#issuecomment-179782081
-  node: { fs: 'empty' },
+  node: {
+    fs: 'empty', // fix vscode-nls build
+  },
   plugins: [
     new CleanWebpackPlugin('chrome/dist'),
     new StringReplacePlugin(),

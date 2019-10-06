@@ -1,4 +1,5 @@
-import { h, Component } from 'preact'
+import { h, FunctionComponent } from 'preact'
+import { useEffect, useState } from 'preact/hooks'
 import Portal from 'preact-portal'
 import { debounce } from 'lodash-es'
 import {
@@ -23,6 +24,7 @@ const DEBOUNCE_TIMEOUT = 300
 const isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
 interface AppProps {
+  container: HTMLElement
   $background: HTMLElement
   $quickInfo: HTMLElement
   fontWidth: number
@@ -36,49 +38,40 @@ interface AppProps {
   tabSize: number
 }
 
-interface AppState {
-  occurrences?: Occurrence[]
-  definition?: Definition
-  quickInfo?: QuickInfo
-}
+export const App: FunctionComponent<AppProps> = props => {
+  const $container = props.container
 
-export default class App extends Component<AppProps, AppState> {
-  state: AppState = {}
+  const [occurrences, setOccurrences] = useState<Occurrence[]>([])
+  const [definition, setDefinition] = useState<Definition>(undefined)
+  const [quickInfo, setQuickInfo] = useState<QuickInfo>(undefined)
 
-  $container: HTMLElement
-
-  constructor(props: any) {
-    super(props)
-    this.$container = props.container
-  }
-
-  async sendMessage(message: ContentMessage): Promise<BackgroundMessage> {
-    return await new Promise(resolve => {
+  const sendMessage = async (message: ContentMessage): Promise<BackgroundMessage> => {
+    return new Promise(resolve => {
       chrome.runtime.sendMessage(message, response => {
         resolve(response)
       })
     })
   }
 
-  getPosition(e: MouseEvent) {
-    const rect = this.props.$background.getBoundingClientRect()
+  const getPosition = (e: MouseEvent) => {
+    const rect = props.$background.getBoundingClientRect()
     return {
       // Must be integers, so use Math.floor
-      x: Math.floor((e.clientX - rect.left) / this.props.fontWidth),
-      y: Math.floor((e.clientY - rect.top) / this.props.lineHeight),
+      x: Math.floor((e.clientX - rect.left) / props.fontWidth),
+      y: Math.floor((e.clientY - rect.top) / props.lineHeight),
     }
   }
 
-  componentDidMount() {
+  useEffect(() => {
     // keydown: change mouse cursor to pointer
     document.addEventListener('keydown', e => {
       console.log('keydown', e)
       if (isMeta(e)) {
         // FIXME: Slow when file is large
-        this.$container.style.cursor = 'pointer'
+        $container.style.cursor = 'pointer'
         // FIXME: Sometimes keyup can't be triggered, add a long enough timeout to restore
         setTimeout(() => {
-          this.$container.style.cursor = ''
+          $container.style.cursor = ''
         }, 10000)
       }
     })
@@ -87,39 +80,37 @@ export default class App extends Component<AppProps, AppState> {
     document.addEventListener('keyup', e => {
       console.log('keyup', e)
       if (isMeta(e)) {
-        this.$container.style.cursor = ''
+        $container.style.cursor = ''
       }
     })
 
     // click: show occurrences
     // if meta key is pressed, also show definition and scroll to it
-    this.$container.addEventListener('click', async e => {
+    $container.addEventListener('click', async e => {
       console.log('click', e)
 
-      const position = this.getPosition(e)
+      const position = getPosition(e)
       if (position.x < 0 || position.y < 0) {
         return
       }
 
-      const response = (await this.sendMessage({
+      const response = (await sendMessage({
         type: MessageType.occurrence,
-        file: this.props.fileName,
+        file: props.fileName,
         position,
         meta: isMacOS ? e.metaKey : e.ctrlKey,
-        codeUrl: this.props.codeUrl,
-        tabSize: this.props.tabSize,
+        codeUrl: props.codeUrl,
+        tabSize: props.tabSize,
       })) as BackgroundMessageOfOccurrence
 
       // TODO: Fix overflow when length is large
-      this.setState({ definition: response.info, occurrences: response.occurrences })
+      setDefinition(response.info)
+      setOccurrences(response.occurrences)
 
       if (response.info) {
         window.scrollTo(
           0,
-          this.props.offsetTop +
-            this.props.paddingTop +
-            response.info.line * this.props.lineHeight -
-            80,
+          props.offsetTop + props.paddingTop + response.info.line * props.lineHeight - 80,
         ) // TODO: Magic number
       }
 
@@ -131,131 +122,128 @@ export default class App extends Component<AppProps, AppState> {
     })
 
     // mousemove: show quick info on stop
-    this.$container.addEventListener(
+    $container.addEventListener(
       'mousemove',
       debounce(async (e: MouseEvent) => {
         // console.log('mousemove', e)
-        const position = this.getPosition(e)
+        const position = getPosition(e)
 
         if (position.x < 0 || position.y < 0) {
           return
         }
 
-        const { data } = (await this.sendMessage({
-          file: this.props.fileName,
-          codeUrl: this.props.codeUrl,
+        const { data } = (await sendMessage({
+          file: props.fileName,
+          codeUrl: props.codeUrl,
           type: MessageType.quickInfo,
           position,
-          tabSize: this.props.tabSize,
+          tabSize: props.tabSize,
         })) as BackgroundMessageOfQuickInfo
-        this.setState({ quickInfo: data })
+
+        setQuickInfo(data)
       }, DEBOUNCE_TIMEOUT),
     )
 
     // mouseout: hide quick info on leave
-    this.$container.addEventListener('mouseout', e => {
+    $container.addEventListener('mouseout', e => {
       // console.log('mouseout', e)
-      this.setState({ quickInfo: undefined })
+
+      setQuickInfo(undefined)
     })
-  }
+  }, [])
 
-  render() {
-    const { definition, occurrences, quickInfo } = this.state
-
-    return (
-      <div>
-        {definition && (
+  return (
+    <div>
+      {definition && (
+        <div
+          style={{
+            position: 'absolute',
+            background: colors.lineBg,
+            left: 0,
+            width: props.lineWidth - 20, // TODO: Magic number
+            height: props.lineHeight,
+            top: definition.line * props.lineHeight,
+          }}
+        />
+      )}
+      {occurrences &&
+        occurrences.map(occurrence => (
           <div
             style={{
               position: 'absolute',
-              background: colors.lineBg,
-              left: 0,
-              width: this.props.lineWidth - 20, // TODO: Magic number
-              height: this.props.lineHeight,
-              top: definition.line * this.props.lineHeight,
+              background: occurrence.isWriteAccess ? colors.occurrenceWrite : colors.occurrenceRead,
+              width: occurrence.width * props.fontWidth,
+              height: props.lineHeight,
+              top: occurrence.range.line * props.lineHeight,
+              left: occurrence.range.character * props.fontWidth,
             }}
           />
-        )}
-        {occurrences &&
-          occurrences.map(occurrence => (
-            <div
-              style={{
-                position: 'absolute',
-                background: occurrence.isWriteAccess
-                  ? colors.occurrenceWrite
-                  : colors.occurrenceRead,
-                width: occurrence.width * this.props.fontWidth,
-                height: this.props.lineHeight,
-                top: occurrence.range.line * this.props.lineHeight,
-                left: occurrence.range.character * this.props.fontWidth,
-              }}
-            />
-          ))}
+        ))}
 
-        {quickInfo && (
+      {quickInfo && (
+        <div
+          style={{
+            position: 'absolute',
+            background: colors.quickInfoBg,
+            // lineHeight: '20px',
+            top: quickInfo.range.line * props.lineHeight,
+            left: quickInfo.range.character * props.fontWidth,
+            width: quickInfo.width * props.fontWidth,
+            height: props.lineHeight,
+          }}
+        />
+      )}
+
+      <Portal into={props.$quickInfo}>
+        {quickInfo && quickInfo.info && (
           <div
             style={{
+              whiteSpace: 'pre-wrap',
               position: 'absolute',
-              background: colors.quickInfoBg,
-              // lineHeight: '20px',
-              top: quickInfo.range.line * this.props.lineHeight,
-              left: quickInfo.range.character * this.props.fontWidth,
-              width: quickInfo.width * this.props.fontWidth,
-              height: this.props.lineHeight,
-            }}
-          />
-        )}
+              backgroundColor: '#efeff2',
+              border: `1px solid #c8c8c8`,
+              fontSize: 12,
+              padding: `2px 4px`,
+              fontFamily: props.fontFamily,
+              left: quickInfo.range.character * props.fontWidth,
+              maxWidth: 500,
+              maxHeight: 300,
+              overflow: 'auto',
+              wordBreak: 'break-all',
+              ...(() => {
+                // TODO: Fix https://github.com/Microsoft/TypeScript/blob/master/Gulpfile.ts
+                // TODO: Show info according to height
+                // TODO: Make quick info could be copied
+                // For line 0 and 1, show info below, this is tricky
+                // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
+                // So quick info can't show outside $('.blob-wrapper')
+                const positionStyle: { top?: number; bottom?: number } = {}
+                if (quickInfo.range.line < 2) {
+                  positionStyle.top = (quickInfo.range.line + 1) * props.lineHeight
+                } else {
+                  positionStyle.bottom = 0 - quickInfo.range.line * props.lineHeight
+                }
 
-        <Portal into={this.props.$quickInfo}>
-          {quickInfo && quickInfo.info && (
-            <div
-              style={{
-                whiteSpace: 'pre-wrap',
-                position: 'absolute',
-                backgroundColor: '#efeff2',
-                border: `1px solid #c8c8c8`,
-                fontSize: 12,
-                padding: `2px 4px`,
-                fontFamily: this.props.fontFamily,
-                left: quickInfo.range.character * this.props.fontWidth,
-                maxWidth: 500,
-                maxHeight: 300,
-                overflow: 'auto',
-                wordBreak: 'break-all',
-                ...(() => {
-                  // TODO: Fix https://github.com/Microsoft/TypeScript/blob/master/Gulpfile.ts
-                  // TODO: Show info according to height
-                  // TODO: Make quick info could be copied
-                  // For line 0 and 1, show info below, this is tricky
-                  // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
-                  // So quick info can't show outside $('.blob-wrapper')
-                  const positionStyle: { top?: number; bottom?: number } = {}
-                  if (quickInfo.range.line < 2) {
-                    positionStyle.top = (quickInfo.range.line + 1) * this.props.lineHeight
-                  } else {
-                    positionStyle.bottom = 0 - quickInfo.range.line * this.props.lineHeight
+                return positionStyle
+              })(),
+            }}
+          >
+            {typeof quickInfo.info === 'string'
+              ? quickInfo.info.replace(/\\/g, '')
+              : quickInfo.info.map(part => {
+                  if (part.text === '\n') {
+                    return <br />
                   }
+                  return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
+                })
 
-                  return positionStyle
-                })(),
-              }}
-            >
-              {Array.isArray(quickInfo.info)
-                ? quickInfo.info.map(part => {
-                    if (part.text === '\n') {
-                      return <br />
-                    }
-                    return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
-                  })
-                : quickInfo.info.replace(/\\/g, '')
-              // JSON.parse(`"${info}"`)
-              }
-            </div>
-          )}
-        </Portal>
-      </div>
-    )
-  }
+            // JSON.parse(`"${info}"`)
+            }
+          </div>
+        )}
+      </Portal>
+    </div>
+  )
 }
 
 function getColorFromKind(kind: string) {
