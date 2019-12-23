@@ -1,5 +1,5 @@
 import ts from 'typescript'
-import { MultipleFileService } from './base'
+import { BaseService } from './base'
 import * as path from 'path'
 import stdLibs from './node-libs.json'
 import { without, uniq } from 'lodash-es'
@@ -21,7 +21,7 @@ interface Files {
 
 // FIXME: Very slow when click type `string`
 // TODO: Go to definition for third party libs
-export class TsService extends MultipleFileService {
+export class TsService extends BaseService {
   private service?: ts.LanguageService
   private getSourceFile(file: string) {
     // This is necesarry because createService is asynchronous
@@ -192,6 +192,7 @@ export class TsService extends MultipleFileService {
         }
       }
     }
+    return []
   }
 
   getDefinition(info: PositionInfo) {

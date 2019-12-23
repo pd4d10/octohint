@@ -1,6 +1,6 @@
 import { createService } from './services'
 import { TsService } from './services/typescript'
-import { MultipleFileService } from './services/base'
+import { BaseService } from './services/base'
 import {
   ContentMessage,
   BackgroundMessage,
@@ -13,7 +13,7 @@ const TIMEOUT = 1000 * 60 * 5 // 5min
 
 export default abstract class Adapter {
   ts = new TsService()
-  services: { [file: string]: MultipleFileService } = {}
+  services: { [file: string]: BaseService } = {}
 
   abstract addListener(
     cb: (message: ContentMessage, sendResponse: (message: BackgroundMessage) => void) => void,

@@ -1,7 +1,7 @@
 import { ContentMessage, PositionInfo, Occurrence, Definition, QuickInfo } from '../../types'
 
-abstract class BaseService {
-  abstract getOccurrences(info: PositionInfo): Occurrence[] | void
+export abstract class BaseService {
+  abstract getOccurrences(info: PositionInfo): Occurrence[]
   abstract getDefinition(info: PositionInfo): Definition | void
   abstract getQuickInfo(info: PositionInfo): QuickInfo | void
 
@@ -10,7 +10,7 @@ abstract class BaseService {
     if (!res.ok) {
       throw new Error(`url fetch fails: ${url}`)
     }
-    return await res[isJson ? 'json' : 'text']()
+    return isJson ? res.json() : res.text()
   }
 
   async fetchCode(message: ContentMessage) {
@@ -18,8 +18,6 @@ abstract class BaseService {
     return code.replace(/\t/g, ' '.repeat(message.tabSize))
   }
 }
-
-export abstract class MultipleFileService extends BaseService {}
 
 export abstract class SingleFileService extends BaseService {
   file: string

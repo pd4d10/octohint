@@ -1,6 +1,7 @@
 import { h, FunctionComponent } from 'preact'
 import { useEffect, useState } from 'preact/hooks'
 import Portal from 'preact-portal'
+import { Nullable } from 'tsdef'
 import { debounce } from 'lodash-es'
 import {
   Definition,
@@ -12,6 +13,7 @@ import {
   BackgroundMessageOfOccurrence,
   BackgroundMessageOfQuickInfo,
 } from '../types'
+import { JSXInternal } from 'preact/src/jsx'
 
 const colors = {
   lineBg: '#fffbdd',
@@ -42,8 +44,8 @@ export const App: FunctionComponent<AppProps> = props => {
   const $container = props.container
 
   const [occurrences, setOccurrences] = useState<Occurrence[]>([])
-  const [definition, setDefinition] = useState<Definition>(undefined)
-  const [quickInfo, setQuickInfo] = useState<QuickInfo>(undefined)
+  const [definition, setDefinition] = useState<Nullable<Definition>>(null)
+  const [quickInfo, setQuickInfo] = useState<Nullable<QuickInfo>>(null)
 
   const sendMessage = async (message: ContentMessage): Promise<BackgroundMessage> => {
     return new Promise(resolve => {
@@ -104,8 +106,8 @@ export const App: FunctionComponent<AppProps> = props => {
       })) as BackgroundMessageOfOccurrence
 
       // TODO: Fix overflow when length is large
-      setDefinition(response.info)
-      setOccurrences(response.occurrences)
+      if (response.info) setDefinition(response.info)
+      if (response.occurrences) setOccurrences(response.occurrences)
 
       if (response.info) {
         window.scrollTo(
@@ -148,7 +150,7 @@ export const App: FunctionComponent<AppProps> = props => {
     $container.addEventListener('mouseout', e => {
       // console.log('mouseout', e)
 
-      setQuickInfo(undefined)
+      setQuickInfo(null)
     })
   }, [])
 
@@ -217,7 +219,7 @@ export const App: FunctionComponent<AppProps> = props => {
                 // For line 0 and 1, show info below, this is tricky
                 // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
                 // So quick info can't show outside $('.blob-wrapper')
-                const positionStyle: { top?: number; bottom?: number } = {}
+                const positionStyle: JSXInternal.HTMLAttributes['style'] = {}
                 if (quickInfo.range.line < 2) {
                   positionStyle.top = (quickInfo.range.line + 1) * props.lineHeight
                 } else {
