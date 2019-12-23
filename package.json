@@ -19,7 +19,8 @@
     "tsdef": "^0.0.13",
     "typescript": "^3.2.2",
     "vscode-css-languageservice": "^3.0.12",
-    "vscode-languageserver-types": "^3.5.0"
+    "vscode-languageserver-types": "^3.5.0",
+    "webext-domain-permission-toggle": "^1.0.0"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",

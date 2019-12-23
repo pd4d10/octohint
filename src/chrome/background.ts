@@ -1,3 +1,6 @@
+import addDomainPermissionToggle from 'webext-domain-permission-toggle'
+addDomainPermissionToggle()
+
 async function inject(tabId: number) {
   console.log('injecting...')
   const { ChromeAdapter } = await import('./adapter')

@@ -11,7 +11,6 @@ module.exports = {
   entry: {
     background: './src/chrome/background',
     'content-script': './src/chrome/content-script',
-    options: './src/chrome/options',
   },
   output: {
     path: path.resolve('chrome/dist'),
@@ -63,13 +62,5 @@ module.exports = {
   node: {
     fs: 'empty', // fix vscode-nls build
   },
-  plugins: [
-    new CleanWebpackPlugin('chrome/dist'),
-    new StringReplacePlugin(),
-    new HtmlWebpackPlugin({
-      title: 'Options',
-      filename: 'options.html',
-      chunks: ['options'],
-    }),
-  ],
+  plugins: [new CleanWebpackPlugin('chrome/dist'), new StringReplacePlugin()],
 }

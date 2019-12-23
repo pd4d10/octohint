@@ -16,13 +16,10 @@
     "https://gist.github.com/*",
     "https://gitlab.com/*",
     "https://bitbucket.org/*",
-    "storage"
+    "storage",
+    "contextMenus"
   ],
   "optional_permissions": ["<all_urls>"],
-  "options_ui": {
-    "page": "dist/options.html",
-    "chrome_style": true
-  },
   "browser_action": {
     "default_icon": "icons/inactive.png"
   }
