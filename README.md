@@ -1,9 +1,9 @@
 # Octohint
 
-[![build](https://travis-ci.org/pd4d10/octohint.svg)](https://travis-ci.org/pd4d10/octohint)
-[![chrome web store](https://img.shields.io/chrome-web-store/v/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
-[![users](https://img.shields.io/chrome-web-store/d/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
-[![rating](https://img.shields.io/chrome-web-store/stars/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
+[![deploy](https://github.com/pd4d10/octohint/workflows/test/badge.svg)]()
+[![chrome web store](https://img.shields.io/chrome-web-store/v/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/hbkpjkfdheainjkkebeoofkpgddnnbpk)
+[![users](https://img.shields.io/chrome-web-store/d/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/hbkpjkfdheainjkkebeoofkpgddnnbpk)
+[![rating](https://img.shields.io/chrome-web-store/stars/hbkpjkfdheainjkkebeoofkpgddnnbpk.svg)](https://chrome.google.com/webstore/detail/hbkpjkfdheainjkkebeoofkpgddnnbpk)
 
 <img src="assets/demo.gif" alt="Demo" width="636" />
 
@@ -25,7 +25,7 @@ Install it from [Safari Extensions Gallery](https://safari-extensions.apple.com/
 
 ### Firefox
 
-Currently you could build it from source, see web extension section of [contributing docs](CONTRIBUTING.md). Or [try this one](https://github.com/pd4d10/octohint/issues/24#issuecomment-450467200). 
+Currently you could build it from source, see web extension section of [contributing docs](CONTRIBUTING.md). Or [try this one](https://github.com/pd4d10/octohint/issues/24#issuecomment-450467200).
 You can use the "On your own" signing option on [Mozilla addon site](https://addons.mozilla.org/en-US/developers/addon/submit/distribution) to create a signed add-on for your self, and install it.
 Alternatively, you can follow [this guide](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox) to install it temporarly from local directory, note that add-on installed this way is temporary add-on, and will be removed every time you restart the Firefox.
 
