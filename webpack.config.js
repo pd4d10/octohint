@@ -1,8 +1,7 @@
 // @ts-check
 const path = require('path')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const StringReplacePlugin = require('string-replace-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
@@ -67,5 +66,8 @@ module.exports = {
   node: {
     fs: 'empty', // fix vscode-nls build
   },
-  plugins: [new CleanWebpackPlugin('chrome/dist'), new StringReplacePlugin()],
+  plugins: [
+    new CleanWebpackPlugin({ cleanOnceBeforeBuildPatterns: ['chrome/dist'] }),
+    new StringReplacePlugin(),
+  ],
 }
