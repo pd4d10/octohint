@@ -19,7 +19,7 @@ abstract class BaseService extends SingleFileService {
   getOccurrences(info: PositionInfo) {
     return this.service
       .findDocumentHighlights(this.document, info, this.stylesheet)
-      .map(highlight => ({
+      .map((highlight) => ({
         range: highlight.range.start,
         width: highlight.range.end.character - highlight.range.start.character,
       }))

@@ -20,7 +20,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       {
         code: 'var injected = window.octohintInjected; window.octohintInjected = true; injected;',
       },
-      res => {
+      (res) => {
         if (!chrome.runtime.lastError && !res[0]) {
           inject(tabId)
         }

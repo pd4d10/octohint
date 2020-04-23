@@ -59,12 +59,12 @@ export default class SimpleService extends SingleFileService {
     // Find the other token
     const range: LineAndCharacter[] = []
     this.lines.forEach((content, line) => {
-      findAllPositions(content, token).forEach(character => {
+      findAllPositions(content, token).forEach((character) => {
         range.push({ line, character })
       })
     })
 
-    const occurrence = range.map(result => ({
+    const occurrence = range.map((result) => ({
       range: result,
       width: token.length,
     }))

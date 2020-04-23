@@ -45,9 +45,9 @@ export class TsService extends BaseService {
       // Exclude node standard libs
       const libs = without(
         matches
-          .map(str => str.replace(reg, '$1'))
-          .map(str => str.split('/')[0]) // Extract correct lib of `lodash/throttle`
-          .filter(item => item[0] !== '.'), // Exclude relative path, like `./xxx`
+          .map((str) => str.replace(reg, '$1'))
+          .map((str) => str.split('/')[0]) // Extract correct lib of `lodash/throttle`
+          .filter((item) => item[0] !== '.'), // Exclude relative path, like `./xxx`
         ...stdLibs,
       )
       result = [...result, ...libs]
@@ -110,7 +110,7 @@ export class TsService extends BaseService {
 
     const libNames = this.getLibNamesFromCode(code)
     console.log('Libs:', libNames)
-    const libCodes = await Promise.all(libNames.map(lib => this.fetchLibCode(lib)))
+    const libCodes = await Promise.all(libNames.map((lib) => this.fetchLibCode(lib)))
     libNames.forEach((name, i) => {
       const code = libCodes[i]
       if (code) {
@@ -126,12 +126,12 @@ export class TsService extends BaseService {
         // console.log('getScriptFileNames:', fileNames)
         return fileNames
       },
-      getScriptVersion: fileName => {
+      getScriptVersion: (fileName) => {
         const version = (this.files[fileName] && this.files[fileName].version.toString()) || '0'
         // console.log('getScriptVersion:', fileName, version)
         return version
       },
-      getScriptSnapshot: fileName => {
+      getScriptSnapshot: (fileName) => {
         let snapshot
         if (fileName === defaultLibName) {
           snapshot = ts.ScriptSnapshot.fromString(TS_LIB)
@@ -184,7 +184,7 @@ export class TsService extends BaseService {
         if (references) {
           return references
             .filter(({ fileName }) => fileName === info.file)
-            .map(reference => ({
+            .map((reference) => ({
               isWriteAccess: reference.isWriteAccess,
               range: instance.getLineAndCharacterOfPosition(reference.textSpan.start),
               width: reference.textSpan.length,
@@ -206,7 +206,7 @@ export class TsService extends BaseService {
       }
       const definitions = this.service.getDefinitionAtPosition(info.file, position)
       if (definitions) {
-        const infosOfCurrentFile = definitions.filter(d => d.fileName === info.file)
+        const infosOfCurrentFile = definitions.filter((d) => d.fileName === info.file)
         if (infosOfCurrentFile.length) {
           return instance.getLineAndCharacterOfPosition(infosOfCurrentFile[0].textSpan.start)
         }
