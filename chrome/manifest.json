@@ -17,7 +17,8 @@
     "https://gitlab.com/*",
     "https://bitbucket.org/*",
     "storage",
-    "contextMenus"
+    "contextMenus",
+		"activeTab"
   ],
   "optional_permissions": ["<all_urls>"],
   "browser_action": {
