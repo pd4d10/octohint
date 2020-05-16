@@ -59,9 +59,7 @@ Bitbucket's code viewer UI has changed greatly, so there is still lots of work t
 
 ## Get your private site works
 
-If GitHub/GitLab/Bitbucket you are using is hosted on different site, go to chrome://extensions, click options of Octohint, then add [match patterns](https://developer.chrome.com/extensions/match_patterns) of your site, like `https://www.example.com/*`.
-
-<img src="assets/options.png" alt="options" width="422">
+If you're self-hosting GitHub/GitLab/Bitbucket (Enterprise, Community, etc), visit your site, right-click on Octohint's icon in the toolbar and select **Enable Octohint on this domain.**
 
 ## Privacy policy
 
