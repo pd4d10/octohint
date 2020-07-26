@@ -150,7 +150,7 @@ export const runAdapter = () => {
   if (location.host === 'gist.github.com') {
     const containers = $$('.js-gist-file-update-container')
     if (!containers) return
-    containers.forEach(container => {
+    containers.forEach((container) => {
       const params = getGithubGistParams(container as HTMLElement)
       if (params) {
         renderToContainer(params)
