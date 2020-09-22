@@ -34,13 +34,13 @@ module.exports = {
           replacements: [
             {
               pattern: /factory\(require, exports\)/g,
-              replacement: function (match, p1, offset, string) {
+              replacement: function(match, p1, offset, string) {
                 return 'factory(null, exports)'
               },
             },
             {
               pattern: /function \(require, exports\)/,
-              replacement: function (match, p1, offset, string) {
+              replacement: function(match, p1, offset, string) {
                 return 'function (UnUsedVar, exports)'
               },
             },
@@ -53,15 +53,10 @@ module.exports = {
         use: 'source-map-loader',
         exclude: /node_modules/,
       },
-      {
-        test: /\.svelte$/,
-        exclude: /node_modules/,
-        use: 'svelte-loader',
-      },
     ],
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.mjs', '.svelte'],
+    extensions: ['.ts', '.tsx', '.js'],
   },
   node: {
     fs: 'empty', // fix vscode-nls build
