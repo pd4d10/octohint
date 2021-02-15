@@ -17,8 +17,8 @@
     "typescript": "^3.8.3",
     "vscode-css-languageservice": "^4.1.1",
     "vscode-languageserver-types": "^3.15.1",
-    "webext-domain-permission-toggle": "^1.0.1",
-    "webext-dynamic-content-scripts": "^6.0.4"
+    "webext-domain-permission-toggle": "^2.1.0",
+    "webext-dynamic-content-scripts": "^7.1.0"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",
