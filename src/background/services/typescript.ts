@@ -1,6 +1,5 @@
 import ts from 'typescript'
 import { BaseService } from './base'
-import * as path from 'path'
 import stdLibs from './node-libs.json'
 import { without, uniq } from 'lodash-es'
 import { ContentMessage, PositionInfo } from '../../types'
@@ -66,15 +65,15 @@ export class TsService extends BaseService {
     try {
       // Find typings file path
       const { types, typings } = await this.fetchWithCredentials(
-        path.join(prefix, name, 'package.json'),
+        `${prefix}/${name}/package.json`,
         true,
       )
       if (types || typings) {
-        return await this.fetchWithCredentials(path.join(prefix, name, types || typings))
+        return await this.fetchWithCredentials(`${prefix}/${name}/${types || typings}`)
       }
 
       // If typings not specified, try DefinitelyTyped
-      return await this.fetchWithCredentials(path.join(prefix, '@types', name, 'index.d.ts'))
+      return await this.fetchWithCredentials(`${prefix}/@types/${name}/index.d.ts`)
     } catch (err) {
       console.error(err)
     }
