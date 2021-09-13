@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Octohint",
   "version": "2.0.8",
   "description": "IntelliSense hint for GitHub",
@@ -8,19 +8,18 @@
     "128": "icons/logo.png"
   },
   "background": {
-    "scripts": ["dist/background.js"],
-    "persistent": false
+    "service_worker": "dist/background.js"
   },
-  "permissions": [
-    "https://github.com/*",
-    "https://gist.github.com/*",
-    "https://gitlab.com/*",
-    "https://bitbucket.org/*",
-    "storage",
-    "contextMenus"
-  ],
-  "optional_permissions": ["<all_urls>"],
-  "browser_action": {
-    "default_icon": "icons/inactive.png"
-  }
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*/*",
+        "https://github.com/*",
+        "https://gist.github.com/*",
+        "https://gitlab.com/*",
+        "https://bitbucket.org/*"
+      ],
+      "js": ["dist/content-script.js"]
+    }
+  ]
 }

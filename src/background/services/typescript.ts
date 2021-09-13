@@ -3,6 +3,7 @@ import { BaseService } from './base'
 import stdLibs from './node-libs.json'
 import { without, uniq } from 'lodash-es'
 import { ContentMessage, PositionInfo } from '../../types'
+import { TS_LIB } from '../../ts-lib'
 
 const defaultLibName = '//lib.d.ts'
 
@@ -103,7 +104,6 @@ export class TsService extends BaseService {
   async createService(message: ContentMessage) {
     if (this.files[message.file]) return
 
-    const { TS_LIB } = await import('../../ts-lib')
     const code = await this.fetchCode(message)
     this.updateContent(message.file, code)
 
