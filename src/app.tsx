@@ -1,6 +1,6 @@
 import { h, FunctionComponent } from 'preact'
 import { useEffect, useState } from 'preact/hooks'
-import Portal from 'preact-portal'
+import { createPortal } from 'preact/compat'
 import { Nullable } from 'tsdef'
 import { debounce } from 'lodash-es'
 import {
@@ -196,8 +196,8 @@ export const App: FunctionComponent<AppProps> = (props) => {
         />
       )}
 
-      <Portal into={props.$quickInfo}>
-        {quickInfo && quickInfo.info && (
+      {quickInfo?.info &&
+        createPortal(
           <div
             style={{
               whiteSpace: 'pre-wrap',
@@ -242,9 +242,9 @@ export const App: FunctionComponent<AppProps> = (props) => {
 
               // JSON.parse(`"${info}"`)
             }
-          </div>
+          </div>,
+          props.$quickInfo,
         )}
-      </Portal>
     </div>
   )
 }
