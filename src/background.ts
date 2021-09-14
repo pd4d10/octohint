@@ -1,122 +1,82 @@
-import { createService } from './services'
 import { TsService } from './services/typescript'
 import { BaseService } from './services/base'
-import {
-  ContentMessage,
-  BackgroundMessage,
-  MessageType,
-  BackgroundMessageOfOccurrence,
-  BackgroundMessageOfQuickInfo,
-} from './types'
+import { ContentMessage, BackgroundMessage, MessageType } from './types'
+import { CSSService, LESSService, SCSSService } from './services/css'
+import SimpleService from './services/simple'
 
 const TIMEOUT = 1000 * 60 * 5 // 5min
 
-export default abstract class Adapter {
-  ts = new TsService()
-  services: { [file: string]: BaseService } = {}
+const ts = new TsService()
+const services = {} as { [file: string]: BaseService }
 
-  abstract addListener(
-    cb: (message: ContentMessage, sendResponse: (message: BackgroundMessage) => void) => void,
-  ): void
+chrome.runtime.onMessage.addListener(
+  (message: ContentMessage, sender, sendResponse: (message: BackgroundMessage) => void) => {
+    // console.log('runtime.onMessage', message, sender)
+    if (!sender.tab?.id) return
 
-  constructor() {
-    this.addListener(this.handleMessage)
-  }
+    let service: BaseService
+    const ext = message.file.split('.').slice(-1)[0]
 
-  getExtension(path: string) {
-    return path.replace(/.*\.(.*?)$/, '$1')
-  }
-
-  handleMessage = (message: ContentMessage, sendResponse: (message: BackgroundMessage) => void) => {
-    // const { file, codeUrl, tabSize } = message
-    let service
-    const ext = this.getExtension(message.file)
     if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
-      if (!this.ts) {
-        this.ts = new TsService()
-      }
-      this.ts.createService(message)
-      service = this.ts
+      ts.createService(message)
+      service = ts
     } else {
-      if (!this.services[message.file]) {
-        this.services[message.file] = createService(ext, message)
+      if (!services[message.file]) {
+        if (ext === 'less') {
+          service = new LESSService(message)
+        } else if (ext === 'scss') {
+          service = new SCSSService(message)
+        } else if (ext === 'css') {
+          service = new CSSService(message)
+        } else {
+          return new SimpleService(message)
+        }
+
+        services[message.file] = service
 
         // Add a timeout to delete service to prevent memory leak
         setTimeout(() => {
-          delete this.services[message.file]
+          delete services[message.file]
         }, TIMEOUT)
       }
-      service = this.services[message.file]
+
+      service = services[message.file]
     }
 
-    // if (!service && !message.code) {
-    //   sendResponse({
-    //     error: 'no-code',
-    //   })
-    //   return
-    // }
-
-    let response: BackgroundMessage
-
-    switch (message.type) {
-      case MessageType.service: {
-        response = {} // Trigger for Safari
-
-        // chrome.browserAction.setIcon({
-        //   path: 'icon.png',
-        // })
-        // chrome.browserAction.setTitle({
-        //   title: 'Octohint is active.',
-        // })
-
-        break
+    if (message.type === MessageType.occurrence) {
+      const info = {
+        file: message.file,
+        line: message.position.y,
+        character: message.position.x,
       }
-      case MessageType.occurrence: {
-        const info = {
-          file: message.file,
-          line: message.position.y,
-          character: message.position.x,
-        }
-        response = {
-          occurrences: service.getOccurrences(info),
-          info: message.meta ? service.getDefinition(info) : undefined,
-        } as BackgroundMessageOfOccurrence
-        break
+      sendResponse({
+        occurrences: service.getOccurrences(info),
+        info: message.meta ? service.getDefinition(info) : undefined,
+      })
+    } else if (message.type === MessageType.quickInfo) {
+      const info = {
+        file: message.file,
+        line: message.position.y,
+        character: message.position.x,
       }
-      case MessageType.quickInfo: {
-        const info = {
-          file: message.file,
-          line: message.position.y,
-          character: message.position.x,
-        }
-        response = {
-          data: service.getQuickInfo(info),
-        } as BackgroundMessageOfQuickInfo
-        break
-      }
-      default:
-        response = {}
+      sendResponse({
+        data: service.getQuickInfo(info),
+      })
+    } else {
+      sendResponse({}) // Trigger for Safari
+
+      // chrome.browserAction.setIcon({
+      //   path: 'icon.png',
+      // })
+      // chrome.browserAction.setTitle({
+      //   title: 'Octohint is active.',
+      // })
     }
 
-    console.log(message, response)
-    sendResponse(response)
-  }
-}
+    console.log(message)
 
-class ChromeAdapter extends Adapter {
-  addListener(cb: any) {
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      // console.log('runtime.onMessage', message, sender)
-
-      if (sender.tab && sender.tab.id) {
-        cb(message, sendResponse)
-      }
-
-      // TODO: Do not set it every time
-      // chrome.browserAction.setIcon({ tabId: sender.tab.id, path: 'icons/active.png' })
-      // chrome.browserAction.setTitle({ title: 'Octohint works' })
-    })
-  }
-}
-
-new ChromeAdapter()
+    // TODO: Do not set it every time
+    // chrome.browserAction.setIcon({ tabId: sender.tab.id, path: 'icons/active.png' })
+    // chrome.browserAction.setTitle({ title: 'Octohint works' })
+  },
+)

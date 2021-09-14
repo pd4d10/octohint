@@ -10,9 +10,13 @@ abstract class BaseService extends SingleFileService {
   abstract getService(): cssService.LanguageService
 
   createService(code: string) {
-    const languageId = this.file.replace(/.*\.(.*?)$/, '$1')
     this.service = this.getService()
-    this.document = ls.TextDocument.create(this.file, languageId, 0, code)
+    this.document = ls.TextDocument.create(
+      this.file,
+      this.file.replace(/.*\.(.*?)$/, '$1'),
+      0,
+      code,
+    )
     this.stylesheet = this.service.parseStylesheet(this.document)
   }
 
@@ -26,10 +30,7 @@ abstract class BaseService extends SingleFileService {
   }
 
   getDefinition(info: PositionInfo) {
-    const definition = this.service.findDefinition(this.document, info, this.stylesheet)
-    if (definition) {
-      return definition.range.start
-    }
+    return this.service.findDefinition(this.document, info, this.stylesheet)?.range.start
   }
 
   getQuickInfo(info: PositionInfo) {

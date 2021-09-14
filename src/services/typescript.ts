@@ -167,17 +167,7 @@ export class TsService extends BaseService {
   getOccurrences(info: PositionInfo) {
     const instance = this.getSourceFile(info.file)
     if (instance) {
-      // After upgrading to typescript@2.5
-      // When mouse position is invalid (outside the code area), always break on a debugger expression
-      // https://github.com/Microsoft/TypeScript/blob/9e51882d9cb1efdd164e27e98f3de2d5294b8257/src/compiler/scanner.ts#L341
-      // Deactivate breakpoint to prevent annoying break, and catch this error
-      // let position: number
-      // try {
       const position = instance.getPositionOfLineAndCharacter(info.line, info.character)
-      // } catch (err) {
-      //   console.error(err)
-      //   return
-      // }
       if (this.service) {
         const references = this.service.getReferencesAtPosition(info.file, position)
         if (references) {

@@ -78,7 +78,7 @@ const px2num = (px: string | null) => {
  * <container> and its childrens should not set background-color
  * Order: background -> other childrens(including code) -> quickInfo
  */
-export const renderToContainer = ({
+const renderToContainer = ({
   container,
   fontDom,
   tabSizeDom,
@@ -183,7 +183,7 @@ function getFilePath(loc: { host: string; pathname: string } = location) {
   return '/' + loc.host + loc.pathname
 }
 
-export interface RenderParams {
+interface RenderParams {
   container: HTMLElement
   fontDom: HTMLElement
   tabSizeDom: HTMLElement
