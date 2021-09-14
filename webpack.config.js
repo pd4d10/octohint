@@ -1,6 +1,7 @@
 // @ts-check
 const path = require('path')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
@@ -9,6 +10,7 @@ module.exports = {
   entry: {
     background: './src/chrome/background',
     'content-script': './src/chrome/content-script',
+    options: './src/chrome/options',
   },
   output: {
     path: path.resolve('chrome/dist'),
@@ -31,5 +33,10 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
   },
-  plugins: [new CleanWebpackPlugin()],
+  plugins: [
+    new CleanWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      filename: 'options.html',
+    }),
+  ],
 }
