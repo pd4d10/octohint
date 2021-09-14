@@ -21,13 +21,13 @@ const Options: FunctionComponent = () => {
   return (
     <div style={{ lineHeight: '1.8' }}>
       <form
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault()
           if (!temp) {
             alert('fail')
             return
           }
-          chrome.permissions.request({ origins: [temp] }, granted => {
+          chrome.permissions.request({ origins: [temp] }, (granted) => {
             if (granted) {
               chrome.permissions.getAll(({ origins = [] }) => {
                 setOrigins(origins)
@@ -40,7 +40,9 @@ const Options: FunctionComponent = () => {
         <p>
           Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a different site. If it
           doesn't work, see{' '}
-          <a href="https://developer.chrome.com/extensions/match_patterns">Match Patterns</a>
+          <a target="_blank" href="https://developer.chrome.com/extensions/match_patterns">
+            Match Patterns
+          </a>
         </p>
         <table>
           <thead />
@@ -51,7 +53,7 @@ const Options: FunctionComponent = () => {
                   style={{ minWidth: '200px' }}
                   type="text"
                   value={temp}
-                  onChange={e => {
+                  onChange={(e) => {
                     setTemp((e.target as HTMLInputElement).value)
                   }}
                   placeholder="https://www.example.com/*"
@@ -61,7 +63,7 @@ const Options: FunctionComponent = () => {
                 <button type="submit">Add</button>
               </td>
             </tr>
-            {origins.map(item => (
+            {origins.map((item) => (
               <tr key={item}>
                 <td style={{ minWidth: '220px' }}>{item}</td>
                 <td>
@@ -69,7 +71,7 @@ const Options: FunctionComponent = () => {
                     <a
                       href="#"
                       onClick={() => {
-                        chrome.permissions.remove({ origins: [item] }, removed => {
+                        chrome.permissions.remove({ origins: [item] }, (removed) => {
                           if (removed) {
                             chrome.permissions.getAll(({ origins = [] }) => {
                               setOrigins(origins)
@@ -89,9 +91,13 @@ const Options: FunctionComponent = () => {
       </form>
       <hr />
       <footer>
-        <a href="https://github.com/pd4d10/octohint">Source code</a>
+        <a target="_blank" href="https://github.com/pd4d10/octohint">
+          Source code
+        </a>
         <br />
-        <a href="https://github.com/pd4d10/octohint/issues/new">Submit an issue</a>
+        <a target="_blank" href="https://github.com/pd4d10/octohint/issues/new">
+          Submit an issue
+        </a>
       </footer>
     </div>
   )
