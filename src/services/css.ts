@@ -1,7 +1,7 @@
 import * as cssService from 'vscode-css-languageservice'
 import * as ls from 'vscode-languageserver-types'
 import { SingleFileService } from './base'
-import { PositionInfo } from '../../types'
+import { PositionInfo } from '../types'
 
 abstract class BaseService extends SingleFileService {
   private service!: cssService.LanguageService

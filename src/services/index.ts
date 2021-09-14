@@ -1,6 +1,6 @@
 import { CSSService, LESSService, SCSSService } from './css'
 import SimpleService from './simple'
-import { ContentMessage } from '../../types'
+import { ContentMessage } from '../types'
 // import VueService from './vue'
 
 function getServiceByFileName(ext: string) {

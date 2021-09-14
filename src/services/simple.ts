@@ -1,6 +1,6 @@
 import { LineAndCharacter } from 'typescript'
 import { SingleFileService } from './base'
-import { PositionInfo } from '../../types'
+import { PositionInfo } from '../types'
 
 const tokenRegex = /[A-Za-z0-9_]/
 

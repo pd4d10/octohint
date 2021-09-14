@@ -12,7 +12,7 @@ import {
   ContentMessage,
   BackgroundMessageOfOccurrence,
   BackgroundMessageOfQuickInfo,
-} from '../types'
+} from './types'
 import { JSXInternal } from 'preact/src/jsx'
 
 const colors = {
@@ -40,7 +40,7 @@ interface AppProps {
   tabSize: number
 }
 
-export const App: FunctionComponent<AppProps> = props => {
+export const App: FunctionComponent<AppProps> = (props) => {
   const $container = props.container
 
   const [occurrences, setOccurrences] = useState<Occurrence[]>([])
@@ -48,8 +48,8 @@ export const App: FunctionComponent<AppProps> = props => {
   const [quickInfo, setQuickInfo] = useState<Nullable<QuickInfo>>(null)
 
   const sendMessage = async (message: ContentMessage): Promise<BackgroundMessage> => {
-    return new Promise(resolve => {
-      chrome.runtime.sendMessage(message, response => {
+    return new Promise((resolve) => {
+      chrome.runtime.sendMessage(message, (response) => {
         resolve(response)
       })
     })
@@ -66,7 +66,7 @@ export const App: FunctionComponent<AppProps> = props => {
 
   useEffect(() => {
     // keydown: change mouse cursor to pointer
-    document.addEventListener('keydown', e => {
+    document.addEventListener('keydown', (e) => {
       console.log('keydown', e)
       if (isMeta(e)) {
         // FIXME: Slow when file is large
@@ -79,7 +79,7 @@ export const App: FunctionComponent<AppProps> = props => {
     })
 
     // keyup: recover mouse cursor
-    document.addEventListener('keyup', e => {
+    document.addEventListener('keyup', (e) => {
       console.log('keyup', e)
       if (isMeta(e)) {
         $container.style.cursor = ''
@@ -88,7 +88,7 @@ export const App: FunctionComponent<AppProps> = props => {
 
     // click: show occurrences
     // if meta key is pressed, also show definition and scroll to it
-    $container.addEventListener('click', async e => {
+    $container.addEventListener('click', async (e) => {
       console.log('click', e)
 
       const position = getPosition(e)
@@ -147,7 +147,7 @@ export const App: FunctionComponent<AppProps> = props => {
     )
 
     // mouseout: hide quick info on leave
-    $container.addEventListener('mouseout', e => {
+    $container.addEventListener('mouseout', (e) => {
       // console.log('mouseout', e)
 
       setQuickInfo(null)
@@ -169,7 +169,7 @@ export const App: FunctionComponent<AppProps> = props => {
         />
       )}
       {occurrences &&
-        occurrences.map(occurrence => (
+        occurrences.map((occurrence) => (
           <div
             style={{
               position: 'absolute',
@@ -230,16 +230,17 @@ export const App: FunctionComponent<AppProps> = props => {
               })(),
             }}
           >
-            {typeof quickInfo.info === 'string'
-              ? quickInfo.info.replace(/\\/g, '')
-              : quickInfo.info.map(part => {
-                  if (part.text === '\n') {
-                    return <br />
-                  }
-                  return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
-                })
+            {
+              typeof quickInfo.info === 'string'
+                ? quickInfo.info.replace(/\\/g, '')
+                : quickInfo.info.map((part) => {
+                    if (part.text === '\n') {
+                      return <br />
+                    }
+                    return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
+                  })
 
-            // JSON.parse(`"${info}"`)
+              // JSON.parse(`"${info}"`)
             }
           </div>
         )}

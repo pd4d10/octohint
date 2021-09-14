@@ -2,8 +2,8 @@ import ts from 'typescript'
 import { BaseService } from './base'
 import stdLibs from './node-libs.json'
 import { without, uniq } from 'lodash-es'
-import { ContentMessage, PositionInfo } from '../../types'
-import { TS_LIB } from '../../ts-lib'
+import { ContentMessage, PositionInfo } from '../types'
+import { TS_LIB } from '../ts-lib'
 
 const defaultLibName = '//lib.d.ts'
 

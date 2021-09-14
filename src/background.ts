@@ -7,7 +7,7 @@ import {
   MessageType,
   BackgroundMessageOfOccurrence,
   BackgroundMessageOfQuickInfo,
-} from '../types'
+} from './types'
 
 const TIMEOUT = 1000 * 60 * 5 // 5min
 
@@ -102,3 +102,21 @@ export default abstract class Adapter {
     sendResponse(response)
   }
 }
+
+class ChromeAdapter extends Adapter {
+  addListener(cb: any) {
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      // console.log('runtime.onMessage', message, sender)
+
+      if (sender.tab && sender.tab.id) {
+        cb(message, sendResponse)
+      }
+
+      // TODO: Do not set it every time
+      // chrome.browserAction.setIcon({ tabId: sender.tab.id, path: 'icons/active.png' })
+      // chrome.browserAction.setTitle({ title: 'Octohint works' })
+    })
+  }
+}
+
+new ChromeAdapter()

@@ -8,9 +8,9 @@ module.exports = {
   mode: 'development',
   watch: true,
   entry: {
-    background: './src/chrome/background',
-    'content-script': './src/chrome/content-script',
-    options: './src/chrome/options',
+    background: './src/background',
+    'content-script': './src/content-script',
+    options: './src/options',
   },
   output: {
     path: path.resolve('chrome/dist'),

@@ -1,4 +1,4 @@
-import { ContentMessage, PositionInfo, Occurrence, Definition, QuickInfo } from '../../types'
+import { ContentMessage, PositionInfo, Occurrence, Definition, QuickInfo } from '../types'
 
 export abstract class BaseService {
   abstract getOccurrences(info: PositionInfo): Occurrence[]
