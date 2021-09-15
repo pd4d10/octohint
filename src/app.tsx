@@ -2,7 +2,7 @@ import { h, FunctionComponent } from 'preact'
 import { useEffect, useState } from 'preact/hooks'
 import { createPortal } from 'preact/compat'
 import { debounce } from 'lodash-es'
-import { Definition, Occurrence, QuickInfo, BackgroundMessage, ContentMessage } from './types'
+import { HintResponse, HintRequest } from './types'
 import { JSXInternal } from 'preact/src/jsx'
 
 const colors = {
@@ -12,7 +12,6 @@ const colors = {
   occurrenceRead: 'rgba(173,214,255,.7)',
 }
 
-const DEBOUNCE_TIMEOUT = 300
 const isMacOS = /Mac OS X/i.test(navigator.userAgent)
 
 interface AppProps {
@@ -30,9 +29,9 @@ interface AppProps {
   tabSize: number
 }
 
-const sendMessage = async (message: ContentMessage) => {
-  return new Promise<BackgroundMessage>((resolve) => {
-    chrome.runtime.sendMessage(message, (response) => {
+const sendMessage = async (req: HintRequest) => {
+  return new Promise<HintResponse>((resolve) => {
+    chrome.runtime.sendMessage(req, (response) => {
       resolve(response)
     })
   })
@@ -41,20 +40,42 @@ const sendMessage = async (message: ContentMessage) => {
 export const App: FunctionComponent<AppProps> = (props) => {
   const $container = props.container
 
-  const [occurrences, setOccurrences] = useState<Occurrence[]>([])
-  const [definition, setDefinition] = useState<Definition>()
-  const [quickInfo, setQuickInfo] = useState<QuickInfo>()
+  const [occurrences, setOccurrences] = useState<HintResponse['occurrences']>()
+  const [definition, setDefinition] = useState<HintResponse['definition']>()
+  const [quickInfo, setQuickInfo] = useState<HintResponse['quickInfo']>()
 
   const getPosition = (e: MouseEvent) => {
     const rect = props.$background.getBoundingClientRect()
-    return {
-      // Must be integers, so use Math.floor
-      x: Math.floor((e.clientX - rect.left) / props.fontWidth),
-      y: Math.floor((e.clientY - rect.top) / props.lineHeight),
+
+    // must be integers
+    const line = Math.floor((e.clientY - rect.top) / props.lineHeight)
+    const character = Math.floor((e.clientX - rect.left) / props.fontWidth)
+
+    if (line > 0 && character > 0) {
+      return { line, character }
     }
   }
 
   useEffect(() => {
+    const handleResponse = (res: HintResponse) => {
+      // TODO: Fix overflow when length is large
+      if (res.definition) {
+        setDefinition(res.definition)
+        window.scrollTo(
+          0,
+          props.offsetTop + props.paddingTop + res.definition.line * props.lineHeight - 80,
+        ) // TODO: Magic number
+      }
+
+      if (res.occurrences) {
+        setOccurrences(res.occurrences)
+      }
+
+      if (res.quickInfo) {
+        setQuickInfo(res.quickInfo)
+      }
+    }
+
     // keydown: change mouse cursor to pointer
     document.addEventListener('keydown', (e) => {
       console.log('keydown', e)
@@ -82,29 +103,17 @@ export const App: FunctionComponent<AppProps> = (props) => {
       console.log('click', e)
 
       const position = getPosition(e)
-      if (position.x < 0 || position.y < 0) {
-        return
-      }
+      if (!position) return
 
-      const response = await sendMessage({
-        type: 'occurrence',
+      const res = await sendMessage({
+        type: 'click',
         file: props.fileName,
-        position,
         meta: isMacOS ? e.metaKey : e.ctrlKey,
         codeUrl: props.codeUrl,
         tabSize: props.tabSize,
+        ...position,
       })
-
-      // TODO: Fix overflow when length is large
-      if (response.info) setDefinition(response.info)
-      if (response.occurrences) setOccurrences(response.occurrences)
-
-      if (response.info) {
-        window.scrollTo(
-          0,
-          props.offsetTop + props.paddingTop + response.info.line * props.lineHeight - 80,
-        ) // TODO: Magic number
-      }
+      handleResponse(res)
 
       // TODO: Exclude click event triggered by selecting text
       // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
@@ -119,27 +128,22 @@ export const App: FunctionComponent<AppProps> = (props) => {
       debounce(async (e: MouseEvent) => {
         // console.log('mousemove', e)
         const position = getPosition(e)
+        if (!position) return
 
-        if (position.x < 0 || position.y < 0) {
-          return
-        }
-
-        const { data } = await sendMessage({
+        const res = await sendMessage({
+          type: 'hover',
           file: props.fileName,
           codeUrl: props.codeUrl,
-          type: 'quickInfo',
-          position,
           tabSize: props.tabSize,
+          ...position,
         })
-
-        setQuickInfo(data)
-      }, DEBOUNCE_TIMEOUT),
+        handleResponse(res)
+      }, 300),
     )
 
     // mouseout: hide quick info on leave
     $container.addEventListener('mouseout', (e) => {
       // console.log('mouseout', e)
-
       setQuickInfo(undefined)
     })
   }, [])

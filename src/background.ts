@@ -1,6 +1,6 @@
 import { TsService } from './services/typescript'
 import { BaseService } from './services/base'
-import { ContentMessage, BackgroundMessage } from './types'
+import { HintRequest, HintResponse } from './types'
 import { CSSService, LESSService, SCSSService } from './services/css'
 import SimpleService from './services/simple'
 
@@ -9,61 +9,48 @@ const TIMEOUT = 1000 * 60 * 5 // 5min
 const ts = new TsService()
 const services = {} as { [file: string]: BaseService }
 
-function handleMessage(
-  message: ContentMessage,
-  sendResponse: (message: BackgroundMessage) => void,
-) {
+function handleRequest(req: HintRequest): HintResponse | undefined {
+  console.log(req)
+
   let service: BaseService
-  const ext = message.file.split('.').slice(-1)[0]
+  const ext = req.file.split('.').slice(-1)[0]
 
   if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
-    ts.createService(message)
+    ts.createService(req)
     service = ts
   } else {
-    if (!services[message.file]) {
+    if (!services[req.file]) {
       if (ext === 'less') {
-        service = new LESSService(message)
+        service = new LESSService(req)
       } else if (ext === 'scss') {
-        service = new SCSSService(message)
+        service = new SCSSService(req)
       } else if (ext === 'css') {
-        service = new CSSService(message)
+        service = new CSSService(req)
       } else {
-        return new SimpleService(message)
+        service = new SimpleService(req)
       }
 
-      services[message.file] = service
+      services[req.file] = service
 
       // Add a timeout to delete service to prevent memory leak
       setTimeout(() => {
-        delete services[message.file]
+        delete services[req.file]
       }, TIMEOUT)
     }
 
-    service = services[message.file]
+    service = services[req.file]
   }
 
-  if (message.type === 'occurrence') {
-    const info = {
-      file: message.file,
-      line: message.position.y,
-      character: message.position.x,
+  if (req.type === 'click') {
+    return {
+      occurrences: service.getOccurrences(req),
+      definition: req.meta ? service.getDefinition(req) : undefined,
     }
-    sendResponse({
-      occurrences: service.getOccurrences(info),
-      info: message.meta ? service.getDefinition(info) : undefined,
-    })
-  } else if (message.type === 'quickInfo') {
-    const info = {
-      file: message.file,
-      line: message.position.y,
-      character: message.position.x,
+  } else if (req.type === 'hover') {
+    return {
+      quickInfo: service.getQuickInfo(req),
     }
-    sendResponse({
-      data: service.getQuickInfo(info),
-    })
   } else {
-    sendResponse({}) // Trigger for Safari
-
     // chrome.browserAction.setIcon({
     //   path: 'icon.png',
     // })
@@ -71,8 +58,6 @@ function handleMessage(
     //   title: 'Octohint is active.',
     // })
   }
-
-  console.log(message)
 
   // TODO: Do not set it every time
   // chrome.browserAction.setIcon({ tabId: sender.tab.id, path: 'icons/active.png' })
@@ -82,6 +67,7 @@ function handleMessage(
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // console.log('runtime.onMessage', message, sender)
   if (sender.tab?.id) {
-    handleMessage(message, sendResponse)
+    const response = handleRequest(message)
+    if (response) sendResponse(response)
   }
 })

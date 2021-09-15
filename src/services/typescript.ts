@@ -2,7 +2,7 @@ import ts from 'typescript'
 import { BaseService } from './base'
 import stdLibs from './node-libs.json'
 import { without, uniq } from 'lodash-es'
-import { ContentMessage, PositionInfo } from '../types'
+import { HintRequest } from '../types'
 import { TS_LIB } from '../ts-lib'
 
 const defaultLibName = '//lib.d.ts'
@@ -101,7 +101,7 @@ export class TsService extends BaseService {
   }
 
   // Notice that this method is asynchronous
-  async createService(message: ContentMessage) {
+  async createService(message: HintRequest) {
     if (this.files[message.file]) return
 
     const code = await this.fetchCode(message)
@@ -164,15 +164,15 @@ export class TsService extends BaseService {
   //   return sourceFile.getPositionOfLineAndCharacter(line, character)
   // }
 
-  getOccurrences(info: PositionInfo) {
-    const instance = this.getSourceFile(info.file)
+  getOccurrences(req: HintRequest) {
+    const instance = this.getSourceFile(req.file)
     if (instance) {
-      const position = instance.getPositionOfLineAndCharacter(info.line, info.character)
+      const position = instance.getPositionOfLineAndCharacter(req.line, req.character)
       if (this.service) {
-        const references = this.service.getReferencesAtPosition(info.file, position)
+        const references = this.service.getReferencesAtPosition(req.file, position)
         if (references) {
           return references
-            .filter(({ fileName }) => fileName === info.file)
+            .filter(({ fileName }) => fileName === req.file)
             .map((reference) => ({
               isWriteAccess: reference.isWriteAccess,
               range: instance.getLineAndCharacterOfPosition(reference.textSpan.start),
@@ -184,18 +184,18 @@ export class TsService extends BaseService {
     return []
   }
 
-  getDefinition(info: PositionInfo) {
-    const instance = this.getSourceFile(info.file)
+  getDefinition(req: HintRequest) {
+    const instance = this.getSourceFile(req.file)
     if (this.service && instance) {
       let position: number
       try {
-        position = instance.getPositionOfLineAndCharacter(info.line, info.character)
+        position = instance.getPositionOfLineAndCharacter(req.line, req.character)
       } catch (err) {
         return
       }
-      const definitions = this.service.getDefinitionAtPosition(info.file, position)
+      const definitions = this.service.getDefinitionAtPosition(req.file, position)
       if (definitions) {
-        const infosOfCurrentFile = definitions.filter((d) => d.fileName === info.file)
+        const infosOfCurrentFile = definitions.filter((d) => d.fileName === req.file)
         if (infosOfCurrentFile.length) {
           return instance.getLineAndCharacterOfPosition(infosOfCurrentFile[0].textSpan.start)
         }
@@ -203,17 +203,17 @@ export class TsService extends BaseService {
     }
   }
 
-  getQuickInfo(info: PositionInfo) {
-    const instance = this.getSourceFile(info.file)
+  getQuickInfo(req: HintRequest) {
+    const instance = this.getSourceFile(req.file)
     if (this.service && instance) {
       let position: number
       try {
-        position = instance.getPositionOfLineAndCharacter(info.line, info.character)
+        position = instance.getPositionOfLineAndCharacter(req.line, req.character)
       } catch (err) {
         // console.error(err)
         return
       }
-      const quickInfo = this.service.getQuickInfoAtPosition(info.file, position)
+      const quickInfo = this.service.getQuickInfoAtPosition(req.file, position)
       if (quickInfo && quickInfo.displayParts) {
         // TODO: Colorize display parts
         return {

@@ -3,7 +3,7 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const TerserPlugin = require('terser-webpack-plugin')
 const config = require('./webpack.config')
 
-/** @type {import('webpack').Configuration[]} */
+/** @type {import('webpack').Configuration} */
 module.exports = {
   ...config,
   mode: 'production',

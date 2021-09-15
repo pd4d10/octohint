@@ -1,9 +1,9 @@
-import { ContentMessage, PositionInfo, Occurrence, Definition, QuickInfo } from '../types'
+import { HintRequest, HintResponse } from '../types'
 
 export abstract class BaseService {
-  abstract getOccurrences(info: PositionInfo): Occurrence[]
-  abstract getDefinition(info: PositionInfo): Definition | undefined
-  abstract getQuickInfo(info: PositionInfo): QuickInfo | undefined
+  abstract getOccurrences(req: HintRequest): HintResponse['occurrences']
+  abstract getDefinition(req: HintRequest): HintResponse['definition']
+  abstract getQuickInfo(req: HintRequest): HintResponse['quickInfo']
 
   async fetchWithCredentials(url: string, isJson = false) {
     const res = await fetch(url, { credentials: 'same-origin' })
@@ -13,9 +13,9 @@ export abstract class BaseService {
     return isJson ? res.json() : res.text()
   }
 
-  async fetchCode(message: ContentMessage) {
-    const code = await this.fetchWithCredentials(message.codeUrl)
-    return code.replace(/\t/g, ' '.repeat(message.tabSize))
+  async fetchCode(req: HintRequest) {
+    const code = await this.fetchWithCredentials(req.codeUrl)
+    return code.replace(/\t/g, ' '.repeat(req.tabSize))
   }
 }
 
@@ -23,14 +23,14 @@ export abstract class SingleFileService extends BaseService {
   file: string
   abstract createService(code: string): void
 
-  constructor(message: ContentMessage) {
+  constructor(req: HintRequest) {
     super()
-    this.file = message.file
-    this.fetchCodeAndCreateService(message)
+    this.file = req.file
+    this.fetchCodeAndCreateService(req)
   }
 
-  async fetchCodeAndCreateService(message: ContentMessage) {
-    const code = await this.fetchCode(message)
+  async fetchCodeAndCreateService(req: HintRequest) {
+    const code = await this.fetchCode(req)
     this.createService(code)
   }
 }
