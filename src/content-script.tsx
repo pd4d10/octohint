@@ -1,5 +1,6 @@
 import { render, h } from 'preact'
 import { App } from './app'
+import githubInject from 'github-injection'
 
 const toStyleText = (obj: { [key: string]: string | number }) => {
   return Object.entries(obj)
@@ -319,7 +320,10 @@ const runAdapter = () => {
   // So use DOM selector
   const params = getGithubParams()
   if (params) {
-    renderToContainer(params)
+    githubInject(() => {
+      const params = getGithubParams()
+      if (params) renderToContainer(params)
+    })
     return
   }
 

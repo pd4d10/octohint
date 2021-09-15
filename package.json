@@ -12,6 +12,7 @@
     "@types/chrome": "^0.0.157",
     "@types/lodash-es": "^4.17.5",
     "@types/node": "^16.9.1",
+    "github-injection": "^1.0.1",
     "lodash-es": "^4.17.21",
     "preact": "^10.5.14",
     "tsdef": "^0.0.14",
