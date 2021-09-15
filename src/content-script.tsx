@@ -1,6 +1,5 @@
 import { render, h } from 'preact'
 import { App } from './app'
-import { MessageType } from './types'
 
 const toStyleText = (obj: { [key: string]: string | number }) => {
   return Object.entries(obj)
@@ -155,20 +154,10 @@ const renderToContainer = ({
     />,
     $background,
   )
-
-  // Create service on page load
-  chrome.runtime.sendMessage({
-    type: MessageType.service,
-    file: fileName,
-    codeUrl: codeUrl,
-    tabSize,
-  })
 }
 
 const $ = (selector: string, wrapper: HTMLElement = document.body) => {
-  const dom = wrapper.querySelector(selector)
-  if (!dom) return null
-  return dom as HTMLElement
+  return wrapper.querySelector<HTMLElement>(selector)
 }
 const $$ = (selector: string) => {
   return document.querySelectorAll(selector)

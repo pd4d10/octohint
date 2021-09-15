@@ -2,8 +2,8 @@ import { ContentMessage, PositionInfo, Occurrence, Definition, QuickInfo } from 
 
 export abstract class BaseService {
   abstract getOccurrences(info: PositionInfo): Occurrence[]
-  abstract getDefinition(info: PositionInfo): Definition | void
-  abstract getQuickInfo(info: PositionInfo): QuickInfo | void
+  abstract getDefinition(info: PositionInfo): Definition | undefined
+  abstract getQuickInfo(info: PositionInfo): QuickInfo | undefined
 
   async fetchWithCredentials(url: string, isJson = false) {
     const res = await fetch(url, { credentials: 'same-origin' })

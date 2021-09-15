@@ -19,35 +19,11 @@ type Position = {
   y: number
 }
 
-export enum MessageType {
-  service = 'service',
-  occurrence = 'occurrence',
-  quickInfo = 'quickInfo',
-}
-
-// Message from background
-// interface BackgroundMessageBase {}
-
-interface BackgroundMessageOfService {}
-
-export interface BackgroundMessageOfOccurrence {
+export interface BackgroundMessage {
   occurrences?: Occurrence[]
   info?: ts.LineAndCharacter
+  data?: QuickInfo
 }
-
-export interface BackgroundMessageOfQuickInfo {
-  data: QuickInfo
-}
-
-interface BackgroundMessageOfError {
-  error: string
-}
-
-export type BackgroundMessage =
-  | BackgroundMessageOfService
-  | BackgroundMessageOfOccurrence
-  | BackgroundMessageOfQuickInfo
-  | BackgroundMessageOfError
 
 // Message from Content Script
 interface BaseContentMessage {
@@ -56,31 +32,18 @@ interface BaseContentMessage {
   tabSize: number
 }
 
-interface ContentMessageOfService extends BaseContentMessage {
-  type: MessageType.service
-}
-
 interface ContentMessageOfOccurrence extends BaseContentMessage {
-  type: MessageType.occurrence
+  type: 'occurrence'
   position: Position
   meta?: boolean
 }
 
 interface ContentMessageOfQuickInfo extends BaseContentMessage {
-  type: MessageType.quickInfo
+  type: 'quickInfo'
   position: Position
 }
 
-export type ContentMessage =
-  | ContentMessageOfService
-  | ContentMessageOfOccurrence
-  | ContentMessageOfQuickInfo
-
-export type SendMessageToBackground = (data: ContentMessage) => Promise<BackgroundMessage>
-
-export type AddBackgroundListener = (
-  listener: (message: ContentMessage, sendResponse: (message: BackgroundMessage) => void) => void,
-) => void
+export type ContentMessage = ContentMessageOfOccurrence | ContentMessageOfQuickInfo
 
 export interface PositionInfo {
   file: string

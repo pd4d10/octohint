@@ -1,18 +1,8 @@
 import { h, FunctionComponent } from 'preact'
 import { useEffect, useState } from 'preact/hooks'
 import { createPortal } from 'preact/compat'
-import { Nullable } from 'tsdef'
 import { debounce } from 'lodash-es'
-import {
-  Definition,
-  Occurrence,
-  QuickInfo,
-  MessageType,
-  BackgroundMessage,
-  ContentMessage,
-  BackgroundMessageOfOccurrence,
-  BackgroundMessageOfQuickInfo,
-} from './types'
+import { Definition, Occurrence, QuickInfo, BackgroundMessage, ContentMessage } from './types'
 import { JSXInternal } from 'preact/src/jsx'
 
 const colors = {
@@ -40,20 +30,20 @@ interface AppProps {
   tabSize: number
 }
 
+const sendMessage = async (message: ContentMessage) => {
+  return new Promise<BackgroundMessage>((resolve) => {
+    chrome.runtime.sendMessage(message, (response) => {
+      resolve(response)
+    })
+  })
+}
+
 export const App: FunctionComponent<AppProps> = (props) => {
   const $container = props.container
 
   const [occurrences, setOccurrences] = useState<Occurrence[]>([])
-  const [definition, setDefinition] = useState<Nullable<Definition>>(null)
-  const [quickInfo, setQuickInfo] = useState<Nullable<QuickInfo>>(null)
-
-  const sendMessage = async (message: ContentMessage): Promise<BackgroundMessage> => {
-    return new Promise((resolve) => {
-      chrome.runtime.sendMessage(message, (response) => {
-        resolve(response)
-      })
-    })
-  }
+  const [definition, setDefinition] = useState<Definition>()
+  const [quickInfo, setQuickInfo] = useState<QuickInfo>()
 
   const getPosition = (e: MouseEvent) => {
     const rect = props.$background.getBoundingClientRect()
@@ -96,14 +86,14 @@ export const App: FunctionComponent<AppProps> = (props) => {
         return
       }
 
-      const response = (await sendMessage({
-        type: MessageType.occurrence,
+      const response = await sendMessage({
+        type: 'occurrence',
         file: props.fileName,
         position,
         meta: isMacOS ? e.metaKey : e.ctrlKey,
         codeUrl: props.codeUrl,
         tabSize: props.tabSize,
-      })) as BackgroundMessageOfOccurrence
+      })
 
       // TODO: Fix overflow when length is large
       if (response.info) setDefinition(response.info)
@@ -134,13 +124,13 @@ export const App: FunctionComponent<AppProps> = (props) => {
           return
         }
 
-        const { data } = (await sendMessage({
+        const { data } = await sendMessage({
           file: props.fileName,
           codeUrl: props.codeUrl,
-          type: MessageType.quickInfo,
+          type: 'quickInfo',
           position,
           tabSize: props.tabSize,
-        })) as BackgroundMessageOfQuickInfo
+        })
 
         setQuickInfo(data)
       }, DEBOUNCE_TIMEOUT),
@@ -150,7 +140,7 @@ export const App: FunctionComponent<AppProps> = (props) => {
     $container.addEventListener('mouseout', (e) => {
       // console.log('mouseout', e)
 
-      setQuickInfo(null)
+      setQuickInfo(undefined)
     })
   }, [])
 

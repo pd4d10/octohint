@@ -72,6 +72,10 @@ export default class SimpleService extends SingleFileService {
     return occurrence
   }
 
-  getDefinition() {}
-  getQuickInfo() {}
+  getDefinition() {
+    return undefined
+  }
+  getQuickInfo() {
+    return undefined
+  }
 }
