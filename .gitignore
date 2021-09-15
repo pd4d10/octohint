@@ -38,6 +38,4 @@ jspm_packages
 
 chrome/dist/
 chrome/LICENSE
-octohint.safariextension/dist/
-octohint.safariextension/LICENSE
 *.zip

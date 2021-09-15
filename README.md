@@ -18,10 +18,6 @@ Octohint is a browser extension which adds IntelliSense hint to GitHub and GitLa
 
 Install it from [Chrome Web Store](https://chrome.google.com/webstore/detail/octohint/hbkpjkfdheainjkkebeoofkpgddnnbpk)
 
-### Safari
-
-Install it from [Safari Extensions Gallery](https://safari-extensions.apple.com/details/?id=com.pd4d10.octohint-2FFP8Y4P2A)
-
 ### Firefox
 
 Currently you could build it from source, see web extension section of [contributing docs](CONTRIBUTING.md). Or [try this one](https://github.com/pd4d10/octohint/issues/24#issuecomment-450467200).
