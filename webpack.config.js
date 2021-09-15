@@ -32,6 +32,9 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
+    fallback: {
+      path: 'path-browserify',
+    },
   },
   plugins: [
     new CleanWebpackPlugin(),

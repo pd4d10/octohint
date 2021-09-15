@@ -30,8 +30,11 @@ interface AppProps {
 }
 
 const sendMessage = async (req: HintRequest) => {
+  console.log('req', req)
+
   return new Promise<HintResponse>((resolve) => {
     chrome.runtime.sendMessage(req, (response) => {
+      console.log('res', response)
       resolve(response)
     })
   })

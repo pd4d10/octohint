@@ -1,5 +1,6 @@
+import path from 'path'
 import ts from 'typescript'
-import { BaseService } from './base'
+import { BaseService, fetchCode, fetchWithCredentials } from './base'
 import stdLibs from './node-libs.json'
 import { without, uniq } from 'lodash-es'
 import { HintRequest } from '../types'
@@ -11,217 +12,162 @@ function getFullLibName(name: string) {
   return `/node_modules/@types/${name}/index.d.ts`
 }
 
-interface Files {
-  [fileName: string]: {
-    version: number
-    content: string
-    // dependencies: string[]
-  }
+const files: Record<string, string> = {
+  [defaultLibName]: TS_LIB,
+}
+
+// https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
+const languageService = ts.createLanguageService(
+  {
+    getScriptFileNames() {
+      return Object.keys(files)
+    },
+    getScriptVersion() {
+      return '0'
+    },
+    getScriptSnapshot(fileName) {
+      return ts.ScriptSnapshot.fromString(files[fileName])
+    },
+    getCurrentDirectory() {
+      return '/'
+    },
+    getDefaultLibFileName() {
+      return defaultLibName
+    },
+    getCompilationSettings() {
+      return {
+        allowJs: true, // necessary for JS files
+      }
+    },
+    // log: console.log,
+    // trace: console.log,
+    // error: console.error,
+  },
+  ts.createDocumentRegistry(),
+)
+
+function getSourceFile(file: string) {
+  // This is necesarry because createService is asynchronous
+  return languageService.getProgram()?.getSourceFile(file)
 }
 
 // FIXME: Very slow when click type `string`
 // TODO: Go to definition for third party libs
-export class TsService extends BaseService {
-  private service?: ts.LanguageService
-  private getSourceFile(file: string) {
-    // This is necesarry because createService is asynchronous
-    if (this.service) {
-      const program = this.service.getProgram()
-      if (program) {
-        return program.getSourceFile(file)
-      }
-    }
-  }
-  private files: Files = {}
-  // private libs: Files = {}
+class TsService extends BaseService {
+  async createService(message: HintRequest) {
+    if (files[message.file]) return
 
-  // Use regex to get third party lib names
-  getLibNamesFromCode(code: string) {
-    const regs = [/[import|export].*?from\s*?['"](.*?)['"]/g, /require\(['"](.*?)['"]\)/g] // TODO: Exclude comment
-    let result: string[] = []
-    for (const reg of regs) {
+    const code = await fetchCode(message)
+    files[message.file] = code
+
+    // get third party deps
+    let deps: string[] = []
+
+    for (const reg of [/[import|export].*?from\s*?['"](.*?)['"]/g, /require\(['"](.*?)['"]\)/g]) {
+      // TODO: Exclude comment
       const matches = code.match(reg) || []
       // console.log(reg, matches)
       // Exclude node standard libs
-      const libs = without(
-        matches
-          .map((str) => str.replace(reg, '$1'))
-          .map((str) => str.split('/')[0]) // Extract correct lib of `lodash/throttle`
-          .filter((item) => item[0] !== '.'), // Exclude relative path, like `./xxx`
-        ...stdLibs,
-      )
-      result = [...result, ...libs]
-    }
-    return uniq(result)
-  }
-
-  // Try to get type definition
-  async fetchLibCode(name: string) {
-    const fullname = getFullLibName(name)
-    if (this.files[fullname]) {
-      return
+      deps = [
+        ...deps,
+        ...without(
+          matches
+            .map((str) => str.replace(reg, '$1'))
+            .map((str) => str.split('/')[0]) // Extract correct lib of `lodash/throttle`
+            .filter((item) => item[0] !== '.'), // Exclude relative path, like `./xxx`
+          ...stdLibs,
+        ),
+      ]
     }
 
-    const prefix = 'https://unpkg.com'
-    try {
-      // Find typings file path
-      const { types, typings } = await this.fetchWithCredentials(
-        `${prefix}/${name}/package.json`,
-        true,
-      )
-      if (types || typings) {
-        return await this.fetchWithCredentials(`${prefix}/${name}/${types || typings}`)
-      }
+    deps = uniq(deps)
+    console.log('deps:', deps)
 
-      // If typings not specified, try DefinitelyTyped
-      return await this.fetchWithCredentials(`${prefix}/@types/${name}/index.d.ts`)
-    } catch (err) {
-      console.error(err)
-    }
-  }
+    // try to get type definitions
+    await Promise.all(
+      deps.map(async (name) => {
+        const fullname = getFullLibName(name)
+        if (files[fullname]) return
 
-  private updateContent(name: string, code: string) {
-    if (this.files[name]) {
-      // TODO: Make version work
-      // Fetch code every time is too expensive
+        const prefix = 'https://unpkg.com'
+        try {
+          // Find typings file path
+          const packageJson = await fetch(`${prefix}/${name}/package.json`).then<
+            Record<string, unknown>
+          >((res) => res.json())
 
-      // if (this.files[fileName].content !== code) {
-      //   this.files[fileName].version += 1
-      //   this.files[fileName].content = code
-      // }
-      return
-    } else {
-      this.files[name] = {
-        version: 0,
-        content: code,
-        // dependencies: [],
-      }
-    }
-    console.log('Updated, current files:', this.files)
-  }
+          const typeFile = packageJson.types ?? packageJson.typings
 
-  // Notice that this method is asynchronous
-  async createService(message: HintRequest) {
-    if (this.files[message.file]) return
+          // if types not specified, try DefinitelyTyped
+          const url = typeFile
+            ? path.join(`${prefix}/${name}`, typeFile as string)
+            : `${prefix}/@types/${name}/index.d.ts`
 
-    const code = await this.fetchCode(message)
-    this.updateContent(message.file, code)
-
-    const libNames = this.getLibNamesFromCode(code)
-    console.log('Libs:', libNames)
-    const libCodes = await Promise.all(libNames.map((lib) => this.fetchLibCode(lib)))
-    libNames.forEach((name, i) => {
-      const code = libCodes[i]
-      if (code) {
-        // this.files[fileName].dependencies.push(name)
-        this.updateContent(getFullLibName(name), code)
-      }
-    })
-
-    // https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
-    const host: ts.LanguageServiceHost = {
-      getScriptFileNames: () => {
-        const fileNames = Object.keys(this.files)
-        // console.log('getScriptFileNames:', fileNames)
-        return fileNames
-      },
-      getScriptVersion: (fileName) => {
-        const version = (this.files[fileName] && this.files[fileName].version.toString()) || '0'
-        // console.log('getScriptVersion:', fileName, version)
-        return version
-      },
-      getScriptSnapshot: (fileName) => {
-        let snapshot
-        if (fileName === defaultLibName) {
-          snapshot = ts.ScriptSnapshot.fromString(TS_LIB)
-        } else if (this.files[fileName]) {
-          snapshot = ts.ScriptSnapshot.fromString(this.files[fileName].content)
+          files[getFullLibName(name)] = await fetchWithCredentials(url)
+        } catch (err) {
+          console.error(err)
         }
-        // console.log('getScriptSnapshot', fileName)
-        return snapshot
-      },
-      getCurrentDirectory: () => '/',
-      getCompilationSettings: () => ({
-        allowJs: true,
-        diagnostics: true,
-        // traceResolution: true,
-        allowSyntheticDefaultImports: true,
-        // lib: ['lib.es6.d.ts'],
       }),
-      getDefaultLibFileName: () => defaultLibName,
-      // getDefaultLibFileName: options => ts.getDefaultLibFileName(options),
-      // getNewLine: ts.sys.newLine,
-      log: console.log,
-      trace: console.log,
-      error: console.error,
-    }
-
-    // Create the language service files
-    this.service = ts.createLanguageService(host, ts.createDocumentRegistry())
+    )
   }
-
-  // getPosition(sourceFile: ts.SourceFile, line: number, character: number) {
-  //   return sourceFile.getPositionOfLineAndCharacter(line, character)
-  // }
 
   getOccurrences(req: HintRequest) {
-    const instance = this.getSourceFile(req.file)
-    if (instance) {
-      const position = instance.getPositionOfLineAndCharacter(req.line, req.character)
-      if (this.service) {
-        const references = this.service.getReferencesAtPosition(req.file, position)
-        if (references) {
-          return references
-            .filter(({ fileName }) => fileName === req.file)
-            .map((reference) => ({
-              isWriteAccess: reference.isWriteAccess,
-              range: instance.getLineAndCharacterOfPosition(reference.textSpan.start),
-              width: reference.textSpan.length,
-            }))
-        }
+    const s = getSourceFile(req.file)
+    if (s) {
+      const position = s.getPositionOfLineAndCharacter(req.line, req.character)
+      const references = languageService.getReferencesAtPosition(req.file, position)
+      if (references) {
+        return references
+          .filter(({ fileName }) => fileName === req.file)
+          .map((reference) => ({
+            isWriteAccess: reference.isWriteAccess,
+            range: s.getLineAndCharacterOfPosition(reference.textSpan.start),
+            width: reference.textSpan.length,
+          }))
       }
     }
-    return []
   }
 
   getDefinition(req: HintRequest) {
-    const instance = this.getSourceFile(req.file)
-    if (this.service && instance) {
+    const s = getSourceFile(req.file)
+    if (s) {
       let position: number
       try {
-        position = instance.getPositionOfLineAndCharacter(req.line, req.character)
+        position = s.getPositionOfLineAndCharacter(req.line, req.character)
       } catch (err) {
         return
       }
-      const definitions = this.service.getDefinitionAtPosition(req.file, position)
+      const definitions = languageService.getDefinitionAtPosition(req.file, position)
       if (definitions) {
         const infosOfCurrentFile = definitions.filter((d) => d.fileName === req.file)
         if (infosOfCurrentFile.length) {
-          return instance.getLineAndCharacterOfPosition(infosOfCurrentFile[0].textSpan.start)
+          return s.getLineAndCharacterOfPosition(infosOfCurrentFile[0].textSpan.start)
         }
       }
     }
   }
 
   getQuickInfo(req: HintRequest) {
-    const instance = this.getSourceFile(req.file)
-    if (this.service && instance) {
+    const s = getSourceFile(req.file)
+    if (s) {
       let position: number
       try {
-        position = instance.getPositionOfLineAndCharacter(req.line, req.character)
+        position = s.getPositionOfLineAndCharacter(req.line, req.character)
       } catch (err) {
         // console.error(err)
         return
       }
-      const quickInfo = this.service.getQuickInfoAtPosition(req.file, position)
+      const quickInfo = languageService.getQuickInfoAtPosition(req.file, position)
       if (quickInfo && quickInfo.displayParts) {
         // TODO: Colorize display parts
         return {
           info: quickInfo.displayParts,
-          range: instance.getLineAndCharacterOfPosition(quickInfo.textSpan.start),
+          range: s.getLineAndCharacterOfPosition(quickInfo.textSpan.start),
           width: quickInfo.textSpan.length,
         }
       }
     }
   }
 }
+
+export const tsService = new TsService()

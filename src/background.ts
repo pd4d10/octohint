@@ -1,4 +1,4 @@
-import { TsService } from './services/typescript'
+import { tsService } from './services/typescript'
 import { BaseService } from './services/base'
 import { HintRequest, HintResponse } from './types'
 import { CSSService, LESSService, SCSSService } from './services/css'
@@ -6,18 +6,16 @@ import SimpleService from './services/simple'
 
 const TIMEOUT = 1000 * 60 * 5 // 5min
 
-const ts = new TsService()
 const services = {} as { [file: string]: BaseService }
 
 function handleRequest(req: HintRequest): HintResponse | undefined {
-  console.log(req)
-
   let service: BaseService
   const ext = req.file.split('.').slice(-1)[0]
 
   if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
-    ts.createService(req)
-    service = ts
+    // TODO: mjs, cjs
+    tsService.createService(req)
+    service = tsService
   } else {
     if (!services[req.file]) {
       if (ext === 'less') {

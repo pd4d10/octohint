@@ -14,6 +14,7 @@
     "@types/node": "^16.9.1",
     "github-injection": "^1.0.1",
     "lodash-es": "^4.17.21",
+    "path-browserify": "^1.0.1",
     "preact": "^10.5.14",
     "tsdef": "^0.0.14",
     "vscode-css-languageservice": "^5.1.5",
