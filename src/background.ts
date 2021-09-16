@@ -8,7 +8,7 @@ const TIMEOUT = 1000 * 60 * 5 // 5min
 
 const services = {} as { [file: string]: BaseService }
 
-function handleRequest(req: HintRequest): HintResponse | undefined {
+function handleRequest(req: HintRequest): HintResponse {
   let service: BaseService
   const ext = req.file.split('.').slice(-1)[0]
 
@@ -49,6 +49,7 @@ function handleRequest(req: HintRequest): HintResponse | undefined {
       quickInfo: service.getQuickInfo(req),
     }
   } else {
+    return {}
     // chrome.browserAction.setIcon({
     //   path: 'icon.png',
     // })
@@ -64,8 +65,8 @@ function handleRequest(req: HintRequest): HintResponse | undefined {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // console.log('runtime.onMessage', message, sender)
-  if (sender.tab?.id) {
-    const response = handleRequest(message)
-    if (response) sendResponse(response)
-  }
+  // if (sender.tab?.id) {
+  const res = handleRequest(message)
+  sendResponse(res)
+  // }
 })

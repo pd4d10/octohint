@@ -26,7 +26,9 @@ const languageService = ts.createLanguageService(
       return '0'
     },
     getScriptSnapshot(fileName) {
-      return ts.ScriptSnapshot.fromString(files[fileName])
+      if (files[fileName]) {
+        return ts.ScriptSnapshot.fromString(files[fileName])
+      }
     },
     getCurrentDirectory() {
       return '/'
