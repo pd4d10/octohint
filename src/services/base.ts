@@ -18,14 +18,3 @@ export abstract class BaseService {
   abstract getDefinition(req: HintRequest): HintResponse['definition']
   abstract getQuickInfo(req: HintRequest): HintResponse['quickInfo']
 }
-
-export abstract class SingleFileService extends BaseService {
-  file: string
-  abstract createService(code: string): void
-
-  constructor(req: HintRequest) {
-    super()
-    this.file = req.file
-    fetchCode(req).then((code) => this.createService(code))
-  }
-}

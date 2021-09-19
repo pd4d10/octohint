@@ -1,12 +1,7 @@
 import path from 'path'
 import ts from 'typescript'
-import {
-  createDefaultMapFromCDN,
-  createSystem,
-  createVirtualTypeScriptEnvironment,
-  VirtualTypeScriptEnvironment,
-} from '@typescript/vfs'
-import { BaseService, fetchCode, fetchWithCredentials } from './base'
+import { VirtualTypeScriptEnvironment } from '@typescript/vfs'
+import { BaseService, fetchWithCredentials } from './base'
 import stdLibs from './node-libs.json'
 import { without, uniq } from 'lodash-es'
 import { HintRequest } from '../types'
@@ -15,44 +10,26 @@ function getFullLibName(name: string) {
   return `/node_modules/@types/${name}/index.d.ts`
 }
 
-const compilerOptions: ts.CompilerOptions = {
-  target: ts.ScriptTarget.ES2020, // TODO: latest, and node.js libs
-  allowJs: true,
-}
-
 // FIXME: Very slow when click type `string`
 // TODO: Go to definition for third party libs
-class TsService extends BaseService {
-  private system: ts.System | undefined
-  private env: VirtualTypeScriptEnvironment | undefined
+export class TsService extends BaseService {
+  constructor(
+    message: HintRequest,
+    public system: ts.System,
+    public env: VirtualTypeScriptEnvironment,
+  ) {
+    super()
 
-  async createService(message: HintRequest) {
-    if (!this.system || !this.env) {
-      await createDefaultMapFromCDN(
-        compilerOptions,
-        ts.version,
-        false,
-        ts,
-        undefined,
-        fetch,
-        {} as any, // TODO:
-      )
+    if (this.system.fileExists(message.file)) return
 
-      this.system = createSystem(new Map<string, string>())
-      this.env = createVirtualTypeScriptEnvironment(this.system, [], ts, compilerOptions)
-    }
-
-    if (this.system?.fileExists(message.file)) return
-
-    const code = await fetchCode(message)
-    this.env.createFile(message.file, code)
+    this.env.createFile(message.file, message.codeUrl)
 
     // get third party deps
     let deps: string[] = []
 
     for (const reg of [/[import|export].*?from\s*?['"](.*?)['"]/g, /require\(['"](.*?)['"]\)/g]) {
       // TODO: Exclude comment
-      const matches = code.match(reg) || []
+      const matches = message.codeUrl.match(reg) || []
       // console.log(reg, matches)
       // Exclude node standard libs
       deps = [
@@ -71,10 +48,10 @@ class TsService extends BaseService {
     console.log('deps:', deps)
 
     // try to get type definitions
-    await Promise.all(
+    Promise.all(
       deps.map(async (name) => {
         const fullname = getFullLibName(name)
-        if (this.system?.fileExists(fullname)) return
+        if (this.system.fileExists(fullname)) return
 
         const prefix = 'https://cdn.jsdelivr.net/npm'
         try {
@@ -90,7 +67,7 @@ class TsService extends BaseService {
             ? path.join(`${prefix}/${name}`, typeFile as string)
             : `${prefix}/@types/${name}/index.d.ts`
 
-          this.env?.createFile(getFullLibName(name), await fetchWithCredentials(url))
+          this.env.createFile(getFullLibName(name), await fetchWithCredentials(url))
         } catch (err) {
           console.error(err)
         }
@@ -99,10 +76,10 @@ class TsService extends BaseService {
   }
 
   getOccurrences(req: HintRequest) {
-    const s = this.env?.getSourceFile(req.file)
+    const s = this.env.getSourceFile(req.file)
     if (s) {
       const position = s.getPositionOfLineAndCharacter(req.line, req.character)
-      const references = this.env?.languageService.getReferencesAtPosition(req.file, position)
+      const references = this.env.languageService.getReferencesAtPosition(req.file, position)
       if (references) {
         return references
           .filter(({ fileName }) => fileName === req.file)
@@ -116,7 +93,7 @@ class TsService extends BaseService {
   }
 
   getDefinition(req: HintRequest) {
-    const s = this.env?.getSourceFile(req.file)
+    const s = this.env.getSourceFile(req.file)
     if (s) {
       let position: number
       try {
@@ -124,7 +101,7 @@ class TsService extends BaseService {
       } catch (err) {
         return
       }
-      const definitions = this.env?.languageService.getDefinitionAtPosition(req.file, position)
+      const definitions = this.env.languageService.getDefinitionAtPosition(req.file, position)
       if (definitions) {
         const infosOfCurrentFile = definitions.filter((d) => d.fileName === req.file)
         if (infosOfCurrentFile.length) {
@@ -135,7 +112,7 @@ class TsService extends BaseService {
   }
 
   getQuickInfo(req: HintRequest) {
-    const s = this.env?.getSourceFile(req.file)
+    const s = this.env.getSourceFile(req.file)
     if (s) {
       let position: number
       try {
@@ -144,7 +121,7 @@ class TsService extends BaseService {
         // console.error(err)
         return
       }
-      const quickInfo = this.env?.languageService.getQuickInfoAtPosition(req.file, position)
+      const quickInfo = this.env.languageService.getQuickInfoAtPosition(req.file, position)
       if (quickInfo?.displayParts) {
         // TODO: Colorize display parts
         return {
@@ -156,5 +133,3 @@ class TsService extends BaseService {
     }
   }
 }
-
-export const tsService = new TsService()

@@ -1,5 +1,5 @@
 import { LineAndCharacter } from 'typescript'
-import { SingleFileService } from './base'
+import { BaseService } from './base'
 import { HintRequest } from '../types'
 
 const tokenRegex = /[A-Za-z0-9_]/
@@ -26,11 +26,12 @@ function findAllPositions(
   return findAllPositions(str, substr, res, realIdx + substr.length)
 }
 
-export default class SimpleService extends SingleFileService {
+export default class SimpleService extends BaseService {
   lines!: string[]
 
-  createService(code: string) {
-    this.lines = code.split('\n')
+  constructor(req: HintRequest) {
+    super()
+    this.lines = req.codeUrl.split('\n')
   }
 
   // TODO: CJK character

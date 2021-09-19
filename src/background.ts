@@ -1,29 +1,66 @@
-import { tsService } from './services/typescript'
+import {
+  getCSSLanguageService,
+  getLESSLanguageService,
+  getSCSSLanguageService,
+} from 'vscode-css-languageservice'
+import {
+  createDefaultMapFromCDN,
+  createSystem,
+  createVirtualTypeScriptEnvironment,
+} from '@typescript/vfs'
+import { TsService } from './services/typescript'
 import { BaseService } from './services/base'
 import { HintRequest, HintResponse } from './types'
-import { CSSService, LESSService, SCSSService } from './services/css'
+import { CssService } from './services/css'
 import SimpleService from './services/simple'
+import ts from 'typescript'
 
 const TIMEOUT = 1000 * 60 * 5 // 5min
+
+let tsService: TsService | undefined
+
+async function initTsService(req: HintRequest) {
+  if (tsService) return
+
+  const compilerOptions: ts.CompilerOptions = {
+    target: ts.ScriptTarget.ES2020, // TODO: latest, and node.js libs
+    allowJs: true,
+  }
+
+  await createDefaultMapFromCDN(
+    compilerOptions,
+    ts.version,
+    false,
+    ts,
+    undefined,
+    fetch,
+    {} as any, // TODO:
+  )
+
+  const system = createSystem(new Map<string, string>())
+  const env = createVirtualTypeScriptEnvironment(system, [], ts, compilerOptions)
+
+  tsService = new TsService(req, system, env)
+}
 
 const services = {} as { [file: string]: BaseService }
 
 function handleRequest(req: HintRequest): HintResponse {
-  let service: BaseService
+  let service: BaseService | undefined
   const ext = req.file.split('.').slice(-1)[0]
 
   if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
     // TODO: mjs, cjs
-    tsService.createService(req)
+    initTsService(req)
     service = tsService
   } else {
     if (!services[req.file]) {
       if (ext === 'less') {
-        service = new LESSService(req)
+        service = new CssService(getLESSLanguageService(), req)
       } else if (ext === 'scss') {
-        service = new SCSSService(req)
+        service = new CssService(getSCSSLanguageService(), req)
       } else if (ext === 'css') {
-        service = new CSSService(req)
+        service = new CssService(getCSSLanguageService(), req)
       } else {
         service = new SimpleService(req)
       }
@@ -41,12 +78,12 @@ function handleRequest(req: HintRequest): HintResponse {
 
   if (req.type === 'click') {
     return {
-      occurrences: service.getOccurrences(req),
-      definition: req.meta ? service.getDefinition(req) : undefined,
+      occurrences: service?.getOccurrences(req),
+      definition: req.meta ? service?.getDefinition(req) : undefined,
     }
   } else if (req.type === 'hover') {
     return {
-      quickInfo: service.getQuickInfo(req),
+      quickInfo: service?.getQuickInfo(req),
     }
   } else {
     return {}

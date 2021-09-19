@@ -1,21 +1,19 @@
-import * as cssService from 'vscode-css-languageservice'
+import { LanguageService, Stylesheet } from 'vscode-css-languageservice'
 import * as ls from 'vscode-languageserver-types'
-import { SingleFileService } from './base'
+import { BaseService } from './base'
 import { HintRequest } from '../types'
 
-abstract class BaseService extends SingleFileService {
-  private service!: cssService.LanguageService
-  private document!: ls.TextDocument
-  private stylesheet!: cssService.Stylesheet
-  abstract getService(): cssService.LanguageService
+export class CssService extends BaseService {
+  private document: ls.TextDocument
+  private stylesheet: Stylesheet
 
-  createService(code: string) {
-    this.service = this.getService()
+  constructor(public service: LanguageService, req: HintRequest) {
+    super()
     this.document = ls.TextDocument.create(
-      this.file,
-      this.file.replace(/.*\.(.*?)$/, '$1'),
+      req.file,
+      req.file.replace(/.*\.(.*?)$/, '$1'),
       0,
-      code,
+      req.codeUrl,
     )
     this.stylesheet = this.service.parseStylesheet(this.document)
   }
@@ -57,23 +55,5 @@ abstract class BaseService extends SingleFileService {
         width: hover.range.end.character - hover.range.start.character,
       }
     }
-  }
-}
-
-export class CSSService extends BaseService {
-  getService() {
-    return cssService.getCSSLanguageService()
-  }
-}
-
-export class LESSService extends BaseService {
-  getService() {
-    return cssService.getLESSLanguageService()
-  }
-}
-
-export class SCSSService extends BaseService {
-  getService() {
-    return cssService.getSCSSLanguageService()
   }
 }
