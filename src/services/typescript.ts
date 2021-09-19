@@ -13,11 +13,7 @@ function getFullLibName(name: string) {
 // FIXME: Very slow when click type `string`
 // TODO: Go to definition for third party libs
 export class TsService extends BaseService {
-  constructor(
-    message: HintRequest,
-    public system: ts.System,
-    public env: VirtualTypeScriptEnvironment,
-  ) {
+  constructor(message: HintRequest, public system: ts.System, public env: VirtualTypeScriptEnvironment) {
     super()
 
     if (this.system.fileExists(message.file)) return
@@ -39,7 +35,7 @@ export class TsService extends BaseService {
             .map((str) => str.replace(reg, '$1'))
             .map((str) => str.split('/')[0]) // Extract correct lib of `lodash/throttle`
             .filter((item) => item[0] !== '.'), // Exclude relative path, like `./xxx`
-          ...stdLibs,
+          ...stdLibs
         ),
       ]
     }
@@ -56,9 +52,9 @@ export class TsService extends BaseService {
         const prefix = 'https://cdn.jsdelivr.net/npm'
         try {
           // Find typings file path
-          const packageJson = await fetch(`${prefix}/${name}/package.json`).then<
-            Record<string, unknown>
-          >((res) => res.json())
+          const packageJson = await fetch(`${prefix}/${name}/package.json`).then<Record<string, unknown>>((res) =>
+            res.json()
+          )
 
           const typeFile = packageJson.types ?? packageJson.typings
 
@@ -71,7 +67,7 @@ export class TsService extends BaseService {
         } catch (err) {
           console.error(err)
         }
-      }),
+      })
     )
   }
 

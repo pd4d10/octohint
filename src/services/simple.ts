@@ -5,12 +5,7 @@ import { HintRequest } from '../types'
 const tokenRegex = /[A-Za-z0-9_]/
 
 // Find all positions of substring
-function findAllPositions(
-  str: string,
-  substr: string,
-  res: number[] = [],
-  offset: number = 0,
-): number[] {
+function findAllPositions(str: string, substr: string, res: number[] = [], offset: number = 0): number[] {
   const idx = str.slice(offset).indexOf(substr)
   if (idx === -1) return res
 

@@ -9,22 +9,15 @@ export class CssService extends BaseService {
 
   constructor(public service: LanguageService, req: HintRequest) {
     super()
-    this.document = ls.TextDocument.create(
-      req.file,
-      req.file.replace(/.*\.(.*?)$/, '$1'),
-      0,
-      req.codeUrl,
-    )
+    this.document = ls.TextDocument.create(req.file, req.file.replace(/.*\.(.*?)$/, '$1'), 0, req.codeUrl)
     this.stylesheet = this.service.parseStylesheet(this.document)
   }
 
   getOccurrences(req: HintRequest) {
-    return this.service
-      .findDocumentHighlights(this.document, req, this.stylesheet)
-      .map((highlight) => ({
-        range: highlight.range.start,
-        width: highlight.range.end.character - highlight.range.start.character,
-      }))
+    return this.service.findDocumentHighlights(this.document, req, this.stylesheet).map((highlight) => ({
+      range: highlight.range.start,
+      width: highlight.range.end.character - highlight.range.start.character,
+    }))
   }
 
   getDefinition(req: HintRequest) {

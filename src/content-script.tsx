@@ -112,7 +112,7 @@ const renderToContainer = ({
       top: paddingTop + 'px',
       left: paddingLeft + 'px',
       width: wrapperWidth,
-    }),
+    })
   )
 
   const $quickInfo = document.createElement('div')
@@ -130,7 +130,7 @@ const renderToContainer = ({
       // zIndex: 2,
       bottom: `${containerRect.height - paddingAndBorderOfContainer - paddingTop}px`,
       left: `${paddingLeft}px`,
-    }),
+    })
   )
 
   container.insertBefore($background, container.firstChild)
@@ -153,7 +153,7 @@ const renderToContainer = ({
         tabSize,
       }}
     />,
-    $background,
+    $background
   )
 }
 
@@ -213,14 +213,7 @@ function getGithubGistParams(wrapper: HTMLElement): RenderParams | undefined {
   const tabSizeDom = $('.blob-wrapper table', wrapper)
   const codeAction = $('.file-actions a', wrapper)
   const fileInfo = $('.file-info', wrapper)
-  if (
-    !container ||
-    !fontDom ||
-    !tabSizeDom ||
-    !codeAction ||
-    !fileInfo ||
-    !(codeAction instanceof HTMLAnchorElement)
-  )
+  if (!container || !fontDom || !tabSizeDom || !codeAction || !fileInfo || !(codeAction instanceof HTMLAnchorElement))
     return
 
   const codeUrl = codeAction.href

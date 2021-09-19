@@ -64,10 +64,7 @@ export const App: FunctionComponent<AppProps> = (props) => {
       // TODO: Fix overflow when length is large
       if (res.definition) {
         setDefinition(res.definition)
-        window.scrollTo(
-          0,
-          props.offsetTop + props.paddingTop + res.definition.line * props.lineHeight - 80,
-        ) // TODO: Magic number
+        window.scrollTo(0, props.offsetTop + props.paddingTop + res.definition.line * props.lineHeight - 80) // TODO: Magic number
       }
 
       if (res.occurrences) {
@@ -141,7 +138,7 @@ export const App: FunctionComponent<AppProps> = (props) => {
           ...position,
         })
         handleResponse(res)
-      }, 300),
+      }, 300)
     )
 
     // mouseout: hide quick info on leave
@@ -240,7 +237,7 @@ export const App: FunctionComponent<AppProps> = (props) => {
               // JSON.parse(`"${info}"`)
             }
           </div>,
-          props.$quickInfo,
+          props.$quickInfo
         )}
     </div>
   )

@@ -38,8 +38,7 @@ const Options: FunctionComponent = () => {
         }}
       >
         <p>
-          Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a different site. If it
-          doesn't work, see{' '}
+          Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a different site. If it doesn't work, see{' '}
           <a target="_blank" href="https://developer.chrome.com/extensions/match_patterns">
             Match Patterns
           </a>

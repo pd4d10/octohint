@@ -1,13 +1,5 @@
-import {
-  getCSSLanguageService,
-  getLESSLanguageService,
-  getSCSSLanguageService,
-} from 'vscode-css-languageservice'
-import {
-  createDefaultMapFromCDN,
-  createSystem,
-  createVirtualTypeScriptEnvironment,
-} from '@typescript/vfs'
+import { getCSSLanguageService, getLESSLanguageService, getSCSSLanguageService } from 'vscode-css-languageservice'
+import { createDefaultMapFromCDN, createSystem, createVirtualTypeScriptEnvironment } from '@typescript/vfs'
 import { TsService } from './services/typescript'
 import { BaseService } from './services/base'
 import { HintRequest, HintResponse } from './types'
@@ -32,7 +24,7 @@ async function initTsService(req: HintRequest) {
     ts,
     undefined,
     fetch,
-    {} as any, // TODO:
+    {} as any // TODO:
   )
 
   const system = createSystem(new Map<string, string>())
