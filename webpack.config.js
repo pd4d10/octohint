@@ -40,6 +40,7 @@ module.exports = {
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       filename: 'options.html',
+      chunks: ['options'],
     }),
   ],
 }
