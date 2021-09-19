@@ -76,27 +76,6 @@ export const App: FunctionComponent<AppProps> = (props) => {
       }
     }
 
-    // keydown: change mouse cursor to pointer
-    document.addEventListener('keydown', (e) => {
-      console.log('keydown', e)
-      if (isMeta(e)) {
-        // FIXME: Slow when file is large
-        $container.style.cursor = 'pointer'
-        // FIXME: Sometimes keyup can't be triggered, add a long enough timeout to restore
-        setTimeout(() => {
-          $container.style.cursor = ''
-        }, 10000)
-      }
-    })
-
-    // keyup: recover mouse cursor
-    document.addEventListener('keyup', (e) => {
-      console.log('keyup', e)
-      if (isMeta(e)) {
-        $container.style.cursor = ''
-      }
-    })
-
     // click: show occurrences
     // if meta key is pressed, also show definition and scroll to it
     $container.addEventListener('click', async (e) => {
