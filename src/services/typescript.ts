@@ -76,7 +76,7 @@ class TsService extends BaseService {
         const fullname = getFullLibName(name)
         if (this.system?.fileExists(fullname)) return
 
-        const prefix = 'https://unpkg.com'
+        const prefix = 'https://cdn.jsdelivr.net/npm'
         try {
           // Find typings file path
           const packageJson = await fetch(`${prefix}/${name}/package.json`).then<
