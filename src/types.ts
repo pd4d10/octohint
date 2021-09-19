@@ -2,7 +2,7 @@ import ts from 'typescript'
 
 export type HintRequest = ts.LineAndCharacter & {
   file: string
-  codeUrl: string
+  code: string
   tabSize: number
 } & (
     | {

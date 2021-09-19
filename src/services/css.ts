@@ -8,7 +8,7 @@ export class CssService extends BaseService {
 
   constructor(public service: LanguageService, req: HintRequest) {
     super()
-    this.document = TextDocument.create(req.file, req.file.replace(/.*\.(.*?)$/, '$1'), 0, req.codeUrl)
+    this.document = TextDocument.create(req.file, req.file.replace(/.*\.(.*?)$/, '$1'), 0, req.code)
     this.stylesheet = this.service.parseStylesheet(this.document)
   }
 

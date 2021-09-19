@@ -21,7 +21,7 @@ interface AppProps {
   fontWidth: number
   fontFamily: string
   fileName: string
-  codeUrl: string
+  code: string
   offsetTop: number
   lineHeight: number
   lineWidth: number
@@ -88,7 +88,7 @@ export const App: FunctionComponent<AppProps> = (props) => {
         type: 'click',
         file: props.fileName,
         meta: isMacOS ? e.metaKey : e.ctrlKey,
-        codeUrl: props.codeUrl,
+        code: props.code,
         tabSize: props.tabSize,
         ...position,
       })
@@ -112,7 +112,7 @@ export const App: FunctionComponent<AppProps> = (props) => {
         const res = await sendMessage({
           type: 'hover',
           file: props.fileName,
-          codeUrl: props.codeUrl,
+          code: props.code,
           tabSize: props.tabSize,
           ...position,
         })

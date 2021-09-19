@@ -1,6 +1,7 @@
 import { render, h } from 'preact'
 import { App } from './app'
 import githubInject from 'github-injection'
+import { slice } from 'lodash-es'
 
 const toStyleText = (obj: { [key: string]: string | number }) => {
   return Object.entries(obj)
@@ -86,7 +87,7 @@ const renderToContainer = ({
   lineHeight,
   paddingLeft,
   paddingTop,
-  codeUrl,
+  code,
   fileName,
   beforeRender,
 }: RenderParams) => {
@@ -145,7 +146,7 @@ const renderToContainer = ({
         fontWidth: fontParams.width,
         fontFamily: fontParams.family,
         fileName,
-        codeUrl,
+        code,
         offsetTop: getOffsetTop(container),
         lineWidth,
         lineHeight,
@@ -160,17 +161,19 @@ const renderToContainer = ({
 const $ = (selector: string, wrapper: HTMLElement = document.body) => {
   return wrapper.querySelector<HTMLElement>(selector)
 }
-const $$ = (selector: string) => {
-  return document.querySelectorAll(selector)
-}
-
-function getCurrentUrl() {
-  return location.protocol + '//' + location.host + location.pathname
+const $$ = (selector: string, wrapper: HTMLElement = document.body) => {
+  return slice(wrapper.querySelectorAll<HTMLElement>(selector))
 }
 
 // Replace `//` with `/` to simulate file system path
 function getFilePath(loc: { host: string; pathname: string } = location) {
   return '/' + loc.host + loc.pathname
+}
+
+function getGithubCode(container: HTMLElement) {
+  return $$('tr>td:nth-child(2)', container).reduce((code, el) => {
+    return code + el.innerText.replaceAll('\n', '') + '\n'
+  }, '')
 }
 
 interface RenderParams {
@@ -181,7 +184,7 @@ interface RenderParams {
   lineHeight: number
   paddingLeft: number
   paddingTop: number
-  codeUrl: string
+  code: string
   fileName: string
   // TODO: This is pretty tricky for making GitLab and Bitbucket work
   beforeRender?: () => void
@@ -202,7 +205,7 @@ const getGithubParams = (): RenderParams | undefined => {
     lineHeight: rect.height,
     paddingLeft: 60,
     paddingTop: 0,
-    codeUrl: getCurrentUrl().replace('/blob/', '/raw/'),
+    code: getGithubCode(container),
     fileName: getFilePath(),
   }
 }
@@ -211,13 +214,8 @@ function getGithubGistParams(wrapper: HTMLElement): RenderParams | undefined {
   const container = $('.blob-wrapper', wrapper)
   const fontDom = $('.blob-wrapper .blob-code', wrapper)
   const tabSizeDom = $('.blob-wrapper table', wrapper)
-  const codeAction = $('.file-actions a', wrapper)
   const fileInfo = $('.file-info', wrapper)
-  if (!container || !fontDom || !tabSizeDom || !codeAction || !fileInfo || !(codeAction instanceof HTMLAnchorElement))
-    return
-
-  const codeUrl = codeAction.href
-  if (!codeUrl) return
+  if (!container || !fontDom || !tabSizeDom || !fileInfo) return
 
   return {
     container,
@@ -227,7 +225,7 @@ function getGithubGistParams(wrapper: HTMLElement): RenderParams | undefined {
     lineHeight: 20,
     paddingLeft: 60,
     paddingTop: 0,
-    codeUrl,
+    code: getGithubCode(container),
     fileName: getFilePath().replace(/\/$/, '') + fileInfo.innerText.trim(),
   }
 }

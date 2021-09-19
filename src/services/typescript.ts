@@ -18,14 +18,14 @@ export class TsService extends BaseService {
 
     if (this.system.fileExists(message.file)) return
 
-    this.env.createFile(message.file, message.codeUrl)
+    this.env.createFile(message.file, message.code)
 
     // get third party deps
     let deps: string[] = []
 
     for (const reg of [/[import|export].*?from\s*?['"](.*?)['"]/g, /require\(['"](.*?)['"]\)/g]) {
       // TODO: Exclude comment
-      const matches = message.codeUrl.match(reg) || []
+      const matches = message.code.match(reg) || []
       // console.log(reg, matches)
       // Exclude node standard libs
       deps = [

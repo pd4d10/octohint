@@ -26,7 +26,7 @@ export default class SimpleService extends BaseService {
 
   constructor(req: HintRequest) {
     super()
-    this.lines = req.codeUrl.split('\n')
+    this.lines = req.code.split('\n')
   }
 
   // TODO: CJK character

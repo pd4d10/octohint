@@ -8,11 +8,6 @@ export async function fetchWithCredentials(url: string) {
   return res.text()
 }
 
-export async function fetchCode(req: HintRequest): Promise<string> {
-  const code = await fetchWithCredentials(req.codeUrl)
-  return code.replace(/\t/g, ' '.repeat(req.tabSize))
-}
-
 export abstract class BaseService {
   abstract getOccurrences(req: HintRequest): HintResponse['occurrences']
   abstract getDefinition(req: HintRequest): HintResponse['definition']
