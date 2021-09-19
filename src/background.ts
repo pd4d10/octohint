@@ -15,8 +15,6 @@ import { CssService } from './services/css'
 import SimpleService from './services/simple'
 import ts from 'typescript'
 
-const TIMEOUT = 1000 * 60 * 5 // 5min
-
 let tsService: TsService | undefined
 
 async function initTsService(req: HintRequest) {
@@ -66,11 +64,6 @@ function handleRequest(req: HintRequest): HintResponse {
       }
 
       services[req.file] = service
-
-      // Add a timeout to delete service to prevent memory leak
-      setTimeout(() => {
-        delete services[req.file]
-      }, TIMEOUT)
     }
 
     service = services[req.file]
