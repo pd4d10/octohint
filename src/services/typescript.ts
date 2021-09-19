@@ -1,66 +1,51 @@
 import path from 'path'
 import ts from 'typescript'
+import {
+  createDefaultMapFromCDN,
+  createSystem,
+  createVirtualTypeScriptEnvironment,
+  VirtualTypeScriptEnvironment,
+} from '@typescript/vfs'
 import { BaseService, fetchCode, fetchWithCredentials } from './base'
 import stdLibs from './node-libs.json'
 import { without, uniq } from 'lodash-es'
 import { HintRequest } from '../types'
-import { TS_LIB } from '../ts-lib'
-
-const defaultLibName = '//lib.d.ts'
 
 function getFullLibName(name: string) {
   return `/node_modules/@types/${name}/index.d.ts`
 }
 
-const files: Record<string, string> = {
-  [defaultLibName]: TS_LIB,
-}
-
-// https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API#incremental-build-support-using-the-language-services
-const languageService = ts.createLanguageService(
-  {
-    getScriptFileNames() {
-      return Object.keys(files)
-    },
-    getScriptVersion() {
-      return '0'
-    },
-    getScriptSnapshot(fileName) {
-      if (files[fileName]) {
-        return ts.ScriptSnapshot.fromString(files[fileName])
-      }
-    },
-    getCurrentDirectory() {
-      return '/'
-    },
-    getDefaultLibFileName() {
-      return defaultLibName
-    },
-    getCompilationSettings() {
-      return {
-        allowJs: true, // necessary for JS files
-      }
-    },
-    // log: console.log,
-    // trace: console.log,
-    // error: console.error,
-  },
-  ts.createDocumentRegistry(),
-)
-
-function getSourceFile(file: string) {
-  // This is necesarry because createService is asynchronous
-  return languageService.getProgram()?.getSourceFile(file)
+const compilerOptions: ts.CompilerOptions = {
+  target: ts.ScriptTarget.ES2020, // TODO: latest, and node.js libs
+  allowJs: true,
 }
 
 // FIXME: Very slow when click type `string`
 // TODO: Go to definition for third party libs
 class TsService extends BaseService {
+  private system: ts.System | undefined
+  private env: VirtualTypeScriptEnvironment | undefined
+
   async createService(message: HintRequest) {
-    if (files[message.file]) return
+    if (!this.system || !this.env) {
+      await createDefaultMapFromCDN(
+        compilerOptions,
+        ts.version,
+        false,
+        ts,
+        undefined,
+        fetch,
+        {} as any, // TODO:
+      )
+
+      this.system = createSystem(new Map<string, string>())
+      this.env = createVirtualTypeScriptEnvironment(this.system, [], ts, compilerOptions)
+    }
+
+    if (this.system?.fileExists(message.file)) return
 
     const code = await fetchCode(message)
-    files[message.file] = code
+    this.env.createFile(message.file, code)
 
     // get third party deps
     let deps: string[] = []
@@ -89,7 +74,7 @@ class TsService extends BaseService {
     await Promise.all(
       deps.map(async (name) => {
         const fullname = getFullLibName(name)
-        if (files[fullname]) return
+        if (this.system?.fileExists(fullname)) return
 
         const prefix = 'https://unpkg.com'
         try {
@@ -105,7 +90,7 @@ class TsService extends BaseService {
             ? path.join(`${prefix}/${name}`, typeFile as string)
             : `${prefix}/@types/${name}/index.d.ts`
 
-          files[getFullLibName(name)] = await fetchWithCredentials(url)
+          this.env?.createFile(getFullLibName(name), await fetchWithCredentials(url))
         } catch (err) {
           console.error(err)
         }
@@ -114,10 +99,10 @@ class TsService extends BaseService {
   }
 
   getOccurrences(req: HintRequest) {
-    const s = getSourceFile(req.file)
+    const s = this.env?.getSourceFile(req.file)
     if (s) {
       const position = s.getPositionOfLineAndCharacter(req.line, req.character)
-      const references = languageService.getReferencesAtPosition(req.file, position)
+      const references = this.env?.languageService.getReferencesAtPosition(req.file, position)
       if (references) {
         return references
           .filter(({ fileName }) => fileName === req.file)
@@ -131,7 +116,7 @@ class TsService extends BaseService {
   }
 
   getDefinition(req: HintRequest) {
-    const s = getSourceFile(req.file)
+    const s = this.env?.getSourceFile(req.file)
     if (s) {
       let position: number
       try {
@@ -139,7 +124,7 @@ class TsService extends BaseService {
       } catch (err) {
         return
       }
-      const definitions = languageService.getDefinitionAtPosition(req.file, position)
+      const definitions = this.env?.languageService.getDefinitionAtPosition(req.file, position)
       if (definitions) {
         const infosOfCurrentFile = definitions.filter((d) => d.fileName === req.file)
         if (infosOfCurrentFile.length) {
@@ -150,7 +135,7 @@ class TsService extends BaseService {
   }
 
   getQuickInfo(req: HintRequest) {
-    const s = getSourceFile(req.file)
+    const s = this.env?.getSourceFile(req.file)
     if (s) {
       let position: number
       try {
@@ -159,8 +144,8 @@ class TsService extends BaseService {
         // console.error(err)
         return
       }
-      const quickInfo = languageService.getQuickInfoAtPosition(req.file, position)
-      if (quickInfo && quickInfo.displayParts) {
+      const quickInfo = this.env?.languageService.getQuickInfoAtPosition(req.file, position)
+      if (quickInfo?.displayParts) {
         // TODO: Colorize display parts
         return {
           info: quickInfo.displayParts,

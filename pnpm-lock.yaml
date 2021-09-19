@@ -4,6 +4,7 @@ specifiers:
   '@types/chrome': ^0.0.157
   '@types/lodash-es': ^4.17.5
   '@types/node': ^16.9.1
+  '@typescript/vfs': ^1.3.4
   clean-webpack-plugin: ^4.0.0
   github-injection: ^1.0.1
   html-webpack-plugin: ^5.3.2
@@ -13,7 +14,7 @@ specifiers:
   raw-loader: ^4.0.2
   ts-loader: ^9.2.5
   tsdef: ^0.0.14
-  typescript: ^4.4.3
+  typescript: 4.2.2
   vscode-css-languageservice: ^5.1.5
   vscode-languageserver-types: ^3.16.0
   webpack: ^5.52.1
@@ -24,11 +25,13 @@ dependencies:
   '@types/chrome': 0.0.157
   '@types/lodash-es': 4.17.5
   '@types/node': 16.9.1
+  '@typescript/vfs': 1.3.4
   github-injection: 1.0.1
   lodash-es: 4.17.21
   path-browserify: 1.0.1
   preact: 10.5.14
   tsdef: 0.0.14
+  typescript: 4.2.2
   vscode-css-languageservice: 5.1.5
   vscode-languageserver-types: 3.16.0
 
@@ -36,8 +39,7 @@ devDependencies:
   clean-webpack-plugin: 4.0.0_webpack@5.52.1
   html-webpack-plugin: 5.3.2_webpack@5.52.1
   raw-loader: 4.0.2_webpack@5.52.1
-  ts-loader: 9.2.5_typescript@4.4.3+webpack@5.52.1
-  typescript: 4.4.3
+  ts-loader: 9.2.5_typescript@4.2.2+webpack@5.52.1
   webpack: 5.52.1_webpack-cli@4.8.0
   webpack-bundle-analyzer: 4.4.2
   webpack-cli: 4.8.0_acaed8435b690b3e4e4a8d81a9f4d5f4
@@ -123,6 +125,14 @@ packages:
 
   /@types/node/16.9.1:
     resolution: {integrity: sha512-QpLcX9ZSsq3YYUUnD3nFDY8H7wctAhQj/TFKL8Ya8v5fMm3CFXxo8zStsLAl780ltoYoo1WvKUVGBQK+1ifr7g==}
+
+  /@typescript/vfs/1.3.4:
+    resolution: {integrity: sha512-RbyJiaAGQPIcAGWFa3jAXSuAexU4BFiDRF1g3hy7LmRqfNpYlTQWGXjcrOaVZjJ8YkkpuwG0FcsYvtWQpd9igQ==}
+    dependencies:
+      debug: 4.3.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /@webassemblyjs/ast/1.11.1:
     resolution: {integrity: sha512-ukBh14qFLjxTQNTXocdyksN5QdM28S1CxHt2rdskFyL+xFV7VremuBLVbmCePj+URalXBENx/9Lm7lnhihtCSw==}
@@ -482,6 +492,18 @@ packages:
     resolution: {integrity: sha512-FYDTSHb/7KXsWICVsxdmiExPjCfRC4qRFBdVwv7Ax9hMnvMmEjP9RfxTEZ3qPZGmADDn2vAKSo9UcN1jKVYscg==}
     engines: {node: '>= 6'}
     dev: true
+
+  /debug/4.3.2:
+    resolution: {integrity: sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+    dependencies:
+      ms: 2.1.2
+    dev: false
 
   /del/4.1.1:
     resolution: {integrity: sha512-QwGuEUouP2kVwQenAsOof5Fv8K9t3D8Ca8NxcXKrIpEHjTXK5J2nXLdP+ALI1cgv8wj7KuwBhTwBkOZSJKM5XQ==}
@@ -954,6 +976,10 @@ packages:
     resolution: {integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==}
     dev: true
 
+  /ms/2.1.2:
+    resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
+    dev: false
+
   /neo-async/2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
     dev: true
@@ -1356,7 +1382,7 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /ts-loader/9.2.5_typescript@4.4.3+webpack@5.52.1:
+  /ts-loader/9.2.5_typescript@4.2.2+webpack@5.52.1:
     resolution: {integrity: sha512-al/ATFEffybdRMUIr5zMEWQdVnCGMUA9d3fXJ8dBVvBlzytPvIszoG9kZoR+94k6/i293RnVOXwMaWbXhNy9pQ==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -1367,7 +1393,7 @@ packages:
       enhanced-resolve: 5.8.2
       micromatch: 4.0.4
       semver: 7.3.5
-      typescript: 4.4.3
+      typescript: 4.2.2
       webpack: 5.52.1_webpack-cli@4.8.0
     dev: true
 
@@ -1379,11 +1405,11 @@ packages:
     resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
     dev: true
 
-  /typescript/4.4.3:
-    resolution: {integrity: sha512-4xfscpisVgqqDfPaJo5vkd+Qd/ItkoagnHpufr+i2QCHBsNYp+G7UAoyFl8aPtx879u38wPV65rZ8qbGZijalA==}
+  /typescript/4.2.2:
+    resolution: {integrity: sha512-tbb+NVrLfnsJy3M59lsDgrzWIflR4d4TIUjz+heUnHZwdF7YsrMTKoRERiIvI2lvBG95dfpLxB21WZhys1bgaQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
+    dev: false
 
   /uri-js/4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
