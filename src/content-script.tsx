@@ -32,6 +32,63 @@ const getOffsetTop = (e: HTMLElement): number => {
   return e.offsetTop + getOffsetTop(parent)
 }
 
+interface RenderRequest {
+  selector: string
+  fontSelector: string
+  paddingLeft: number
+  paddingTop: number
+  getFileName(container: HTMLElement): string
+  getCode(container: HTMLElement): string
+}
+
+const requests: RenderRequest[] = [
+  {
+    selector: '.blob-wrapper table',
+    fontSelector: '.blob-wrapper .blob-code',
+    paddingLeft: 60,
+    paddingTop: 0,
+    getFileName(container) {
+      const parent = container.parentElement?.parentElement
+      if (!parent) return '' // TODO:
+      const rawPath = (
+        $('#raw-url', parent) ?? // github
+        $('.file-actions a', parent)
+      ) // gist
+        ?.getAttribute('href')
+      return rawPath ?? ''
+    },
+    getCode(container) {
+      return $$('tr>td:nth-child(2)', container).reduce((code, el) => {
+        const line = el.innerText.replaceAll('\n', '') // empty line has an extra '\n', remove it
+        return code + line + '\n'
+      }, '')
+    },
+  },
+  {
+    selector: '.blob-content code',
+    fontSelector: '.line',
+    paddingLeft: 10,
+    paddingTop: 0,
+    getFileName(container) {
+      const parent = container.closest<HTMLElement>('.file-holder')
+      if (!parent) return '' // TODO:
+      const rawPath = $('[title="Open raw"]', parent)?.getAttribute('href')
+      return rawPath ?? ''
+    },
+    getCode(container) {
+      return $$('.line', container).reduce((code, el) => {
+        const line = el.innerText.replaceAll('\n', '') // empty line has an extra '\n', remove it
+        return code + line + '\n'
+      }, '')
+    },
+    // beforeRender: () => {
+    //   const $code = $('.blob-content .code code') as HTMLElement
+    //   $code.style.position = 'relative'
+    //   $code.style.background = 'transparent'
+    // },
+  },
+]
+
 interface InitProps {
   $background: HTMLElement
   fontWidth: number
@@ -82,60 +139,62 @@ const initPropsMap = new WeakMap<HTMLElement, InitProps>()
  * <container> and its childrens should not set background-color
  * Order: background -> other childrens(including code) -> quickInfo
  */
-const init = (e: MouseEvent, req: RenderRequest) => {
+const init = (e: MouseEvent) => {
   if (!(e.target instanceof HTMLElement)) return
 
-  const container = e.target.closest<HTMLElement>(req.selector)
-  if (!container) return
+  for (const req of requests) {
+    const container = e.target.closest<HTMLElement>(req.selector)
+    if (!container) continue
 
-  const fontDom = $(req.fontSelector, container)
-  if (!fontDom) return
+    const fontDom = $(req.fontSelector, container)
+    if (!fontDom) continue
 
-  if (!initPropsMap.has(container) || !document.contains(container)) {
-    // reset response
-    response = {}
+    if (!initPropsMap.has(container) || !document.contains(container)) {
+      // reset response
+      response = {}
 
-    console.log('container:', container)
+      console.log('container:', container)
 
-    const tabSize = parseInt(getComputedStyle(fontDom).getPropertyValue('tab-size'), 10) || 8 // TODO: Firefox
+      const tabSize = parseInt(getComputedStyle(fontDom).getPropertyValue('tab-size'), 10) || 8 // TODO: Firefox
 
-    // Get font width and family
-    const fontParams = getFontParams(fontDom)
+      // Get font width and family
+      const fontParams = getFontParams(fontDom)
 
-    // TODO: This is pretty tricky for making GitLab and Bitbucket work
-    // if (beforeRender) beforeRender()
+      // TODO: This is pretty tricky for making GitLab and Bitbucket work
+      // if (beforeRender) beforeRender()
 
-    const containerRect = container.getBoundingClientRect()
-    const wrapperWidth = `${containerRect.width - req.paddingLeft - 10}px`
+      const containerRect = container.getBoundingClientRect()
+      const wrapperWidth = `${containerRect.width - req.paddingLeft - 10}px`
 
-    const $background = document.createElement('div')
-    $background.setAttribute(
-      'style',
-      toStyleText({
-        position: 'relative',
-        // zIndex: -1, // Set z-index to -1 makes GitLab occurrence not show
-        top: req.paddingTop + 'px',
-        left: req.paddingLeft + 'px',
-        width: wrapperWidth,
+      const $background = document.createElement('div')
+      $background.setAttribute(
+        'style',
+        toStyleText({
+          position: 'relative',
+          // zIndex: -1, // Set z-index to -1 makes GitLab occurrence not show
+          top: req.paddingTop + 'px',
+          left: req.paddingLeft + 'px',
+          width: wrapperWidth,
+        })
+      )
+
+      container.parentElement?.insertBefore($background, container)
+
+      const lineHeight = fontDom.getBoundingClientRect().height
+
+      initPropsMap.set(container, {
+        $background,
+        fontWidth: fontParams.width,
+        fontFamily: fontParams.family,
+        fileName: req.getFileName(container),
+        code: req.getCode(container),
+        lineHeight,
+        tabSize,
       })
-    )
+    }
 
-    container.parentElement?.insertBefore($background, container)
-
-    const lineHeight = fontDom.getBoundingClientRect().height
-
-    initPropsMap.set(container, {
-      $background,
-      fontWidth: fontParams.width,
-      fontFamily: fontParams.family,
-      fileName: req.getFileName(container),
-      code: req.getCode(container),
-      lineHeight,
-      tabSize,
-    })
+    return initPropsMap.get(container)
   }
-
-  return initPropsMap.get(container)
 }
 
 const $ = (selector: string, wrapper: HTMLElement = document.body) => {
@@ -143,38 +202,6 @@ const $ = (selector: string, wrapper: HTMLElement = document.body) => {
 }
 const $$ = (selector: string, wrapper: HTMLElement = document.body) => {
   return slice(wrapper.querySelectorAll<HTMLElement>(selector))
-}
-
-interface RenderRequest {
-  selector: string
-  fontSelector: string
-  paddingLeft: number
-  paddingTop: number
-  getFileName(container: HTMLElement): string
-  getCode(container: HTMLElement): string
-}
-
-const githubRenderRequest: RenderRequest = {
-  selector: '.blob-wrapper table',
-  fontSelector: '.blob-wrapper .blob-code',
-  paddingLeft: 60,
-  paddingTop: 0,
-  getFileName(container) {
-    const parent = container.parentElement?.parentElement
-    if (!parent) return '' // TODO:
-    const rawPath =
-      $('#raw-url', parent) ?? // github
-      $('.file-actions a', parent) // gist
-        ?.getAttribute('href')
-    if (!rawPath) return '' // TODO:
-    return location.host + rawPath
-  },
-  getCode(container) {
-    return $$('tr>td:nth-child(2)', container).reduce((code, el) => {
-      const line = el.innerText.replaceAll('\n', '') // empty line has an extra '\n', remove it
-      return code + line + '\n'
-    }, '')
-  },
 }
 
 // const BitbucketRenderer: RendererParams = {
@@ -189,23 +216,6 @@ const githubRenderRequest: RenderRequest = {
 //   getCodeUrl: () => getCurrentUrl().replace('/src/', '/raw/'),
 //   getFileName: getFilePath,
 //   // extraBeforeRender: () => (($('.file-source .code pre') as HTMLElement).style.position = 'relative'),
-// }
-
-// // This GitLab is for old version
-// // TODO: New version use dynamic loading
-// const GitLabRenderer: RendererParams = {
-//   getContainer: () => $('.blob-content .code'),
-//   getFontDOM: () => $('#LC1'),
-//   getLineWidthAndHeight: () => $('#LC1')!.getBoundingClientRect(),
-//   paddingLeft: 10,
-//   paddingTop: 0,
-//   getCodeUrl: () => getCurrentUrl().replace('/blob/', '/raw/'),
-//   getFileName: getFilePath,
-//   beforeRender: () => {
-//     const $code = $('.blob-content .code code') as HTMLElement
-//     $code.style.position = 'relative'
-//     $code.style.background = 'transparent'
-//   },
 // }
 
 // let prevContainer: Element | null
@@ -260,7 +270,7 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
 
   if (definition) {
     const line = definition.line + 1
-    document.querySelector<HTMLElement>('#L' + line)?.click() // TODO: reset definition
+    // document.querySelector<HTMLElement>('#L' + line)?.click() // TODO: reset definition
   }
 
   render(
@@ -346,7 +356,7 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
 // click: show occurrences
 // if meta key is pressed, also show definition and scroll to it
 document.addEventListener('click', async (e) => {
-  const initProps = init(e, githubRenderRequest)
+  const initProps = init(e)
   if (!initProps) return
 
   console.log('click', e)
@@ -375,7 +385,7 @@ document.addEventListener('click', async (e) => {
 document.addEventListener(
   'mousemove',
   debounce(async (e: MouseEvent) => {
-    const initProps = init(e, githubRenderRequest)
+    const initProps = init(e)
     if (!initProps) return
 
     // console.log('mousemove', e)
@@ -395,7 +405,7 @@ document.addEventListener(
 
 // mouseout: hide quick info on leave
 document.addEventListener('mouseout', (e) => {
-  const initProps = init(e, githubRenderRequest)
+  const initProps = init(e)
   if (!initProps) return
 
   // console.log('mouseout', e)
