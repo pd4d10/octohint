@@ -22,6 +22,7 @@
       "js": ["dist/content-script.js"]
     }
   ],
+  "permissions": ["contextMenus"],
   "optional_permissions": ["<all_urls>"],
   "options_ui": {
     "chrome_style": true,

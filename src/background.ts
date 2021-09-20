@@ -7,6 +7,10 @@ import { CssService } from './services/css'
 import SimpleService from './services/simple'
 import ts from 'typescript'
 import path from 'path'
+import 'webext-dynamic-content-scripts'
+import addDomainPermissionToggle from 'webext-domain-permission-toggle'
+
+addDomainPermissionToggle()
 
 let tsService: TsService | undefined
 const compilerOptions: ts.CompilerOptions = {
