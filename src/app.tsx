@@ -59,6 +59,10 @@ export const App: FunctionComponent<AppProps> = (props) => {
     }
   }
 
+  const inContainer = (e: MouseEvent) => {
+    return e.target instanceof HTMLElement && $container.contains(e.target)
+  }
+
   useEffect(() => {
     const handleResponse = (res: HintResponse) => {
       // TODO: Fix overflow when length is large
@@ -78,7 +82,8 @@ export const App: FunctionComponent<AppProps> = (props) => {
 
     // click: show occurrences
     // if meta key is pressed, also show definition and scroll to it
-    $container.addEventListener('click', async (e) => {
+    document.addEventListener('click', async (e) => {
+      if (!inContainer(e)) return
       console.log('click', e)
 
       const position = getPosition(e)
@@ -105,6 +110,8 @@ export const App: FunctionComponent<AppProps> = (props) => {
     $container.addEventListener(
       'mousemove',
       debounce(async (e: MouseEvent) => {
+        if (!inContainer(e)) return
+
         // console.log('mousemove', e)
         const position = getPosition(e)
         if (!position) return
@@ -122,6 +129,8 @@ export const App: FunctionComponent<AppProps> = (props) => {
 
     // mouseout: hide quick info on leave
     $container.addEventListener('mouseout', (e) => {
+      if (!inContainer(e)) return
+
       // console.log('mouseout', e)
       setQuickInfo(undefined)
     })
@@ -231,8 +240,4 @@ function getColorFromKind(kind: string) {
     default:
       return '#001080'
   }
-}
-
-function isMeta(e: KeyboardEvent) {
-  return isMacOS ? e.key === 'Meta' : e.key === 'Control'
 }
