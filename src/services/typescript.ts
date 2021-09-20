@@ -74,7 +74,13 @@ export class TsService extends BaseService {
   getOccurrences(req: HintRequest) {
     const s = this.env.getSourceFile(req.file)
     if (s) {
-      const position = s.getPositionOfLineAndCharacter(req.line, req.character)
+      let position: number
+      try {
+        position = s.getPositionOfLineAndCharacter(req.line, req.character)
+      } catch (err) {
+        console.error(err)
+        return
+      }
       const references = this.env.languageService.getReferencesAtPosition(req.file, position)
       if (references) {
         return references
@@ -95,6 +101,7 @@ export class TsService extends BaseService {
       try {
         position = s.getPositionOfLineAndCharacter(req.line, req.character)
       } catch (err) {
+        console.error(err)
         return
       }
       const definitions = this.env.languageService.getDefinitionAtPosition(req.file, position)
@@ -114,7 +121,7 @@ export class TsService extends BaseService {
       try {
         position = s.getPositionOfLineAndCharacter(req.line, req.character)
       } catch (err) {
-        // console.error(err)
+        console.error(err)
         return
       }
       const quickInfo = this.env.languageService.getQuickInfoAtPosition(req.file, position)
