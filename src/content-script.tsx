@@ -83,7 +83,6 @@ const renderToContainer = ({
   container,
   fontDom,
   tabSizeDom,
-  lineWidth,
   lineHeight,
   paddingLeft,
   paddingTop,
@@ -147,10 +146,7 @@ const renderToContainer = ({
         fontFamily: fontParams.family,
         fileName,
         code,
-        offsetTop: getOffsetTop(container),
-        lineWidth,
         lineHeight,
-        paddingTop,
         tabSize,
       }}
     />,

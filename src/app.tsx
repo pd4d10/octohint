@@ -6,7 +6,6 @@ import { HintResponse, HintRequest } from './types'
 import { JSXInternal } from 'preact/src/jsx'
 
 const colors = {
-  lineBg: '#fffbdd',
   quickInfoBg: 'rgba(173,214,255,.3)',
   occurrenceWrite: 'rgba(14,99,156,.4)',
   occurrenceRead: 'rgba(173,214,255,.7)',
@@ -22,10 +21,7 @@ interface AppProps {
   fontFamily: string
   fileName: string
   code: string
-  offsetTop: number
   lineHeight: number
-  lineWidth: number
-  paddingTop: number
   tabSize: number
 }
 
@@ -44,7 +40,6 @@ export const App: FunctionComponent<AppProps> = (props) => {
   const $container = props.container
 
   const [occurrences, setOccurrences] = useState<HintResponse['occurrences']>()
-  const [definition, setDefinition] = useState<HintResponse['definition']>()
   const [quickInfo, setQuickInfo] = useState<HintResponse['quickInfo']>()
 
   const getPosition = (e: MouseEvent) => {
@@ -67,8 +62,8 @@ export const App: FunctionComponent<AppProps> = (props) => {
     const handleResponse = (res: HintResponse) => {
       // TODO: Fix overflow when length is large
       if (res.definition) {
-        setDefinition(res.definition)
-        window.scrollTo(0, props.offsetTop + props.paddingTop + res.definition.line * props.lineHeight - 80) // TODO: Magic number
+        const line = res.definition.line + 1
+        document.querySelector<HTMLElement>('#L' + line)?.click()
       }
 
       if (res.occurrences) {
@@ -138,18 +133,6 @@ export const App: FunctionComponent<AppProps> = (props) => {
 
   return (
     <div>
-      {definition && (
-        <div
-          style={{
-            position: 'absolute',
-            background: colors.lineBg,
-            left: 0,
-            width: props.lineWidth - 20, // TODO: Magic number
-            height: props.lineHeight,
-            top: definition.line * props.lineHeight,
-          }}
-        />
-      )}
       {occurrences &&
         occurrences.map((occurrence) => (
           <div
