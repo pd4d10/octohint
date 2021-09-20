@@ -1,6 +1,4 @@
 import { render, h, Fragment } from 'preact'
-import { createPortal } from 'preact/compat'
-import githubInject from 'github-injection'
 import { slice, debounce } from 'lodash-es'
 import { HintRequest, HintResponse } from './types'
 import { JSXInternal } from 'preact/src/jsx'
@@ -34,19 +32,9 @@ const getOffsetTop = (e: HTMLElement): number => {
   return e.offsetTop + getOffsetTop(parent)
 }
 
-// '20px' => 20
-const px2num = (px: string | null) => {
-  if (px) {
-    return parseInt(px.replace('px', ''), 10)
-  } else {
-    return 0
-  }
-}
-
 interface InitProps {
   container: HTMLElement
   $background: HTMLElement
-  $quickInfo: HTMLElement
   fontWidth: number
   fontFamily: string
   fileName: string
@@ -134,33 +122,13 @@ const init = (e: MouseEvent, req: RenderRequest) => {
     })
   )
 
-  const $quickInfo = document.createElement('div')
-  const style = getComputedStyle(container)
-  const paddingAndBorderOfContainer =
-    px2num(style.paddingTop) +
-    px2num(style.paddingBottom) +
-    px2num(style.borderTopWidth) +
-    px2num(style.borderBottomWidth)
-  $quickInfo.setAttribute(
-    'style',
-    toStyleText({
-      position: 'relative',
-      width: wrapperWidth, // Important, make quick info show as wide as possible
-      // zIndex: 2,
-      bottom: `${containerRect.height - paddingAndBorderOfContainer - req.paddingTop}px`,
-      left: `${req.paddingLeft}px`,
-    })
-  )
-
-  container.insertBefore($background, container.firstChild)
-  container.appendChild($quickInfo)
+  container.parentElement?.insertBefore($background, container)
 
   const lineHeight = fontDom.getBoundingClientRect().height
 
   initProps = {
     container,
     $background,
-    $quickInfo,
     fontWidth: fontParams.width,
     fontFamily: fontParams.family,
     fileName: req.getFileName(),
@@ -187,7 +155,7 @@ interface RenderRequest {
 }
 
 const githubRenderRequest: RenderRequest = {
-  selector: '.blob-wrapper',
+  selector: '.blob-wrapper table',
   fontSelector: '#LC1',
   paddingLeft: 60,
   paddingTop: 0,
@@ -387,55 +355,54 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
           }}
         />
       )}
-      {quickInfo?.info &&
-        createPortal(
-          <div
-            style={{
-              whiteSpace: 'pre-wrap',
-              position: 'absolute',
-              backgroundColor: '#efeff2',
-              border: `1px solid #c8c8c8`,
-              fontSize: 12,
-              padding: `2px 4px`,
-              fontFamily: props.fontFamily,
-              left: quickInfo.range.character * props.fontWidth,
-              maxWidth: 500,
-              maxHeight: 300,
-              overflow: 'auto',
-              wordBreak: 'break-all',
-              ...(() => {
-                // TODO: Fix https://github.com/Microsoft/TypeScript/blob/master/Gulpfile.ts
-                // TODO: Show info according to height
-                // TODO: Make quick info could be copied
-                // For line 0 and 1, show info below, this is tricky
-                // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
-                // So quick info can't show outside $('.blob-wrapper')
-                const positionStyle: JSXInternal.HTMLAttributes['style'] = {}
-                if (quickInfo.range.line < 2) {
-                  positionStyle.top = (quickInfo.range.line + 1) * props.lineHeight
-                } else {
-                  positionStyle.bottom = 0 - quickInfo.range.line * props.lineHeight
-                }
+      {quickInfo?.info && (
+        <div
+          style={{
+            zIndex: 1,
+            whiteSpace: 'pre-wrap',
+            position: 'absolute',
+            backgroundColor: '#efeff2',
+            border: `1px solid #c8c8c8`,
+            fontSize: 12,
+            padding: `2px 4px`,
+            fontFamily: props.fontFamily,
+            left: quickInfo.range.character * props.fontWidth,
+            maxWidth: 500,
+            maxHeight: 300,
+            overflow: 'auto',
+            wordBreak: 'break-all',
+            ...(() => {
+              // TODO: Fix https://github.com/Microsoft/TypeScript/blob/master/Gulpfile.ts
+              // TODO: Show info according to height
+              // TODO: Make quick info could be copied
+              // For line 0 and 1, show info below, this is tricky
+              // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
+              // So quick info can't show outside $('.blob-wrapper')
+              const positionStyle: JSXInternal.HTMLAttributes['style'] = {}
+              if (quickInfo.range.line < 2) {
+                positionStyle.top = (quickInfo.range.line + 1) * props.lineHeight
+              } else {
+                positionStyle.bottom = 0 - quickInfo.range.line * props.lineHeight
+              }
 
-                return positionStyle
-              })(),
-            }}
-          >
-            {
-              typeof quickInfo.info === 'string'
-                ? quickInfo.info.replace(/\\/g, '')
-                : quickInfo.info.map((part) => {
-                    if (part.text === '\n') {
-                      return <br />
-                    }
-                    return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
-                  })
+              return positionStyle
+            })(),
+          }}
+        >
+          {
+            typeof quickInfo.info === 'string'
+              ? quickInfo.info.replace(/\\/g, '')
+              : quickInfo.info.map((part) => {
+                  if (part.text === '\n') {
+                    return <br />
+                  }
+                  return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
+                })
 
-              // JSON.parse(`"${info}"`)
-            }
-          </div>,
-          props.$quickInfo
-        )}
+            // JSON.parse(`"${info}"`)
+          }
+        </div>
+      )}
     </>,
     props.$background
   )
