@@ -38,10 +38,11 @@ interface RenderRequest {
   paddingLeft: number
   paddingTop: number
   getFileName(container: HTMLElement): string
-  getCode(container: HTMLElement): string
+  getCode(container: HTMLElement): Promise<string>
 }
 
 const requests: RenderRequest[] = [
+  // github, gist
   {
     selector: '.blob-wrapper table',
     fontSelector: '.blob-wrapper .blob-code',
@@ -57,13 +58,14 @@ const requests: RenderRequest[] = [
         ?.getAttribute('href')
       return rawPath ?? ''
     },
-    getCode(container) {
+    async getCode(container) {
       return $$('tr>td:nth-child(2)', container).reduce((code, el) => {
         const line = el.innerText.replaceAll('\n', '') // empty line has an extra '\n', remove it
         return code + line + '\n'
       }, '')
     },
   },
+  // gitlab, gitlab snippets
   {
     selector: '.blob-content code',
     fontSelector: '.line',
@@ -75,19 +77,60 @@ const requests: RenderRequest[] = [
       const rawPath = $('[title="Open raw"]', parent)?.getAttribute('href')
       return rawPath ?? ''
     },
-    getCode(container) {
+    async getCode(container) {
       return $$('.line', container).reduce((code, el) => {
         const line = el.innerText.replaceAll('\n', '') // empty line has an extra '\n', remove it
         return code + line + '\n'
       }, '')
     },
-    // beforeRender: () => {
-    //   const $code = $('.blob-content .code code') as HTMLElement
-    //   $code.style.position = 'relative'
-    //   $code.style.background = 'transparent'
-    // },
+  },
+  // bitbucket
+  {
+    selector: '.view-lines',
+    fontSelector: '.view-line',
+    paddingLeft: 0,
+    paddingTop: 0,
+    getFileName(container) {
+      return location.host + location.pathname
+    },
+    async getCode(container) {
+      const res = await fetch(location.href.replace('/src/', '/raw/'))
+      return res.text()
+    },
+  },
+  // bitbucket snippets
+  {
+    selector: '.bb-content-container .code pre',
+    fontSelector: 'span',
+    paddingLeft: 0,
+    paddingTop: 0,
+    getFileName(container) {
+      const parent = container.closest<HTMLElement>('.bb-content-container')
+      if (!parent) return '' // TODO:
+      const rawPath = $('.bb-content-container-header-secondary a', parent)?.getAttribute('href')
+      return rawPath ?? ''
+    },
+    async getCode(container) {
+      return container.innerText
+    },
   },
 ]
+
+// const BitbucketRenderer: RendererParams = {
+//   getContainer: () => $('.view-lines'),
+//   getFontDOM: () => $('.view-lines span'),
+//   getLineWidthAndHeight: () => ({
+//     width: (<HTMLElement>$('.view-lines .view-line')).offsetWidth - 43,
+//     height: 18,
+//   }),
+//   paddingLeft: 0,
+//   paddingTop: 0,
+//   getCodeUrl: () => getCurrentUrl().replace('/src/', '/raw/'),
+//   getFileName: getFilePath,
+//   // extraBeforeRender: () => (($('.file-source .code pre') as HTMLElement).style.position = 'relative'),
+// }
+
+// let prevContainer: Element | null
 
 interface InitProps {
   $background: HTMLElement
@@ -139,7 +182,7 @@ const initPropsMap = new WeakMap<HTMLElement, InitProps>()
  * <container> and its childrens should not set background-color
  * Order: background -> other childrens(including code) -> quickInfo
  */
-const init = (e: MouseEvent) => {
+const init = async (e: MouseEvent) => {
   if (!(e.target instanceof HTMLElement)) return
 
   for (const req of requests) {
@@ -187,7 +230,7 @@ const init = (e: MouseEvent) => {
         fontWidth: fontParams.width,
         fontFamily: fontParams.family,
         fileName: req.getFileName(container),
-        code: req.getCode(container),
+        code: await req.getCode(container),
         lineHeight,
         tabSize,
       })
@@ -203,22 +246,6 @@ const $ = (selector: string, wrapper: HTMLElement = document.body) => {
 const $$ = (selector: string, wrapper: HTMLElement = document.body) => {
   return slice(wrapper.querySelectorAll<HTMLElement>(selector))
 }
-
-// const BitbucketRenderer: RendererParams = {
-//   getContainer: () => $('.view-lines'),
-//   getFontDOM: () => $('.view-lines span'),
-//   getLineWidthAndHeight: () => ({
-//     width: (<HTMLElement>$('.view-lines .view-line')).offsetWidth - 43,
-//     height: 18,
-//   }),
-//   paddingLeft: 0,
-//   paddingTop: 0,
-//   getCodeUrl: () => getCurrentUrl().replace('/src/', '/raw/'),
-//   getFileName: getFilePath,
-//   // extraBeforeRender: () => (($('.file-source .code pre') as HTMLElement).style.position = 'relative'),
-// }
-
-// let prevContainer: Element | null
 
 const sendMessage = async (req: HintRequest) => {
   console.log('req', req)
@@ -356,7 +383,7 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
 // click: show occurrences
 // if meta key is pressed, also show definition and scroll to it
 document.addEventListener('click', async (e) => {
-  const initProps = init(e)
+  const initProps = await init(e)
   if (!initProps) return
 
   console.log('click', e)
@@ -385,7 +412,7 @@ document.addEventListener('click', async (e) => {
 document.addEventListener(
   'mousemove',
   debounce(async (e: MouseEvent) => {
-    const initProps = init(e)
+    const initProps = await init(e)
     if (!initProps) return
 
     // console.log('mousemove', e)
@@ -404,8 +431,8 @@ document.addEventListener(
 )
 
 // mouseout: hide quick info on leave
-document.addEventListener('mouseout', (e) => {
-  const initProps = init(e)
+document.addEventListener('mouseout', async (e) => {
+  const initProps = await init(e)
   if (!initProps) return
 
   // console.log('mouseout', e)
