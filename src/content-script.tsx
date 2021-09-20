@@ -33,7 +33,6 @@ const getOffsetTop = (e: HTMLElement): number => {
 }
 
 interface InitProps {
-  container: HTMLElement
   $background: HTMLElement
   fontWidth: number
   fontFamily: string
@@ -43,7 +42,7 @@ interface InitProps {
   tabSize: number
 }
 
-let initProps: InitProps | undefined
+const initPropsMap = new WeakMap<HTMLElement, InitProps>()
 
 /**
  * Principles:
@@ -86,56 +85,57 @@ let initProps: InitProps | undefined
 const init = (e: MouseEvent, req: RenderRequest) => {
   if (!(e.target instanceof HTMLElement)) return
 
-  if (initProps && document.contains(initProps.container)) return
-
-  // reset response
-  response = {}
-
   const container = e.target.closest<HTMLElement>(req.selector)
   if (!container) return
 
-  console.log('container:', container)
-
-  const fontDom = $(req.fontSelector)
+  const fontDom = $(req.fontSelector, container)
   if (!fontDom) return
 
-  const tabSize = parseInt(getComputedStyle(fontDom).getPropertyValue('tab-size'), 10) || 8 // TODO: Firefox
+  if (!initPropsMap.has(container) || !document.contains(container)) {
+    // reset response
+    response = {}
 
-  // Get font width and family
-  const fontParams = getFontParams(fontDom)
+    console.log('container:', container)
 
-  // TODO: This is pretty tricky for making GitLab and Bitbucket work
-  // if (beforeRender) beforeRender()
+    const tabSize = parseInt(getComputedStyle(fontDom).getPropertyValue('tab-size'), 10) || 8 // TODO: Firefox
 
-  const containerRect = container.getBoundingClientRect()
-  const wrapperWidth = `${containerRect.width - req.paddingLeft - 10}px`
+    // Get font width and family
+    const fontParams = getFontParams(fontDom)
 
-  const $background = document.createElement('div')
-  $background.setAttribute(
-    'style',
-    toStyleText({
-      position: 'relative',
-      // zIndex: -1, // Set z-index to -1 makes GitLab occurrence not show
-      top: req.paddingTop + 'px',
-      left: req.paddingLeft + 'px',
-      width: wrapperWidth,
+    // TODO: This is pretty tricky for making GitLab and Bitbucket work
+    // if (beforeRender) beforeRender()
+
+    const containerRect = container.getBoundingClientRect()
+    const wrapperWidth = `${containerRect.width - req.paddingLeft - 10}px`
+
+    const $background = document.createElement('div')
+    $background.setAttribute(
+      'style',
+      toStyleText({
+        position: 'relative',
+        // zIndex: -1, // Set z-index to -1 makes GitLab occurrence not show
+        top: req.paddingTop + 'px',
+        left: req.paddingLeft + 'px',
+        width: wrapperWidth,
+      })
+    )
+
+    container.parentElement?.insertBefore($background, container)
+
+    const lineHeight = fontDom.getBoundingClientRect().height
+
+    initPropsMap.set(container, {
+      $background,
+      fontWidth: fontParams.width,
+      fontFamily: fontParams.family,
+      fileName: req.getFileName(container),
+      code: req.getCode(container),
+      lineHeight,
+      tabSize,
     })
-  )
-
-  container.parentElement?.insertBefore($background, container)
-
-  const lineHeight = fontDom.getBoundingClientRect().height
-
-  initProps = {
-    container,
-    $background,
-    fontWidth: fontParams.width,
-    fontFamily: fontParams.family,
-    fileName: req.getFileName(),
-    code: req.getCode(container),
-    lineHeight,
-    tabSize,
   }
+
+  return initPropsMap.get(container)
 }
 
 const $ = (selector: string, wrapper: HTMLElement = document.body) => {
@@ -150,18 +150,24 @@ interface RenderRequest {
   fontSelector: string
   paddingLeft: number
   paddingTop: number
-  getFileName(): string
+  getFileName(container: HTMLElement): string
   getCode(container: HTMLElement): string
 }
 
 const githubRenderRequest: RenderRequest = {
   selector: '.blob-wrapper table',
-  fontSelector: '#LC1',
+  fontSelector: '.blob-wrapper .blob-code',
   paddingLeft: 60,
   paddingTop: 0,
-  getFileName() {
-    // replace `//` with `/` to simulate file system path
-    return '/' + location.host + location.pathname
+  getFileName(container) {
+    const parent = container.parentElement?.parentElement
+    if (!parent) return '' // TODO:
+    const rawPath =
+      $('#raw-url', parent) ?? // github
+      $('.file-actions a', parent) // gist
+        ?.getAttribute('href')
+    if (!rawPath) return '' // TODO:
+    return location.host + rawPath
   },
   getCode(container) {
     return $$('tr>td:nth-child(2)', container).reduce((code, el) => {
@@ -170,26 +176,6 @@ const githubRenderRequest: RenderRequest = {
     }, '')
   },
 }
-
-// function getGithubGistParams(wrapper: HTMLElement): RenderParams | undefined {
-//   const container = $('.blob-wrapper', wrapper)
-//   const fontDom = $('.blob-wrapper .blob-code', wrapper)
-//   const tabSizeDom = $('.blob-wrapper table', wrapper)
-//   const fileInfo = $('.file-info', wrapper)
-//   if (!container || !fontDom || !tabSizeDom || !fileInfo) return
-
-//   return {
-//     container,
-//     fontDom,
-//     tabSizeDom,
-//     lineWidth: 918,
-//     lineHeight: 20,
-//     paddingLeft: 60,
-//     paddingTop: 0,
-//     code: getGithubCode(container),
-//     fileName: getFilePath().replace(/\/$/, '') + fileInfo.innerText.trim(),
-//   }
-// }
 
 // const BitbucketRenderer: RendererParams = {
 //   getContainer: () => $('.view-lines'),
@@ -223,57 +209,6 @@ const githubRenderRequest: RenderRequest = {
 // }
 
 // let prevContainer: Element | null
-
-// // TODO:
-// const addMutationObserver = (
-//   container: Element | null,
-//   params: RendererParams,
-//   extraCondition = true,
-// ) => {
-//   if (!container || !extraCondition) return
-
-//   new MutationObserver(mutations => {
-//     mutations.forEach(mutation => {
-//       console.log(mutation)
-//       if (mutation.type === 'childList' && mutation.addedNodes.length) {
-//         // This fix GitHub trigger multi mutations sometimes while dynamic loading
-//         // Check if current container equals to previous, if same then ignore
-//         const container = params.getContainer()
-//         if (container && prevContainer !== container) {
-//           renderToContainer(params)
-//           prevContainer = container
-//         }
-//       }
-//     })
-//   }).observe(container, {
-//     attributes: true,
-//     childList: true,
-//     characterData: true,
-//   })
-// }
-
-// GitHub Gist
-// if (location.host === 'gist.github.com') {
-//   $$('.js-gist-file-update-container')?.forEach((container) => {
-//     const params = getGithubGistParams(container as HTMLElement)
-//     if (params) {
-//       renderToContainer(params)
-//     }
-//   })
-// } else {
-//   // GitHub
-//   // TODO: Dynamic import
-//   // May be deployed at private domain, URL
-//   // So use DOM selector
-//   const params = getGithubParams()
-//   if (params) {
-//     githubInject(() => {
-//       const params = getGithubParams()
-//       if (params) renderToContainer(params)
-//     })
-//   } else {
-//   }
-// }
 
 const sendMessage = async (req: HintRequest) => {
   console.log('req', req)
@@ -411,7 +346,7 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
 // click: show occurrences
 // if meta key is pressed, also show definition and scroll to it
 document.addEventListener('click', async (e) => {
-  init(e, githubRenderRequest)
+  const initProps = init(e, githubRenderRequest)
   if (!initProps) return
 
   console.log('click', e)
@@ -440,7 +375,7 @@ document.addEventListener('click', async (e) => {
 document.addEventListener(
   'mousemove',
   debounce(async (e: MouseEvent) => {
-    init(e, githubRenderRequest)
+    const initProps = init(e, githubRenderRequest)
     if (!initProps) return
 
     // console.log('mousemove', e)
@@ -460,7 +395,7 @@ document.addEventListener(
 
 // mouseout: hide quick info on leave
 document.addEventListener('mouseout', (e) => {
-  init(e, githubRenderRequest)
+  const initProps = init(e, githubRenderRequest)
   if (!initProps) return
 
   // console.log('mouseout', e)
