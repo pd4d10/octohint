@@ -6,60 +6,55 @@ import { HintRequest, HintResponse } from './types'
 import { CssService } from './services/css'
 import SimpleService from './services/simple'
 import ts from 'typescript'
+import path from 'path'
 
 let tsService: TsService | undefined
-
-async function initTsService() {
-  if (tsService) return
-
-  const compilerOptions: ts.CompilerOptions = {
-    target: ts.ScriptTarget.ES2020, // TODO: latest, and node.js libs
-    allowJs: true,
-  }
-
-  const files = await createDefaultMapFromCDN(
-    compilerOptions,
-    ts.version,
-    false,
-    ts,
-    undefined,
-    fetch,
-    {} as any // TODO:
-  )
-
-  const system = createSystem(files)
-  const env = createVirtualTypeScriptEnvironment(system, [], ts, compilerOptions)
-
-  tsService = new TsService(system, env)
+const compilerOptions: ts.CompilerOptions = {
+  target: ts.ScriptTarget.ES2020, // TODO: latest, and node.js libs
+  allowJs: true,
 }
 
-const services = {} as { [file: string]: BaseService }
+// init ts service, async
+createDefaultMapFromCDN(
+  compilerOptions,
+  ts.version,
+  false,
+  ts,
+  undefined,
+  fetch,
+  {} as any // TODO:
+).then((files) => {
+  const system = createSystem(files)
+  const env = createVirtualTypeScriptEnvironment(system, [], ts, compilerOptions)
+  tsService = new TsService(system, env)
+})
+
+const serviceMap = new Map<string, BaseService>()
 
 function handleRequest(req: HintRequest): HintResponse {
   let service: BaseService | undefined
-  const ext = req.file.split('.').slice(-1)[0]
+  const ext = path.extname(req.file).slice(1)
 
   if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
     // TODO: mjs, cjs
-    initTsService()
-    tsService?.addFile(req)
+    tsService?.addFile(req) // async
     service = tsService
   } else {
-    if (!services[req.file]) {
+    if (!serviceMap.has(req.file)) {
       if (ext === 'less') {
-        service = new CssService(getLESSLanguageService(), req)
+        service = new CssService(getLESSLanguageService(), req.file, ext, req.code)
       } else if (ext === 'scss') {
-        service = new CssService(getSCSSLanguageService(), req)
+        service = new CssService(getSCSSLanguageService(), req.file, ext, req.code)
       } else if (ext === 'css') {
-        service = new CssService(getCSSLanguageService(), req)
+        service = new CssService(getCSSLanguageService(), req.file, ext, req.code)
       } else {
-        service = new SimpleService(req)
+        service = new SimpleService(req.code)
       }
 
-      services[req.file] = service
+      serviceMap.set(req.file, service)
     }
 
-    service = services[req.file]
+    service = serviceMap.get(req.file)
   }
 
   if (req.type === 'click') {

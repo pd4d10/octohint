@@ -1,15 +1,14 @@
 import { LanguageService, Stylesheet, TextDocument, MarkupContent } from 'vscode-css-languageservice'
 import { BaseService } from './base'
 import { HintRequest } from '../types'
-import path from 'path'
 
 export class CssService extends BaseService {
   private document: TextDocument
   private stylesheet: Stylesheet
 
-  constructor(public service: LanguageService, req: HintRequest) {
+  constructor(public service: LanguageService, file: string, ext: string, code: string) {
     super()
-    this.document = TextDocument.create(req.file, path.extname(req.file).slice(1), 0, req.code)
+    this.document = TextDocument.create(file, ext, 0, code)
     this.stylesheet = this.service.parseStylesheet(this.document)
   }
 

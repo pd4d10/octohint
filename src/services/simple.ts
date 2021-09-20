@@ -24,9 +24,9 @@ function findAllPositions(str: string, substr: string, res: number[] = [], offse
 export default class SimpleService extends BaseService {
   lines!: string[]
 
-  constructor(req: HintRequest) {
+  constructor(code: string) {
     super()
-    this.lines = req.code.split('\n')
+    this.lines = code.split('\n')
   }
 
   // TODO: CJK character
