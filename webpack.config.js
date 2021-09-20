@@ -32,6 +32,9 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
+    alias: {
+      react: 'preact/compat',
+    },
     fallback: {
       path: 'path-browserify',
     },

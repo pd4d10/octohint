@@ -1,6 +1,7 @@
-import { LanguageService, Stylesheet, TextDocument } from 'vscode-css-languageservice'
+import { LanguageService, Stylesheet, TextDocument, MarkupContent } from 'vscode-css-languageservice'
 import { BaseService } from './base'
 import { HintRequest } from '../types'
+import path from 'path'
 
 export class CssService extends BaseService {
   private document: TextDocument
@@ -8,7 +9,7 @@ export class CssService extends BaseService {
 
   constructor(public service: LanguageService, req: HintRequest) {
     super()
-    this.document = TextDocument.create(req.file, req.file.replace(/.*\.(.*?)$/, '$1'), 0, req.code)
+    this.document = TextDocument.create(req.file, path.extname(req.file).slice(1), 0, req.code)
     this.stylesheet = this.service.parseStylesheet(this.document)
   }
 
@@ -25,24 +26,15 @@ export class CssService extends BaseService {
 
   getQuickInfo(req: HintRequest) {
     const hover = this.service.doHover(this.document, req, this.stylesheet)
-    if (hover && hover.contents && hover.range) {
-      // TODO: Show all information
-      let info: string
-      if (typeof hover.contents === 'string') {
-        info = hover.contents
-      } else if (Array.isArray(hover.contents)) {
-        const str = hover.contents[0]
-        if (typeof str === 'string') {
-          info = str
-        } else {
-          return
-        }
-      } else {
-        return
-      }
-
+    if (hover?.contents && hover?.range && MarkupContent.is(hover.contents)) {
+      // TODO: deprecate MarkedString
       return {
-        info,
+        info: [
+          {
+            kind: hover.contents.kind,
+            text: hover.contents.value,
+          },
+        ],
         range: hover.range.start,
         width: hover.range.end.character - hover.range.start.character,
       }

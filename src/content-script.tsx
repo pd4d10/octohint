@@ -1,4 +1,5 @@
 import { render, h, Fragment } from 'preact'
+import { Viewer } from '@bytemd/react'
 import { slice, debounce } from 'lodash-es'
 import { HintRequest, HintResponse } from './types'
 import { JSXInternal } from 'preact/src/jsx'
@@ -280,10 +281,16 @@ const colors = {
 
 function getColorFromKind(kind: string) {
   switch (kind) {
+    // ts
     case 'keyword':
       return '#00f'
     case 'punctuation':
       return '#000'
+
+    // css
+    case 'plaintext':
+      return '#00f'
+
     default:
       return '#001080'
   }
@@ -367,6 +374,10 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
               : quickInfo.info.map((part) => {
                   if (part.text === '\n') {
                     return <br />
+                  }
+                  // css
+                  if (part.kind === 'markdown') {
+                    return <Viewer value={part.text} /> // TODO: styles
                   }
                   return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
                 })
