@@ -13,19 +13,21 @@ function getFullLibName(name: string) {
 // FIXME: Very slow when click type `string`
 // TODO: Go to definition for third party libs
 export class TsService extends BaseService {
-  constructor(message: HintRequest, public system: ts.System, public env: VirtualTypeScriptEnvironment) {
+  constructor(public system: ts.System, public env: VirtualTypeScriptEnvironment) {
     super()
+  }
 
-    if (this.system.fileExists(message.file)) return
+  async addFile(req: HintRequest) {
+    if (this.system.fileExists(req.file)) return
 
-    this.env.createFile(message.file, message.code)
+    this.env.createFile(req.file, req.code)
 
     // get third party deps
     let deps: string[] = []
 
     for (const reg of [/[import|export].*?from\s*?['"](.*?)['"]/g, /require\(['"](.*?)['"]\)/g]) {
       // TODO: Exclude comment
-      const matches = message.code.match(reg) || []
+      const matches = req.code.match(reg) || []
       // console.log(reg, matches)
       // Exclude node standard libs
       deps = [
@@ -44,7 +46,7 @@ export class TsService extends BaseService {
     console.log('deps:', deps)
 
     // try to get type definitions
-    Promise.all(
+    await Promise.all(
       deps.map(async (name) => {
         const fullname = getFullLibName(name)
         if (this.system.fileExists(fullname)) return

@@ -9,7 +9,7 @@ import ts from 'typescript'
 
 let tsService: TsService | undefined
 
-async function initTsService(req: HintRequest) {
+async function initTsService() {
   if (tsService) return
 
   const compilerOptions: ts.CompilerOptions = {
@@ -17,7 +17,7 @@ async function initTsService(req: HintRequest) {
     allowJs: true,
   }
 
-  await createDefaultMapFromCDN(
+  const files = await createDefaultMapFromCDN(
     compilerOptions,
     ts.version,
     false,
@@ -27,10 +27,10 @@ async function initTsService(req: HintRequest) {
     {} as any // TODO:
   )
 
-  const system = createSystem(new Map<string, string>())
+  const system = createSystem(files)
   const env = createVirtualTypeScriptEnvironment(system, [], ts, compilerOptions)
 
-  tsService = new TsService(req, system, env)
+  tsService = new TsService(system, env)
 }
 
 const services = {} as { [file: string]: BaseService }
@@ -41,7 +41,8 @@ function handleRequest(req: HintRequest): HintResponse {
 
   if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
     // TODO: mjs, cjs
-    initTsService(req)
+    initTsService()
+    tsService?.addFile(req)
     service = tsService
   } else {
     if (!services[req.file]) {
