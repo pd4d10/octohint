@@ -1,5 +1,5 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "Octohint",
   "version": "2.0.8",
   "description": "IntelliSense hint for GitHub",
@@ -8,7 +8,8 @@
     "128": "icons/logo.png"
   },
   "background": {
-    "service_worker": "dist/background.js"
+    "scripts": ["dist/background.js"],
+    "persistent": false
   },
   "content_scripts": [
     {
@@ -21,7 +22,9 @@
       "js": ["dist/content-script.js"]
     }
   ],
+  "optional_permissions": ["<all_urls>"],
   "options_ui": {
+    "chrome_style": true,
     "page": "dist/options.html"
   }
 }
