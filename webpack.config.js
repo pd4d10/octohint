@@ -25,8 +25,9 @@ module.exports = {
         use: {
           loader: 'swc-loader',
         },
-        sideEffects: false, // TODO: figure out why bytemd Editor is bundled by default
-        // exclude: /node_modules/,
+        sideEffects: false,
+        exclude: /node_modules/, // transpiling ts bundle causes stack overflow
+        // TODO: tree shaking bytemd Editor
       },
     ],
   },
