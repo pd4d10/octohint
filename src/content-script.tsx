@@ -141,6 +141,7 @@ interface InitProps {
   code: string
   lineHeight: number
   tabSize: number
+  offsetTop: number
 }
 
 const initPropsMap = new WeakMap<HTMLElement, InitProps>()
@@ -234,6 +235,7 @@ const init = async (e: MouseEvent) => {
         code: await req.getCode(container),
         lineHeight,
         tabSize,
+        offsetTop: getOffsetTop(container) + req.paddingTop,
       })
     }
 
@@ -303,8 +305,7 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
   const { definition, occurrences, quickInfo } = response
 
   if (definition) {
-    const line = definition.line + 1
-    // document.querySelector<HTMLElement>('#L' + line)?.click() // TODO: reset definition
+    window.scrollTo(0, props.offsetTop + definition.line * props.lineHeight - 80) // TODO: magic number
   }
 
   render(
