@@ -1,8 +1,8 @@
-import { render, h, Fragment } from 'preact'
+import { CSSProperties } from 'react'
+import { render } from 'react-dom'
 import { Viewer } from '@bytemd/react'
 import { slice, debounce } from 'lodash-es'
 import { HintRequest, HintResponse } from './types'
-import { JSXInternal } from 'preact/src/jsx'
 
 const toStyleText = (obj: { [key: string]: string | number }) => {
   return Object.entries(obj)
@@ -357,7 +357,7 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
               // For line 0 and 1, show info below, this is tricky
               // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
               // So quick info can't show outside $('.blob-wrapper')
-              const positionStyle: JSXInternal.HTMLAttributes['style'] = {}
+              const positionStyle: CSSProperties = {}
               if (quickInfo.range.line < 2) {
                 positionStyle.top = (quickInfo.range.line + 1) * props.lineHeight
               } else {

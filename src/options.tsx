@@ -1,5 +1,5 @@
-import { h, render, FunctionComponent } from 'preact'
-import { useState, useEffect } from 'preact/hooks'
+import { useState, useEffect, FC } from 'react'
+import { render } from 'react-dom'
 
 const builtInPermissions = [
   'https://bitbucket.org/*',
@@ -8,7 +8,7 @@ const builtInPermissions = [
   'https://github.com/*',
 ]
 
-const Options: FunctionComponent = () => {
+const Options: FC = () => {
   const [origins, setOrigins] = useState<string[]>([])
   const [temp, setTemp] = useState('')
 

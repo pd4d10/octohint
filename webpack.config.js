@@ -34,6 +34,8 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js'],
     alias: {
       react: 'preact/compat',
+      'react-dom': 'preact/compat',
+      'react/jsx-runtime': 'preact/jsx-runtime',
     },
     fallback: {
       path: 'path-browserify',

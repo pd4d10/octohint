@@ -6,6 +6,8 @@ specifiers:
   '@types/chrome': ^0.0.157
   '@types/lodash-es': ^4.17.5
   '@types/node': ^16.9.1
+  '@types/react': ^17.0.22
+  '@types/react-dom': ^17.0.9
   '@typescript/vfs': ^1.3.4
   clean-webpack-plugin: ^4.0.0
   html-webpack-plugin: ^5.3.2
@@ -26,6 +28,8 @@ devDependencies:
   '@types/chrome': 0.0.157
   '@types/lodash-es': 4.17.5
   '@types/node': 16.9.1
+  '@types/react': 17.0.22
+  '@types/react-dom': 17.0.9
   '@typescript/vfs': 1.3.4
   clean-webpack-plugin: 4.0.0_webpack@5.52.1
   html-webpack-plugin: 5.3.2_webpack@5.52.1
@@ -307,6 +311,28 @@ packages:
 
   /@types/parse5/5.0.3:
     resolution: {integrity: sha512-kUNnecmtkunAoQ3CnjmMkzNU/gtxG8guhi+Fk2U/kOpIKjIMKnXGp4IJCgQJrXSgMsWYimYG4TGjz/UzbGEBTw==}
+    dev: true
+
+  /@types/prop-types/15.7.4:
+    resolution: {integrity: sha512-rZ5drC/jWjrArrS8BR6SIr4cWpW09RNTYt9AMZo3Jwwif+iacXAqgVjm0B0Bv/S1jhDXKHqRVNCbACkJ89RAnQ==}
+    dev: true
+
+  /@types/react-dom/17.0.9:
+    resolution: {integrity: sha512-wIvGxLfgpVDSAMH5utdL9Ngm5Owu0VsGmldro3ORLXV8CShrL8awVj06NuEXFQ5xyaYfdca7Sgbk/50Ri1GdPg==}
+    dependencies:
+      '@types/react': 17.0.22
+    dev: true
+
+  /@types/react/17.0.22:
+    resolution: {integrity: sha512-kq/BMeaAVLJM6Pynh8C2rnr/drCK+/5ksH0ch9asz+8FW3DscYCIEFtCeYTFeIx/ubvOsMXmRfy7qEJ76gM96A==}
+    dependencies:
+      '@types/prop-types': 15.7.4
+      '@types/scheduler': 0.16.2
+      csstype: 3.0.9
+    dev: true
+
+  /@types/scheduler/0.16.2:
+    resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
     dev: true
 
   /@types/tern/0.23.4:
@@ -738,6 +764,10 @@ packages:
   /css-what/5.0.1:
     resolution: {integrity: sha512-FYDTSHb/7KXsWICVsxdmiExPjCfRC4qRFBdVwv7Ax9hMnvMmEjP9RfxTEZ3qPZGmADDn2vAKSo9UcN1jKVYscg==}
     engines: {node: '>= 6'}
+    dev: true
+
+  /csstype/3.0.9:
+    resolution: {integrity: sha512-rpw6JPxK6Rfg1zLOYCSwle2GFOOsnjmDYDaBwEcwoOg4qlsIVCN789VkBZDJAGi4T07gI4YSutR43t9Zz4Lzuw==}
     dev: true
 
   /debug/4.3.2:
