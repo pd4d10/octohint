@@ -17,8 +17,7 @@ module.exports = {
     filename: '[name].js',
     publicPath: '/dist/',
   },
-  // Enable sourcemaps for debugging webpack's output.
-  devtool: 'source-map',
+  devtool: 'inline-cheap-source-map', // inline works for extension background
   module: {
     rules: [
       {
