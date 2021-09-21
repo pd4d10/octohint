@@ -6,6 +6,7 @@ const config = require('./webpack.config')
 /** @type {import('webpack').Configuration} */
 module.exports = {
   ...config,
+  watch: false,
   mode: 'production',
   devtool: false,
   optimization: {

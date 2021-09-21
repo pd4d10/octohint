@@ -22,11 +22,12 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.(j|t)sx?$/,
         use: {
           loader: 'swc-loader',
         },
-        exclude: /node_modules/,
+        sideEffects: false, // TODO: figure out why bytemd Editor is bundled by default
+        // exclude: /node_modules/,
       },
     ],
   },
