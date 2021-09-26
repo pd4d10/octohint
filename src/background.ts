@@ -15,15 +15,7 @@ const compilerOptions: ts.CompilerOptions = {
 }
 
 // init ts service, async
-createDefaultMapFromCDN(
-  compilerOptions,
-  ts.version,
-  false,
-  ts,
-  undefined,
-  fetch,
-  {} as any // TODO:
-).then((files) => {
+createDefaultMapFromCDN(compilerOptions, ts.version, false, ts).then((files) => {
   const system = createSystem(files)
   const env = createVirtualTypeScriptEnvironment(system, [], ts, compilerOptions)
   tsService = new TsService(system, env)
