@@ -11,13 +11,19 @@ const toStyleText = (obj: { [key: string]: string | number }) => {
 };
 
 const getFontParams = (fontDom: HTMLElement) => {
+  const style = getComputedStyle(fontDom);
+
   const testDom = document.createElement("span");
   testDom.innerText = "0";
-  fontDom.appendChild(testDom);
+  document.body.appendChild(testDom);
+  testDom.style.font = style.font;
+  testDom.style.display = "inline-block";
 
-  const style = getComputedStyle(testDom);
+  const rect = testDom.getBoundingClientRect();
+
   const result = {
-    width: testDom.getBoundingClientRect().width,
+    width: rect.width,
+    height: rect.height,
     family: style.fontFamily || "monospace",
   };
 
@@ -43,7 +49,23 @@ interface RenderRequest {
 }
 
 const requests: RenderRequest[] = [
-  // TODO: github need to reimplement
+  // github
+  {
+    selector: "#read-only-cursor-text-area",
+    fontSelector: "#read-only-cursor-text-area",
+    paddingLeft: 92,
+    paddingTop: 2,
+    getFileName() {
+      return location.href;
+    },
+    async getCode(container) {
+      if (container instanceof HTMLTextAreaElement) {
+        return container.value;
+      } else {
+        return ""; // TODO:
+      }
+    },
+  },
 
   // gist
   {
@@ -188,8 +210,7 @@ const init = async (e: MouseEvent) => {
   for (const req of requests) {
     const container = e.target.closest<HTMLElement>(req.selector);
     if (!container) continue;
-
-    const fontDom = $(req.fontSelector, container);
+    const fontDom = $(req.fontSelector);
     if (!fontDom) continue;
 
     if (!initPropsMap.has(container) || !document.contains(container)) {
@@ -223,15 +244,13 @@ const init = async (e: MouseEvent) => {
 
       container.parentElement?.insertBefore($background, container);
 
-      const lineHeight = fontDom.getBoundingClientRect().height;
-
       initPropsMap.set(container, {
         $background,
         fontWidth: fontParams.width,
         fontFamily: fontParams.family,
         fileName: req.getFileName(container),
         code: await req.getCode(container),
-        lineHeight,
+        lineHeight: fontParams.height,
         tabSize,
         offsetTop: getOffsetTop(container) + req.paddingTop,
       });
@@ -426,7 +445,7 @@ document.addEventListener(
     const initProps = await init(e);
     if (!initProps) return;
 
-    // console.log('mousemove', e)
+    console.log("mousemove", e);
     const position = getPosition(e, initProps.lineHeight, initProps.fontWidth, initProps.$background);
     if (!position) return;
 
