@@ -46,6 +46,7 @@ interface RenderRequest {
   paddingTop: number;
   getFileName(container: HTMLElement): string;
   getCode(container: HTMLElement): Promise<string>;
+  disableClick?: boolean;
 }
 
 const requests: RenderRequest[] = [
@@ -65,6 +66,7 @@ const requests: RenderRequest[] = [
         return ""; // TODO:
       }
     },
+    disableClick: true,
   },
 
   // gist
@@ -204,10 +206,12 @@ const initPropsMap = new WeakMap<HTMLElement, InitProps>();
  * <container> and its childrens should not set background-color
  * Order: background -> other childrens(including code) -> quickInfo
  */
-const init = async (e: MouseEvent) => {
+const init = async (e: MouseEvent, isClick = false) => {
   if (!(e.target instanceof HTMLElement)) return;
 
   for (const req of requests) {
+    if (isClick && req.disableClick) continue;
+
     const container = e.target.closest<HTMLElement>(req.selector);
     if (!container) continue;
     const fontDom = $(req.fontSelector);
@@ -413,7 +417,7 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
 // click: show occurrences
 // if meta key is pressed, also show definition and scroll to it
 document.addEventListener("click", async (e) => {
-  const initProps = await init(e);
+  const initProps = await init(e, true);
   if (!initProps) return;
 
   console.log("click", e);
