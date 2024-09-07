@@ -139,6 +139,7 @@ interface InitProps {
   lineHeight: number;
   tabSize: number;
   offsetTop: number;
+  root?: Root;
 }
 
 const initPropsMap = new WeakMap<HTMLElement, InitProps>();
@@ -296,7 +297,6 @@ function getColorFromKind(kind: string) {
 }
 
 let response: HintResponse = {};
-let root: Root;
 
 const handleResponse = (res: HintResponse, props: InitProps) => {
   response = { ...response, ...res };
@@ -306,9 +306,9 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
     window.scrollTo(0, props.offsetTop + definition.line * props.lineHeight - 80); // TODO: magic number
   }
 
-  if (!root) root = createRoot(props.$background);
+  if (!props.root) props.root = createRoot(props.$background);
 
-  root.render(
+  props.root.render(
     <>
       {occurrences?.map((occurrence) => (
         <div
