@@ -1,5 +1,6 @@
 {
   "typescript": {
+    "quoteProps": "consistent"
   },
   "json": {
   },

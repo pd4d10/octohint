@@ -9,31 +9,31 @@ export default defineConfig({
     react(),
     crx({
       manifest: {
-        "manifest_version": 3,
-        "name": "Octohint",
-        "version": pkg.version,
-        "description": "IntelliSense hint for GitHub",
-        "homepage_url": "https://github.com/pd4d10/octohint",
-        "icons": {
+        manifest_version: 3,
+        name: "Octohint",
+        version: pkg.version,
+        description: "IntelliSense hint for GitHub",
+        homepage_url: "https://github.com/pd4d10/octohint",
+        icons: {
           "128": "icons/logo.png",
         },
-        "background": {
+        background: {
           service_worker: "src/background.ts",
         },
-        "host_permissions": ["https://*/"],
-        "content_scripts": [
+        host_permissions: ["https://*/"],
+        content_scripts: [
           {
-            "matches": [
+            matches: [
               "https://github.com/*",
               "https://gist.github.com/*",
               "https://gitlab.com/*",
               "https://bitbucket.org/*",
             ],
-            "js": ["src/content-script.tsx"],
+            js: ["src/content-script.tsx"],
           },
         ],
-        "options_ui": {
-          "page": "options.html",
+        options_ui: {
+          page: "options.html",
         },
       },
     }),
