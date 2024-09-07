@@ -40,7 +40,6 @@ export default defineConfig((env) => ({
         background: {
           service_worker: "src/background.ts",
         },
-        host_permissions: ["https://*/"],
         content_scripts: [
           {
             matches: [
@@ -52,9 +51,6 @@ export default defineConfig((env) => ({
             js: ["src/content-script.tsx"],
           },
         ],
-        options_ui: {
-          page: "options.html",
-        },
       },
     }),
     viteStaticCopy({ targets: [{ src: "../LICENSE", dest: "." }] }),
