@@ -5,6 +5,11 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 import pkg from "./package.json";
 
 export default defineConfig((env) => ({
+  resolve: {
+    alias: {
+      path: "path-browserify",
+    },
+  },
   esbuild: {
     drop: env.command === "build" ? ["console", "debugger"] : [],
   },
