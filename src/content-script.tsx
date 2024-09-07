@@ -4,6 +4,8 @@ import { Viewer } from '@bytemd/react'
 import { slice, debounce } from 'lodash-es'
 import { HintRequest, HintResponse } from './types'
 
+console.log(11111111)
+
 const toStyleText = (obj: { [key: string]: string | number }) => {
   return Object.entries(obj)
     .map(([k, v]) => `${k}:${v}`)

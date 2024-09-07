@@ -1,33 +1,35 @@
 {
   "name": "octohint",
   "private": true,
+  "type": "module",
+  "version": "2.0.9",
   "scripts": {
-    "start": "webpack",
-    "build": "webpack --config webpack.config.production.js",
+    "dev": "vite",
+    "build": "vite build",
     "package": "cp LICENSE chrome/ && cd chrome/ && zip --exclude .DS_Store -r ../chrome.zip *",
     "lint": "npx prettier --list-different src/**/*.{ts,tsx}",
     "icon": "rm -rf chrome/icons/*; node scripts/generate-icons"
   },
   "devDependencies": {
     "@bytemd/react": "^1.10.13",
-    "@swc/core": "^1.2.88",
+    "@crxjs/vite-plugin": "^1.0.14",
     "@types/chrome": "^0.0.157",
     "@types/lodash-es": "^4.17.5",
     "@types/node": "^16.9.1",
-    "@types/react": "^17.0.22",
-    "@types/react-dom": "^17.0.9",
     "@typescript/vfs": "^1.3.5",
-    "clean-webpack-plugin": "^4.0.0",
-    "html-webpack-plugin": "^5.3.2",
+    "@vitejs/plugin-react": "^4.3.1",
     "lodash-es": "^4.17.21",
     "path-browserify": "^1.0.1",
-    "preact": "^10.5.14",
-    "regenerator-runtime": "^0.13.9",
-    "swc-loader": "^0.1.15",
     "typescript": "4.2.2",
-    "vscode-css-languageservice": "^5.1.5",
-    "webpack": "^5.52.1",
-    "webpack-bundle-analyzer": "^4.4.2",
-    "webpack-cli": "^4.8.0"
+    "vite": "^5.4.3",
+    "vite-plugin-static-copy": "^1.0.6",
+    "vscode-css-languageservice": "^5.1.5"
+  },
+  "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1",
+  "dependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }
