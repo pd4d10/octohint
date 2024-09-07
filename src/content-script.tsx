@@ -1,7 +1,7 @@
 import { Viewer } from "@bytemd/react";
 import { debounce, slice } from "lodash-es";
 import { CSSProperties } from "react";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { HintRequest, HintResponse } from "./types";
 
 console.log(11111111);
@@ -310,7 +310,7 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
     window.scrollTo(0, props.offsetTop + definition.line * props.lineHeight - 80); // TODO: magic number
   }
 
-  render(
+  createRoot(props.$background).render(
     <>
       {occurrences?.map((occurrence) => (
         <div
@@ -390,7 +390,6 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
         </div>
       )}
     </>,
-    props.$background,
   );
 };
 

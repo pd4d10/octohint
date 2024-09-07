@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 
 const builtInPermissions = [
   "https://bitbucket.org/*",
@@ -105,4 +105,4 @@ const Options: FC = () => {
 
 const container = document.createElement("div");
 document.body.appendChild(container);
-render(<Options />, container);
+createRoot(container).render(<Options />);
