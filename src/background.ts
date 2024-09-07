@@ -21,8 +21,6 @@ createDefaultMapFromCDN(compilerOptions, ts.version, false, ts).then((files) => 
   tsService = new TsService(system, env);
 });
 
-const serviceMap = new Map<string, BaseService>();
-
 function handleRequest(req: HintRequest): HintResponse {
   let service: BaseService | undefined;
   const ext = path.extname(req.file).slice(1);
@@ -32,21 +30,15 @@ function handleRequest(req: HintRequest): HintResponse {
     tsService?.addFile(req); // async
     service = tsService;
   } else {
-    if (!serviceMap.has(req.file)) {
-      if (ext === "less") {
-        service = new CssService(getLESSLanguageService(), req.file, ext, req.code);
-      } else if (ext === "scss") {
-        service = new CssService(getSCSSLanguageService(), req.file, ext, req.code);
-      } else if (ext === "css") {
-        service = new CssService(getCSSLanguageService(), req.file, ext, req.code);
-      } else {
-        service = new SimpleService(req.code);
-      }
-
-      serviceMap.set(req.file, service);
+    if (ext === "less") {
+      service = new CssService(getLESSLanguageService(), req.file, ext, req.code);
+    } else if (ext === "scss") {
+      service = new CssService(getSCSSLanguageService(), req.file, ext, req.code);
+    } else if (ext === "css") {
+      service = new CssService(getCSSLanguageService(), req.file, ext, req.code);
+    } else {
+      service = new SimpleService(req.code);
     }
-
-    service = serviceMap.get(req.file);
   }
 
   if (req.type === "click") {
