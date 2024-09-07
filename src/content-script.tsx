@@ -4,8 +4,6 @@ import { CSSProperties } from "react";
 import { createRoot, Root } from "react-dom/client";
 import { HintRequest, HintResponse } from "./types";
 
-console.log(11111111);
-
 const toStyleText = (obj: { [key: string]: string | number }) => {
   return Object.entries(obj)
     .map(([k, v]) => `${k}:${v}`)
@@ -45,21 +43,18 @@ interface RenderRequest {
 }
 
 const requests: RenderRequest[] = [
-  // github, gist
+  // TODO: github need to reimplement
+
+  // gist
   {
     selector: ".blob-wrapper table",
     fontSelector: ".blob-wrapper .blob-code",
     paddingLeft: 60,
     paddingTop: 0,
     getFileName(container) {
-      const parent = container.parentElement?.parentElement;
+      const parent = container.parentElement?.parentElement?.parentElement;
       if (!parent) return ""; // TODO:
-      const rawPath = (
-        $("#raw-url", parent) // github
-          ?? $(".file-actions a", parent)
-      ) // gist
-        ?.getAttribute("href");
-      return rawPath ?? "";
+      return $(".file-actions a", parent)?.getAttribute("href") ?? "";
     },
     async getCode(container) {
       return $$("tr>td:nth-child(2)", container).reduce((code, el) => {
