@@ -1,123 +1,123 @@
-import { CSSProperties } from 'react'
-import { render } from 'react-dom'
-import { Viewer } from '@bytemd/react'
-import { slice, debounce } from 'lodash-es'
-import { HintRequest, HintResponse } from './types'
+import { Viewer } from "@bytemd/react";
+import { debounce, slice } from "lodash-es";
+import { CSSProperties } from "react";
+import { render } from "react-dom";
+import { HintRequest, HintResponse } from "./types";
 
-console.log(11111111)
+console.log(11111111);
 
 const toStyleText = (obj: { [key: string]: string | number }) => {
   return Object.entries(obj)
     .map(([k, v]) => `${k}:${v}`)
-    .join(';')
-}
+    .join(";");
+};
 
 const getFontParams = (fontDom: HTMLElement) => {
-  const testDom = document.createElement('span')
-  testDom.innerText = '0'
-  fontDom.appendChild(testDom)
+  const testDom = document.createElement("span");
+  testDom.innerText = "0";
+  fontDom.appendChild(testDom);
 
-  const style = getComputedStyle(testDom)
+  const style = getComputedStyle(testDom);
   const result = {
     width: testDom.getBoundingClientRect().width,
-    family: style.fontFamily || 'monospace',
-  }
+    family: style.fontFamily || "monospace",
+  };
 
-  testDom.remove()
-  return result
-}
+  testDom.remove();
+  return result;
+};
 
 const getOffsetTop = (e: HTMLElement): number => {
   if (!e) {
-    return 0
+    return 0;
   }
-  const parent = e.offsetParent as HTMLElement
-  return e.offsetTop + getOffsetTop(parent)
-}
+  const parent = e.offsetParent as HTMLElement;
+  return e.offsetTop + getOffsetTop(parent);
+};
 
 interface RenderRequest {
-  selector: string
-  fontSelector: string
-  paddingLeft: number
-  paddingTop: number
-  getFileName(container: HTMLElement): string
-  getCode(container: HTMLElement): Promise<string>
+  selector: string;
+  fontSelector: string;
+  paddingLeft: number;
+  paddingTop: number;
+  getFileName(container: HTMLElement): string;
+  getCode(container: HTMLElement): Promise<string>;
 }
 
 const requests: RenderRequest[] = [
   // github, gist
   {
-    selector: '.blob-wrapper table',
-    fontSelector: '.blob-wrapper .blob-code',
+    selector: ".blob-wrapper table",
+    fontSelector: ".blob-wrapper .blob-code",
     paddingLeft: 60,
     paddingTop: 0,
     getFileName(container) {
-      const parent = container.parentElement?.parentElement
-      if (!parent) return '' // TODO:
+      const parent = container.parentElement?.parentElement;
+      if (!parent) return ""; // TODO:
       const rawPath = (
-        $('#raw-url', parent) ?? // github
-        $('.file-actions a', parent)
+        $("#raw-url", parent) // github
+          ?? $(".file-actions a", parent)
       ) // gist
-        ?.getAttribute('href')
-      return rawPath ?? ''
+        ?.getAttribute("href");
+      return rawPath ?? "";
     },
     async getCode(container) {
-      return $$('tr>td:nth-child(2)', container).reduce((code, el) => {
-        const line = el.innerText.replaceAll('\n', '') // empty line has an extra '\n', remove it
-        return code + line + '\n'
-      }, '')
+      return $$("tr>td:nth-child(2)", container).reduce((code, el) => {
+        const line = el.innerText.replaceAll("\n", ""); // empty line has an extra '\n', remove it
+        return code + line + "\n";
+      }, "");
     },
   },
   // gitlab, gitlab snippets
   {
-    selector: '.blob-content code',
-    fontSelector: '.line',
+    selector: ".blob-content code",
+    fontSelector: ".line",
     paddingLeft: 10,
     paddingTop: 0,
     getFileName(container) {
-      const parent = container.closest<HTMLElement>('.file-holder')
-      if (!parent) return '' // TODO:
-      const rawPath = $('[title="Open raw"]', parent)?.getAttribute('href')
-      return rawPath ?? ''
+      const parent = container.closest<HTMLElement>(".file-holder");
+      if (!parent) return ""; // TODO:
+      const rawPath = $("[title=\"Open raw\"]", parent)?.getAttribute("href");
+      return rawPath ?? "";
     },
     async getCode(container) {
-      return $$('.line', container).reduce((code, el) => {
-        const line = el.innerText.replaceAll('\n', '') // empty line has an extra '\n', remove it
-        return code + line + '\n'
-      }, '')
+      return $$(".line", container).reduce((code, el) => {
+        const line = el.innerText.replaceAll("\n", ""); // empty line has an extra '\n', remove it
+        return code + line + "\n";
+      }, "");
     },
   },
   // bitbucket
   {
-    selector: '.view-lines',
-    fontSelector: '.view-line',
+    selector: ".view-lines",
+    fontSelector: ".view-line",
     paddingLeft: 0,
     paddingTop: 0,
     getFileName(container) {
-      return location.host + location.pathname
+      return location.host + location.pathname;
     },
     async getCode(container) {
-      const res = await fetch(location.href.replace('/src/', '/raw/'))
-      return res.text()
+      const res = await fetch(location.href.replace("/src/", "/raw/"));
+      return res.text();
     },
   },
   // bitbucket snippets
   {
-    selector: '.bb-content-container .code pre',
-    fontSelector: 'span',
+    selector: ".bb-content-container .code pre",
+    fontSelector: "span",
     paddingLeft: 0,
     paddingTop: 0,
     getFileName(container) {
-      const parent = container.closest<HTMLElement>('.bb-content-container')
-      if (!parent) return '' // TODO:
-      const rawPath = $('.bb-content-container-header-secondary a', parent)?.getAttribute('href')
-      return rawPath ?? ''
+      const parent = container.closest<HTMLElement>(".bb-content-container");
+      if (!parent) return ""; // TODO:
+      const rawPath = $(".bb-content-container-header-secondary a", parent)?.getAttribute("href");
+      return rawPath ?? "";
     },
     async getCode(container) {
-      return container.innerText
+      return container.innerText;
     },
   },
-]
+];
 
 // const BitbucketRenderer: RendererParams = {
 //   getContainer: () => $('.view-lines'),
@@ -136,17 +136,17 @@ const requests: RenderRequest[] = [
 // let prevContainer: Element | null
 
 interface InitProps {
-  $background: HTMLElement
-  fontWidth: number
-  fontFamily: string
-  fileName: string
-  code: string
-  lineHeight: number
-  tabSize: number
-  offsetTop: number
+  $background: HTMLElement;
+  fontWidth: number;
+  fontFamily: string;
+  fileName: string;
+  code: string;
+  lineHeight: number;
+  tabSize: number;
+  offsetTop: number;
 }
 
-const initPropsMap = new WeakMap<HTMLElement, InitProps>()
+const initPropsMap = new WeakMap<HTMLElement, InitProps>();
 
 /**
  * Principles:
@@ -187,47 +187,47 @@ const initPropsMap = new WeakMap<HTMLElement, InitProps>()
  * Order: background -> other childrens(including code) -> quickInfo
  */
 const init = async (e: MouseEvent) => {
-  if (!(e.target instanceof HTMLElement)) return
+  if (!(e.target instanceof HTMLElement)) return;
 
   for (const req of requests) {
-    const container = e.target.closest<HTMLElement>(req.selector)
-    if (!container) continue
+    const container = e.target.closest<HTMLElement>(req.selector);
+    if (!container) continue;
 
-    const fontDom = $(req.fontSelector, container)
-    if (!fontDom) continue
+    const fontDom = $(req.fontSelector, container);
+    if (!fontDom) continue;
 
     if (!initPropsMap.has(container) || !document.contains(container)) {
       // reset response
-      response = {}
+      response = {};
 
-      console.log('container:', container)
+      console.log("container:", container);
 
-      const tabSize = parseInt(getComputedStyle(fontDom).getPropertyValue('tab-size'), 10) || 8 // TODO: Firefox
+      const tabSize = parseInt(getComputedStyle(fontDom).getPropertyValue("tab-size"), 10) || 8; // TODO: Firefox
 
       // Get font width and family
-      const fontParams = getFontParams(fontDom)
+      const fontParams = getFontParams(fontDom);
 
       // TODO: This is pretty tricky for making GitLab and Bitbucket work
       // if (beforeRender) beforeRender()
 
-      const containerRect = container.getBoundingClientRect()
-      const wrapperWidth = `${containerRect.width - req.paddingLeft - 10}px`
+      const containerRect = container.getBoundingClientRect();
+      const wrapperWidth = `${containerRect.width - req.paddingLeft - 10}px`;
 
-      const $background = document.createElement('div')
+      const $background = document.createElement("div");
       $background.setAttribute(
-        'style',
+        "style",
         toStyleText({
-          position: 'relative',
+          position: "relative",
           // zIndex: -1, // Set z-index to -1 makes GitLab occurrence not show
-          top: req.paddingTop + 'px',
-          left: req.paddingLeft + 'px',
+          top: req.paddingTop + "px",
+          left: req.paddingLeft + "px",
           width: wrapperWidth,
-        })
-      )
+        }),
+      );
 
-      container.parentElement?.insertBefore($background, container)
+      container.parentElement?.insertBefore($background, container);
 
-      const lineHeight = fontDom.getBoundingClientRect().height
+      const lineHeight = fontDom.getBoundingClientRect().height;
 
       initPropsMap.set(container, {
         $background,
@@ -238,76 +238,76 @@ const init = async (e: MouseEvent) => {
         lineHeight,
         tabSize,
         offsetTop: getOffsetTop(container) + req.paddingTop,
-      })
+      });
     }
 
-    return initPropsMap.get(container)
+    return initPropsMap.get(container);
   }
-}
+};
 
 const $ = (selector: string, wrapper: HTMLElement = document.body) => {
-  return wrapper.querySelector<HTMLElement>(selector)
-}
+  return wrapper.querySelector<HTMLElement>(selector);
+};
 const $$ = (selector: string, wrapper: HTMLElement = document.body) => {
-  return slice(wrapper.querySelectorAll<HTMLElement>(selector))
-}
+  return slice(wrapper.querySelectorAll<HTMLElement>(selector));
+};
 
 const sendMessage = async (req: HintRequest) => {
-  console.log('req', req)
+  console.log("req", req);
 
   return new Promise<HintResponse>((resolve) => {
     chrome.runtime.sendMessage(req, (response) => {
-      console.log('res', response)
-      resolve(response)
-    })
-  })
-}
+      console.log("res", response);
+      resolve(response);
+    });
+  });
+};
 
 const getPosition = (e: MouseEvent, lineHeight: number, fontWidth: number, $background: HTMLElement) => {
-  const rect = $background.getBoundingClientRect()
+  const rect = $background.getBoundingClientRect();
 
   // must be integers
-  const line = Math.floor((e.clientY - rect.top) / lineHeight)
-  const character = Math.floor((e.clientX - rect.left) / fontWidth)
+  const line = Math.floor((e.clientY - rect.top) / lineHeight);
+  const character = Math.floor((e.clientX - rect.left) / fontWidth);
 
   if (line > 0 && character > 0) {
-    return { line, character }
+    return { line, character };
   }
-}
+};
 
-const isMacOS = /Mac OS X/i.test(navigator.userAgent)
+const isMacOS = /Mac OS X/i.test(navigator.userAgent);
 
 const colors = {
-  quickInfoBg: 'rgba(173,214,255,.3)',
-  occurrenceWrite: 'rgba(14,99,156,.4)',
-  occurrenceRead: 'rgba(173,214,255,.7)',
-}
+  quickInfoBg: "rgba(173,214,255,.3)",
+  occurrenceWrite: "rgba(14,99,156,.4)",
+  occurrenceRead: "rgba(173,214,255,.7)",
+};
 
 function getColorFromKind(kind: string) {
   switch (kind) {
     // ts
-    case 'keyword':
-      return '#00f'
-    case 'punctuation':
-      return '#000'
+    case "keyword":
+      return "#00f";
+    case "punctuation":
+      return "#000";
 
     // css
-    case 'plaintext':
-      return '#00f'
+    case "plaintext":
+      return "#00f";
 
     default:
-      return '#001080'
+      return "#001080";
   }
 }
 
-let response: HintResponse = {}
+let response: HintResponse = {};
 
 const handleResponse = (res: HintResponse, props: InitProps) => {
-  response = { ...response, ...res }
-  const { definition, occurrences, quickInfo } = response
+  response = { ...response, ...res };
+  const { definition, occurrences, quickInfo } = response;
 
   if (definition) {
-    window.scrollTo(0, props.offsetTop + definition.line * props.lineHeight - 80) // TODO: magic number
+    window.scrollTo(0, props.offsetTop + definition.line * props.lineHeight - 80); // TODO: magic number
   }
 
   render(
@@ -315,7 +315,7 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
       {occurrences?.map((occurrence) => (
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             background: occurrence.isWriteAccess ? colors.occurrenceWrite : colors.occurrenceRead,
             width: occurrence.width * props.fontWidth,
             height: props.lineHeight,
@@ -327,7 +327,7 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
       {quickInfo && (
         <div
           style={{
-            position: 'absolute',
+            position: "absolute",
             background: colors.quickInfoBg,
             // lineHeight: '20px',
             top: quickInfo.range.line * props.lineHeight,
@@ -341,9 +341,9 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
         <div
           style={{
             zIndex: 1,
-            whiteSpace: 'pre-wrap',
-            position: 'absolute',
-            backgroundColor: '#efeff2',
+            whiteSpace: "pre-wrap",
+            position: "absolute",
+            backgroundColor: "#efeff2",
             border: `1px solid #c8c8c8`,
             fontSize: 12,
             padding: `2px 4px`,
@@ -351,8 +351,8 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
             left: quickInfo.range.character * props.fontWidth,
             maxWidth: 500,
             maxHeight: 300,
-            overflow: 'auto',
-            wordBreak: 'break-all',
+            overflow: "auto",
+            wordBreak: "break-all",
             ...(() => {
               // TODO: Fix https://github.com/Microsoft/TypeScript/blob/master/Gulpfile.ts
               // TODO: Show info according to height
@@ -360,98 +360,98 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
               // For line 0 and 1, show info below, this is tricky
               // To support horizontal scroll, our root DOM must be inside $('.blob-wrapper')
               // So quick info can't show outside $('.blob-wrapper')
-              const positionStyle: CSSProperties = {}
+              const positionStyle: CSSProperties = {};
               if (quickInfo.range.line < 2) {
-                positionStyle.top = (quickInfo.range.line + 1) * props.lineHeight
+                positionStyle.top = (quickInfo.range.line + 1) * props.lineHeight;
               } else {
-                positionStyle.bottom = 0 - quickInfo.range.line * props.lineHeight
+                positionStyle.bottom = 0 - quickInfo.range.line * props.lineHeight;
               }
 
-              return positionStyle
+              return positionStyle;
             })(),
           }}
         >
           {
-            typeof quickInfo.info === 'string'
-              ? quickInfo.info.replace(/\\/g, '')
+            typeof quickInfo.info === "string"
+              ? quickInfo.info.replace(/\\/g, "")
               : quickInfo.info.map((part) => {
-                  if (part.text === '\n') {
-                    return <br />
-                  }
-                  // css
-                  if (part.kind === 'markdown') {
-                    return <Viewer value={part.text} /> // TODO: styles
-                  }
-                  return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>
-                })
+                if (part.text === "\n") {
+                  return <br />;
+                }
+                // css
+                if (part.kind === "markdown") {
+                  return <Viewer value={part.text} />; // TODO: styles
+                }
+                return <span style={{ color: getColorFromKind(part.kind) }}>{part.text}</span>;
+              })
 
             // JSON.parse(`"${info}"`)
           }
         </div>
       )}
     </>,
-    props.$background
-  )
-}
+    props.$background,
+  );
+};
 
 // click: show occurrences
 // if meta key is pressed, also show definition and scroll to it
-document.addEventListener('click', async (e) => {
-  const initProps = await init(e)
-  if (!initProps) return
+document.addEventListener("click", async (e) => {
+  const initProps = await init(e);
+  if (!initProps) return;
 
-  console.log('click', e)
+  console.log("click", e);
 
-  const position = getPosition(e, initProps.lineHeight, initProps.fontWidth, initProps.$background)
-  if (!position) return
+  const position = getPosition(e, initProps.lineHeight, initProps.fontWidth, initProps.$background);
+  if (!position) return;
 
   const res = await sendMessage({
-    type: 'click',
+    type: "click",
     file: initProps.fileName,
     meta: isMacOS ? e.metaKey : e.ctrlKey,
     code: initProps.code,
     tabSize: initProps.tabSize,
     ...position,
-  })
-  handleResponse(res, initProps)
+  });
+  handleResponse(res, initProps);
 
   // TODO: Exclude click event triggered by selecting text
   // https://stackoverflow.com/questions/10390010/jquery-click-is-triggering-when-selecting-highlighting-text
   // if (window.getSelection().toString()) {
   //   return
   // }
-})
+});
 
 // mousemove: show quick info on stop
 document.addEventListener(
-  'mousemove',
+  "mousemove",
   debounce(async (e: MouseEvent) => {
-    const initProps = await init(e)
-    if (!initProps) return
+    const initProps = await init(e);
+    if (!initProps) return;
 
     // console.log('mousemove', e)
-    const position = getPosition(e, initProps.lineHeight, initProps.fontWidth, initProps.$background)
-    if (!position) return
+    const position = getPosition(e, initProps.lineHeight, initProps.fontWidth, initProps.$background);
+    if (!position) return;
 
     const res = await sendMessage({
-      type: 'hover',
+      type: "hover",
       file: initProps.fileName,
       code: initProps.code,
       tabSize: initProps.tabSize,
       ...position,
-    })
-    handleResponse(res, initProps)
-  }, 300)
-)
+    });
+    handleResponse(res, initProps);
+  }, 300),
+);
 
 // mouseout: hide quick info on leave
-document.addEventListener('mouseout', async (e) => {
-  const initProps = await init(e)
-  if (!initProps) return
+document.addEventListener("mouseout", async (e) => {
+  const initProps = await init(e);
+  if (!initProps) return;
 
   // console.log('mouseout', e)
-  handleResponse({ quickInfo: undefined }, initProps)
-})
+  handleResponse({ quickInfo: undefined }, initProps);
+});
 
 // GitLab
 // FIXME: Use `document.documentElement` may cause problems when DOM added by other extensions

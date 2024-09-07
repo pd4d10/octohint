@@ -15,10 +15,10 @@ export default defineConfig({
         "description": "IntelliSense hint for GitHub",
         "homepage_url": "https://github.com/pd4d10/octohint",
         "icons": {
-          "128": "icons/logo.png"
+          "128": "icons/logo.png",
         },
         "background": {
-          service_worker: 'src/background.ts',
+          service_worker: "src/background.ts",
         },
         "host_permissions": ["https://*/"],
         "content_scripts": [
@@ -27,14 +27,14 @@ export default defineConfig({
               "https://github.com/*",
               "https://gist.github.com/*",
               "https://gitlab.com/*",
-              "https://bitbucket.org/*"
+              "https://bitbucket.org/*",
             ],
-            "js": ["src/content-script.tsx"]
-          }
+            "js": ["src/content-script.tsx"],
+          },
         ],
         "options_ui": {
-          "page": "options.html"
-        }
+          "page": "options.html",
+        },
       },
     }),
     viteStaticCopy({ targets: [{ src: "../LICENSE", dest: "." }] }),

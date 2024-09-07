@@ -7,7 +7,6 @@
     "dev": "vite",
     "build": "vite build",
     "package": "cp LICENSE chrome/ && cd chrome/ && zip --exclude .DS_Store -r ../chrome.zip *",
-    "lint": "npx prettier --list-different src/**/*.{ts,tsx}",
     "icon": "rm -rf chrome/icons/*; node scripts/generate-icons"
   },
   "devDependencies": {

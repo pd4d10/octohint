@@ -1,65 +1,65 @@
-import { getCSSLanguageService, getLESSLanguageService, getSCSSLanguageService } from 'vscode-css-languageservice'
-import { createDefaultMapFromCDN, createSystem, createVirtualTypeScriptEnvironment } from '@typescript/vfs'
-import { TsService } from './services/typescript'
-import { BaseService } from './services/base'
-import { HintRequest, HintResponse } from './types'
-import { CssService } from './services/css'
-import SimpleService from './services/simple'
-import ts from 'typescript'
-import path from 'path'
+import { createDefaultMapFromCDN, createSystem, createVirtualTypeScriptEnvironment } from "@typescript/vfs";
+import path from "path";
+import ts from "typescript";
+import { getCSSLanguageService, getLESSLanguageService, getSCSSLanguageService } from "vscode-css-languageservice";
+import { BaseService } from "./services/base";
+import { CssService } from "./services/css";
+import SimpleService from "./services/simple";
+import { TsService } from "./services/typescript";
+import { HintRequest, HintResponse } from "./types";
 
-let tsService: TsService | undefined
+let tsService: TsService | undefined;
 const compilerOptions: ts.CompilerOptions = {
   target: ts.ScriptTarget.ES2020, // TODO: latest, and node.js libs
   allowJs: true,
-}
+};
 
 // init ts service, async
 createDefaultMapFromCDN(compilerOptions, ts.version, false, ts).then((files) => {
-  const system = createSystem(files)
-  const env = createVirtualTypeScriptEnvironment(system, [], ts, compilerOptions)
-  tsService = new TsService(system, env)
-})
+  const system = createSystem(files);
+  const env = createVirtualTypeScriptEnvironment(system, [], ts, compilerOptions);
+  tsService = new TsService(system, env);
+});
 
-const serviceMap = new Map<string, BaseService>()
+const serviceMap = new Map<string, BaseService>();
 
 function handleRequest(req: HintRequest): HintResponse {
-  let service: BaseService | undefined
-  const ext = path.extname(req.file).slice(1)
+  let service: BaseService | undefined;
+  const ext = path.extname(req.file).slice(1);
 
-  if (['ts', 'tsx', 'js', 'jsx'].includes(ext)) {
+  if (["ts", "tsx", "js", "jsx"].includes(ext)) {
     // TODO: mjs, cjs
-    tsService?.addFile(req) // async
-    service = tsService
+    tsService?.addFile(req); // async
+    service = tsService;
   } else {
     if (!serviceMap.has(req.file)) {
-      if (ext === 'less') {
-        service = new CssService(getLESSLanguageService(), req.file, ext, req.code)
-      } else if (ext === 'scss') {
-        service = new CssService(getSCSSLanguageService(), req.file, ext, req.code)
-      } else if (ext === 'css') {
-        service = new CssService(getCSSLanguageService(), req.file, ext, req.code)
+      if (ext === "less") {
+        service = new CssService(getLESSLanguageService(), req.file, ext, req.code);
+      } else if (ext === "scss") {
+        service = new CssService(getSCSSLanguageService(), req.file, ext, req.code);
+      } else if (ext === "css") {
+        service = new CssService(getCSSLanguageService(), req.file, ext, req.code);
       } else {
-        service = new SimpleService(req.code)
+        service = new SimpleService(req.code);
       }
 
-      serviceMap.set(req.file, service)
+      serviceMap.set(req.file, service);
     }
 
-    service = serviceMap.get(req.file)
+    service = serviceMap.get(req.file);
   }
 
-  if (req.type === 'click') {
+  if (req.type === "click") {
     return {
       occurrences: service?.getOccurrences(req),
       definition: req.meta ? service?.getDefinition(req) : undefined,
-    }
-  } else if (req.type === 'hover') {
+    };
+  } else if (req.type === "hover") {
     return {
       quickInfo: service?.getQuickInfo(req),
-    }
+    };
   } else {
-    return {}
+    return {};
     // chrome.browserAction.setIcon({
     //   path: 'icon.png',
     // })
@@ -76,7 +76,7 @@ function handleRequest(req: HintRequest): HintResponse {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // console.log('runtime.onMessage', message, sender)
   // if (sender.tab?.id) {
-  const res = handleRequest(message)
-  sendResponse(res)
+  const res = handleRequest(message);
+  sendResponse(res);
   // }
-})
+});

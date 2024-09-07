@@ -1,3 +1,3 @@
-declare module 'github-injection' {
-  export default function inject(cb: () => void): void
+declare module "github-injection" {
+  export default function inject(cb: () => void): void;
 }

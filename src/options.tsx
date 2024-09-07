@@ -1,44 +1,45 @@
-import { useState, useEffect, FC } from 'react'
-import { render } from 'react-dom'
+import { FC, useEffect, useState } from "react";
+import { render } from "react-dom";
 
 const builtInPermissions = [
-  'https://bitbucket.org/*',
-  'https://gist.github.com/*',
-  'https://gitlab.com/*',
-  'https://github.com/*',
-]
+  "https://bitbucket.org/*",
+  "https://gist.github.com/*",
+  "https://gitlab.com/*",
+  "https://github.com/*",
+];
 
 const Options: FC = () => {
-  const [origins, setOrigins] = useState<string[]>([])
-  const [temp, setTemp] = useState('')
+  const [origins, setOrigins] = useState<string[]>([]);
+  const [temp, setTemp] = useState("");
 
   useEffect(() => {
     chrome.permissions.getAll(({ origins = [] }) => {
-      setOrigins(origins)
-    })
-  }, [])
+      setOrigins(origins);
+    });
+  }, []);
 
   return (
-    <div style={{ lineHeight: '1.8' }}>
+    <div style={{ lineHeight: "1.8" }}>
       <form
         onSubmit={(e) => {
-          e.preventDefault()
+          e.preventDefault();
           if (!temp) {
-            alert('fail')
-            return
+            alert("fail");
+            return;
           }
           chrome.permissions.request({ origins: [temp] }, (granted) => {
             if (granted) {
               chrome.permissions.getAll(({ origins = [] }) => {
-                setOrigins(origins)
-                setTemp('')
-              })
+                setOrigins(origins);
+                setTemp("");
+              });
             }
-          })
+          });
         }}
       >
         <p>
-          Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a different site. If it doesn't work, see{' '}
+          Add permissions here if your GitHub/Gitlab/Bitbucket is hosted on a different site. If it doesn't work, see
+          {" "}
           <a target="_blank" href="https://developer.chrome.com/extensions/match_patterns">
             Match Patterns
           </a>
@@ -49,11 +50,11 @@ const Options: FC = () => {
             <tr>
               <td>
                 <input
-                  style={{ minWidth: '200px' }}
+                  style={{ minWidth: "200px" }}
                   type="text"
                   value={temp}
                   onChange={(e) => {
-                    setTemp((e.target as HTMLInputElement).value)
+                    setTemp((e.target as HTMLInputElement).value);
                   }}
                   placeholder="https://www.example.com/*"
                 />
@@ -64,7 +65,7 @@ const Options: FC = () => {
             </tr>
             {origins.map((item) => (
               <tr key={item}>
-                <td style={{ minWidth: '220px' }}>{item}</td>
+                <td style={{ minWidth: "220px" }}>{item}</td>
                 <td>
                   {builtInPermissions.includes(item) || (
                     <a
@@ -73,10 +74,10 @@ const Options: FC = () => {
                         chrome.permissions.remove({ origins: [item] }, (removed) => {
                           if (removed) {
                             chrome.permissions.getAll(({ origins = [] }) => {
-                              setOrigins(origins)
-                            })
+                              setOrigins(origins);
+                            });
                           }
-                        })
+                        });
                       }}
                     >
                       Remove
@@ -99,9 +100,9 @@ const Options: FC = () => {
         </a>
       </footer>
     </div>
-  )
-}
+  );
+};
 
-const container = document.createElement('div')
-document.body.appendChild(container)
-render(<Options />, container)
+const container = document.createElement("div");
+document.body.appendChild(container);
+render(<Options />, container);
