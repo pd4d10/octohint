@@ -12,17 +12,17 @@
   "devDependencies": {
     "@bytemd/react": "^1.10.13",
     "@crxjs/vite-plugin": "^1.0.14",
-    "@types/chrome": "^0.0.157",
+    "@types/chrome": "^0.0.270",
     "@types/lodash-es": "^4.17.5",
-    "@types/node": "^16.9.1",
+    "@types/node": "^22.5.4",
     "@typescript/vfs": "^1.3.5",
     "@vitejs/plugin-react": "^4.3.1",
     "lodash-es": "^4.17.21",
     "path-browserify": "^1.0.1",
-    "typescript": "4.2.2",
+    "typescript": "5.5.4",
     "vite": "^5.4.3",
     "vite-plugin-static-copy": "^1.0.6",
-    "vscode-css-languageservice": "^5.1.5"
+    "vscode-css-languageservice": "^6.3.1"
   },
   "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1",
   "dependencies": {
