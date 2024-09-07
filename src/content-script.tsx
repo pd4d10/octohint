@@ -1,7 +1,7 @@
 import { Viewer } from "@bytemd/react";
 import { debounce, slice } from "lodash-es";
 import { CSSProperties } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import { HintRequest, HintResponse } from "./types";
 
 console.log(11111111);
@@ -301,6 +301,7 @@ function getColorFromKind(kind: string) {
 }
 
 let response: HintResponse = {};
+let root: Root;
 
 const handleResponse = (res: HintResponse, props: InitProps) => {
   response = { ...response, ...res };
@@ -310,7 +311,9 @@ const handleResponse = (res: HintResponse, props: InitProps) => {
     window.scrollTo(0, props.offsetTop + definition.line * props.lineHeight - 80); // TODO: magic number
   }
 
-  createRoot(props.$background).render(
+  if (!root) root = createRoot(props.$background);
+
+  root.render(
     <>
       {occurrences?.map((occurrence) => (
         <div
