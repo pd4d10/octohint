@@ -4,7 +4,10 @@ import { defineConfig } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import pkg from "./package.json";
 
-export default defineConfig({
+export default defineConfig((env) => ({
+  esbuild: {
+    drop: env.command === "build" ? ["console", "debugger"] : [],
+  },
   plugins: [
     react(),
     crx({
@@ -39,4 +42,4 @@ export default defineConfig({
     }),
     viteStaticCopy({ targets: [{ src: "../LICENSE", dest: "." }] }),
   ],
-});
+}));
