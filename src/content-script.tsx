@@ -260,7 +260,16 @@ const init = async (e: MouseEvent, isClick = false) => {
       });
     }
 
-    return initPropsMap.get(container);
+    const props = initPropsMap.get(container);
+    if (props) {
+      return {
+        ...props,
+
+        // refresh file name and code, for browser router case (github)
+        fileName: req.getFileName(container),
+        code: await req.getCode(container),
+      };
+    }
   }
 };
 
